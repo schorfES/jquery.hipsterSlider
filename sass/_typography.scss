@@ -1,0 +1,41 @@
+body {
+	color: #ffffff;
+	font-family: Verdana, Arial, sans-serif;
+}
+
+h1, h2, h3 {
+	padding: 10px 0;
+	font-size: 15px;
+}
+
+h1 {
+	font-weight: bold;
+}
+
+h2 {
+	padding: 35px 0 10px 0;
+	
+	font-weight: bold;
+	font-style: italic;
+	
+	/* @include text-shadow(#711ac3 3px 3px 5px); */
+}
+
+p {
+	padding: 4px 0;
+	line-height:130%;
+	font-size: 13px;
+	
+	strong {
+		color: $color-highlight;
+		font-family: monospace;
+		font-weight: bold;
+	}
+}
+
+.code {
+	padding: 5px;
+
+	font-family: monospace;
+	background-color: #777777;
+}

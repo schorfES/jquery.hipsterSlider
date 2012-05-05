@@ -1,0 +1,80 @@
+$slider-pager-size: 15px;
+$slider-button-size: 30px;
+
+.slider-display {
+	@extend .shadow;
+
+	background-color: #ffffff;
+}
+
+.slider {
+	position: relative;
+
+	li {
+		width: 800px;
+		height: 200px;
+	}
+	
+	.pager-buttons {
+		position: absolute;
+		bottom: 15px;
+		width: 100%;
+		height: $slider-pager-size;
+		
+		text-align: center;
+	}
+	
+	.pager-button {
+		@include inline-block();
+		margin: 0 3px;
+		width: $slider-pager-size;
+		height: $slider-pager-size;
+		
+		a {
+			display: block;
+			overflow: hidden;
+				
+			width: $slider-pager-size;
+			height: $slider-pager-size;
+			
+			text-indent: -999px;
+			
+			background-image: url("../img/slider-pager.png");
+			background-repeat: no-repeat;
+			background-position: left top;
+		}
+		
+		&.selected a {
+			background-position: right top;
+		}
+	}
+	
+	.slider-button {
+		position: absolute;
+		overflow: hidden;
+		display: block;
+		top: (200px - $slider-button-size) / 2;
+		width: $slider-button-size;
+		height: $slider-button-size;
+		
+		text-indent: -999px;
+		
+		background-image: url("../img/slider-button.png");
+		
+		&.previous {
+			left: 10px;
+			background-position: left top;
+			&:hover { 
+				background-position: left bottom; 
+			}
+		}
+		
+		&.next {
+			right: 10px;
+			background-position: right top;
+			&:hover { 
+				background-position: right bottom;
+			}
+		}
+	}
+}

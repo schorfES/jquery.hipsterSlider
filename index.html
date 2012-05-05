@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7]>	<html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8]>	<html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="en">
+<!--<![endif]-->
+	<head>
+		<meta charset="utf-8" />
+		<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" />
+		<title>jquery.slider Documentation</title>
+		<meta content="An other jQuery Slider, the documentation" name="description" />
+		<meta content="Norman Rusch" name="author" />
+		<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+		
+		<script type="text/javascript" src="js/libs/modernizr.min.js"></script>
+		
+		<link href="css/styles.css" media="all" rel="stylesheet" />
+	</head>
+	<body>
+		
+		<header>
+			<h1>jquery.slider <span>Documentation & Demonstration</span></h1>
+		</header>
+		
+		<article role="main" class="content">
+			<section>
+				<h1>Options / Settings</h1>
+			</section>
+		
+			<section>
+				<h1>Demonstartion</h1>
+				
+				<h2>Default initialization</h2>
+				<div class="slider">
+					<ul>
+						<li><img src="http://lorempixel.com/800/200/abstract/6" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/3" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/7" alt="" /></li>
+					</ul>
+				</div>
+				
+				<p>
+					To initialize the slider just call the jquery-plugin on an selected 
+					<strong>ul</strong>-element. As you can see below, the function did't have any options. 
+					That's the reason why there is no visible activity at the slider.
+				</p>
+			
+				<div class="code">
+					$('.slider ul').slider();
+				</div>
+				
+				
+				<h2>Autoplay & infinite</h2>
+				<div class="slider">
+					<ul class="autoplay infinite">
+						<li><img src="http://lorempixel.com/800/200/abstract/6" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/3" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/7" alt="" /></li>
+					</ul>
+				</div>
+				
+				<p>
+					If you set the option <strong>autoplay</strong> to <strong>true</strong>.
+					the slideshow automaticly starts to play. This often makes sense to use 
+					also the option <strong>infinite</strong> to <strong>true</strong>. When
+					<strong>infinite</strong> is not set, the autoplay-feature stops at the 
+					end of all slides.
+				</p>
+				
+				<div class="code">
+					$('.slider ul').slider({<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;infinite: true,<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;autoplay: true<br />
+					});
+				</div>
+				
+				<h2>Orientation & Direction</h2>
+				<div class="slider">
+					<ul class="autoplay infinite vertical">
+						<li><img src="http://lorempixel.com/800/200/abstract/6" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/3" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/7" alt="" /></li>
+					</ul>
+				</div>
+				<div class="slider">
+					<ul class="autoplay infinite vertical backward">
+						<li><img src="http://lorempixel.com/800/200/abstract/6" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/3" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/7" alt="" /></li>
+					</ul>
+				</div>
+				
+				<p>
+					The slider provides the feature to slide the slides horizontally and vertically.
+					This feature is set with the option <strong>orientation</strong>. By default the 
+					value <strong>'horizontal'</strong> is set. To apply the vertically mode set the
+					value to <strong>'horizontal'</strong>.
+				</p>
+				<p>
+					Both values can also be set by the variables <strong>$.slider.HORIZONTAL</strong>
+					and <strong>$.slider.VERTICAL</strong>.
+				</p>
+				<p>
+					To set the direction of the autoplay animation, you can set the 
+					<strong>autoplayDirection</strong> option to <strong>1</strong> or 
+					<strong>-1</strong>. The default value is <strong>1</strong>. You can also
+					set the value by the variables <strong>$.slider.FORWARD</strong> and 
+					<strong>$.slider.BACKWARD</strong>.
+				</p>
+				
+				<div class="code">
+					$('.slider ul').slider({<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;infinite: true,<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;autoplay: true,<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;autoplayDirection: $.slider.BACKWARD,<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;orientation: $.slider.VERTICAL<br />
+					});
+				</div>
+				
+				<h2>Controls</h2>
+				<div class="slider">
+					<ul class="infinite buttons pager">
+						<li><img src="http://lorempixel.com/800/200/abstract/6" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/3" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/7" alt="" /></li>
+					</ul>
+				</div>
+				
+				<div class="code">
+					$('.slider ul').slider({<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;infinite: true,<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;buttons: true,<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;pager: true<br />
+					});
+				</div>
+				
+			</section>
+		</div>
+		
+	
+		<script src="http://code.jquery.com/jquery-1.7.2.js"></script>
+		<script type="text/javascript" src="js/jquery.slider.js"></script>
+		<script>
+			$(document).ready( function() {
+				var slider;
+				$('.slider ul').each( function() {
+					slider = $(this);
+					slider.slider({
+						autoplay: slider.hasClass('autoplay'),
+						infinite: slider.hasClass('infinite'),
+						orientation: slider.hasClass('vertical') ? $.slider.VERTICAL : $.slider.HORIZONTAL,
+						autoplayDirection: slider.hasClass('backward') ? $.slider.BACKWARD : $.slider.FORWARD,
+						buttons: slider.hasClass('buttons'),
+						pager: slider.hasClass('pager')
+					});
+				});
+			} );
+		</script>
+	</body>
+</html>

@@ -1,7 +1,7 @@
 /** 
  *  jquery.slider.js
  *  
- *  Updates:
+ *  Updates & Changes:
  *  - Release
  *  - Added Autoresize-Feature for Responsive Designs
  *  - Added Touch-Features
@@ -9,6 +9,10 @@
  *	- Bugfix: Touch-features (added missing leave outside event)
  *  - Added Position classes to items
  *	- Bugfix: multiple slideTo-animations triggered by clicking on buttons
+ *  - Added display classname
+ *  - Added constants
+ *	- Renamed option "direction" into "orientation"
+ *  - Added direction feature for autoplay
  *
  *  @author Norman Rusch, norman.rusch@moccu.com / webmaster@grind-it.de
  *  @company Moccu, moccu.com
@@ -16,11 +20,16 @@
 
 ;(function( $ ){
 
-	var DIRECTION_HORIZONTAL = 'horizontal';
-	var DIRECTION_VERTICAL = 'vertical';
+	var ORIENTATION_HORIZONTAL = 'horizontal';
+	var ORIENTATION_VERTICAL = 'vertical';
+	
+	var DIRECTION_FORWARD = 1;
+	var DIRECTION_BACKWARD = -1;
 
 	var defaults = {
-		direction: DIRECTION_HORIZONTAL,
+		orientation: ORIENTATION_HORIZONTAL,
+		
+		displayClass: 'slider-display',				/* defines the classname for the display wrapper */
 		
 		initializeMinItems: true,					/* defines if the slideshow should initialize with the number (or less) of items to display */
 		
@@ -31,6 +40,7 @@
 		
 		itemsToDisplay: 1,
 		itemsToScroll: 1,							/* number of items to scroll */
+		
 		duration: 500,								/* sliding duration */
 		
 		width: undefined,							/* horizontal dimension for for the display (wrapper (overflow hidden)) */
@@ -60,9 +70,10 @@
 		infinite: false,							/* allows unlimited scrolling in both directions */
 		
 		autoplay: false,							/* starts the slideshow automaticly */
-		autoplayPause: 5000,						/* pause between each steps */
+		autoplayPause: 3000,						/* pause between each steps */
 		autoplayDelay: 500,							/* defines the autoplay delay for each slider in a multiple jQuery-selection */
 		autoplayDelayQueued: false,					/* defiens if the autoplay delay sould be queued for each slider in a multiple jQuery-selection */
+		autoplayDirection: DIRECTION_FORWARD,		/* defines the slide direction for autoplay */
 		
 		onUpdate: undefined,						/* a callback-function on each slide change */
 		
@@ -180,7 +191,7 @@
 		var elementTagname = element.get(0).tagName.toLowerCase();
 		if( elementTagname == 'ul' ) {
 		
-			var display = $('<div />');
+			var display = $('<div />').addClass( options.displayClass );
 			var items = element.children();
 
 			if( options.initializeMinItems == false && items.length <= options.itemsToDisplay ) {
@@ -204,8 +215,8 @@
 			options.items = items;
 			options.itemsAll = items;
 			
-			switch( options.direction ) {
-				case DIRECTION_HORIZONTAL:
+			switch( options.orientation ) {
+				case ORIENTATION_HORIZONTAL:
 
 					options.width = options.width || (options.widthItem * options.itemsToDisplay);
 					options.height = options.height || options.heightItem;
@@ -218,7 +229,7 @@
 					
 		
 					break;
-				case DIRECTION_VERTICAL:
+				case ORIENTATION_VERTICAL:
 				
 					options.width = options.width || options.widthItem;
 					options.height = options.height || (options.heightItem * options.itemsToDisplay);
@@ -362,7 +373,7 @@
 				var postCloneIndex = counter;
 				var postClone = options.items.eq(postCloneIndex).clone();
 			
-				var cssFloat = ( options.direction == DIRECTION_HORIZONTAL ) ? 'left' : 'none';
+				var cssFloat = ( options.orientation == ORIENTATION_HORIZONTAL ) ? 'left' : 'none';
 				postClone.css({cssFloat: cssFloat}).addClass('clone post').insertAfter(postItem);	
 				preClone.css({cssFloat: cssFloat}).addClass('clone pre').insertBefore(preItem);	
 						
@@ -384,7 +395,7 @@
 				options.itemsAll = options.itemsAll.add(options.itemsPre).add(options.itemsPost);
 			}
 
-			if( options.direction == DIRECTION_HORIZONTAL ) {
+			if( options.orientation == ORIENTATION_HORIZONTAL ) {
 				element.width( element.width() + options.widthItem * options.itemsToDisplay * 2 );
 			}
 		}
@@ -447,12 +458,12 @@
 				diffX = baseEvent.pageX - startX;
 				diffY = baseEvent.pageY - startY;
 				
-				if( (options.direction == DIRECTION_HORIZONTAL && Math.abs(diffX) > options.touchDirectionTolerance) ||
-					(options.direction == DIRECTION_VERTICAL   && Math.abs(diffY) > options.touchDirectionTolerance) ) {
+				if( (options.orientation == ORIENTATION_HORIZONTAL && Math.abs(diffX) > options.touchDirectionTolerance) ||
+					(options.orientation == ORIENTATION_VERTICAL   && Math.abs(diffY) > options.touchDirectionTolerance) ) {
 					event.preventDefault();
 				}
 				
-				if( options.direction == DIRECTION_HORIZONTAL ) {
+				if( options.orientation == ORIENTATION_HORIZONTAL ) {
 					element.stop().animate({marginLeft: posX + diffX},0.25);
 				} else {
 					element.stop().animate({marginTop: posY + diffY},0.25);
@@ -460,8 +471,8 @@
 			};
 			
 			var onMouseLeave = function(event) {
-				diffAbs = Math.abs( ( options.direction == DIRECTION_HORIZONTAL ) ? diffX : diffY );
-				direction = ( options.direction == DIRECTION_HORIZONTAL ) ? -diffX / diffAbs : -diffY / diffAbs;
+				diffAbs = Math.abs( ( options.orientation == ORIENTATION_HORIZONTAL ) ? diffX : diffY );
+				direction = ( options.orientation == ORIENTATION_HORIZONTAL ) ? -diffX / diffAbs : -diffY / diffAbs;
 					
 				if( diffAbs > options.touchTolerance ) { 
 					slideTo(element, direction ); 
@@ -525,8 +536,8 @@
 				if( options.position > options.numElements - options.itemsToDisplay ) { options.position = options.numElements - options.itemsToDisplay; }
 			}
 			
-			switch( options.direction ) {
-			case DIRECTION_HORIZONTAL:
+			switch( options.orientation ) {
+			case ORIENTATION_HORIZONTAL:
 				if( options.infinite ) { infiniteOffset = options.widthItem * options.itemsToDisplay * -1; }
 				
 				newPosition = options.position * options.widthItem * -1;
@@ -540,7 +551,7 @@
 				}
 				
 				break;
-			case DIRECTION_VERTICAL:
+			case ORIENTATION_VERTICAL:
 				if( options.infinite ) { infiniteOffset = options.heightItem * options.itemsToDisplay * -1; }
 				
 				newPosition = options.position * options.heightItem  * -1;
@@ -678,7 +689,7 @@
 
 	var autoplay = function(element, options) {
 		if( options.autoplay == true ) {
-			slideTo(element, +1);
+			slideTo(element, options.autoplayDirection);
 			setTimeout( function() { autoplay(element, options); }, options.autoplayPause );
 		}
 	};
@@ -688,7 +699,7 @@
 	};
 	
 	var refreshSize = function(options) {
-		if( options.direction == DIRECTION_HORIZONTAL ) {
+		if( options.orientation == ORIENTATION_HORIZONTAL ) {
 			options.width = options.display.parent().width();
 			options.widthItem = options.width;
 			options.element.width(options.width * options.itemsAll.length);
@@ -727,5 +738,15 @@
 			$.error( 'Method ' +  method + ' does not exist on jQuery.tooltip' );
 		}    
   	};
+
+	/* Constants
+	/-------------------------------------------------------------------------*/
+	$.slider = $.slider || {};
+	
+	$.slider.HORIZONTAL = ORIENTATION_HORIZONTAL;
+	$.slider.VERTICAL = ORIENTATION_VERTICAL;
+	
+	$.slider.FORWARD = DIRECTION_FORWARD;
+	$.slider.BACKWARD = DIRECTION_BACKWARD;
 
 })( jQuery );
