@@ -303,7 +303,7 @@
 	
 	var initPager = function(element, options) {
 		if( options.pager ) {
-			var wrapPager = $('<ul class="'+ options.pagerWrapClass +'" />');
+			var wrapPager = $('<ol class="'+ options.pagerWrapClass +'" />');
 			
 			for( var count = 1; count <= options.numElements; count++ ) {
 				var page = $('<li class="'+ options.pagerClass +'"><a href="#">'+ count +'</a></li>');
