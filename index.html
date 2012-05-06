@@ -26,6 +26,67 @@
 		<article role="main" class="content">
 			<section>
 				<h1>Options / Settings</h1>
+				<p class="warning">
+					Attention: The list of all options is currently not fully documentated.
+					For more informations about all options and settings please take a look
+					into the code. All options are commented at the top.
+				</p>
+				
+				<h2>Basic options</h2>
+				<table>
+					<tr>
+						<td class="option">orientation</td>
+						<td class="types">string</td>
+						<td class="default">$.slider.HORIZONTAL</td>
+						<td class="info">sets the slide-orientation. possible values are <strong>$.slider.HORIZONTAL</strong> or <strong>$.slider.VERTICAL</strong>.</td>
+					</tr>
+					
+					<tr>
+						<td class="option">infinite</td>
+						<td class="types">boolean</td>
+						<td class="default">false</td>
+						<td class="info">allows unlimited scrolling in both directions</td>
+					</tr>
+				</table>
+				
+				<h2>Autoplay</h2>
+				<table>
+					<tr>
+						<td class="option">autoplay</td>
+						<td class="types">boolean</td>
+						<td class="default">false</td>
+						<td class="info">starts the slideshow automaticly</td>
+					</tr>
+					
+					<tr>
+						<td class="option">autoplayPause</td>
+						<td class="types">number</td>
+						<td class="default">3000</td>
+						<td class="info">pause between each steps</td>
+					</tr>
+					
+					<tr>
+						<td class="option">autoplayDelay</td>
+						<td class="types">number</td>
+						<td class="default">500</td>
+						<td class="info">defines the autoplay delay for each slider in a multiple jQuery-selection</td>
+					</tr>
+					
+					<tr>
+						<td class="option">autoplayDelayQueued</td>
+						<td class="types">boolean</td>
+						<td class="default">false</td>
+						<td class="info">defines if the autoplay delay sould be queued for each slider in a multiple jQuery-selection</td>
+					</tr>
+					
+					<tr>
+						<td class="option">autoplayDirection</td>
+						<td class="types">number</td>
+						<td class="default">$.slider.FORWARD</td>
+						<td class="info">defines the slide direction for autoplay</td>
+					</tr>
+				</table>
+				
 			</section>
 		
 			<section>
@@ -126,6 +187,20 @@
 						<li><img src="http://lorempixel.com/800/200/abstract/7" alt="" /></li>
 					</ul>
 				</div>
+				
+				<p>
+					The slider provides two types of controls - buttons and pager. The buttons 
+					allows the user to go one step forward or backward inside the slideshow. The 
+					pager creates a navigable, numerated index of all slides as an 
+					<strong>ol</strong>-element. Both features can be activated if the options
+					<strong>buttons</strong> and/or <strong>pager</strong> are set to 
+					<strong>true</strong>.
+				</p>
+				<p>
+					The buttons and pager are fully styleable as you can see in the example above.
+					They have also alot of other additional options for customization. The full
+					list of options is documented above.
+				</p>
 				
 				<div class="code">
 					$('.slider ul').slider({<br />
