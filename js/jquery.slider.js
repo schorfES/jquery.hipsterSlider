@@ -27,7 +27,7 @@
 	var DIRECTION_BACKWARD = -1;
 
 	var defaults = {
-		orientation: ORIENTATION_HORIZONTAL,
+		orientation: ORIENTATION_HORIZONTAL,		/* sets the slide-orientation */
 		
 		displayClass: 'slider-display',				/* defines the classname for the display wrapper */
 		
@@ -72,7 +72,7 @@
 		autoplay: false,							/* starts the slideshow automaticly */
 		autoplayPause: 3000,						/* pause between each steps */
 		autoplayDelay: 500,							/* defines the autoplay delay for each slider in a multiple jQuery-selection */
-		autoplayDelayQueued: false,					/* defiens if the autoplay delay sould be queued for each slider in a multiple jQuery-selection */
+		autoplayDelayQueued: false,					/* defines if the autoplay delay sould be queued for each slider in a multiple jQuery-selection */
 		autoplayDirection: DIRECTION_FORWARD,		/* defines the slide direction for autoplay */
 		
 		onUpdate: undefined,						/* a callback-function on each slide change */
