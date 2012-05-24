@@ -13,9 +13,12 @@
  *  - Added constants
  *	- Renamed option "direction" into "orientation"
  *  - Added direction feature for autoplay
+ *  - Bugfix: autoplay, infinite, pagers and buttons with minimum of items 
+ *    to display shouldn't startup
+ *  - Added renderprefix for translate3D for opera
  *
- *  @author Norman Rusch, norman.rusch@moccu.com / webmaster@grind-it.de
- *  @company Moccu, moccu.com
+ *  @author Norman Rusch (schorfES) , norman.rusch@moccu.com / webmaster@grind-it.de
+ *  @repository GitHub | https://github.com/schorfES/jquery.slider
  */
 
 ;(function( $ ){
@@ -250,6 +253,7 @@
 				.css("overflow","visible")
 				.css("-webkit-transform","translate3d(0,0,0)")
 				.css("-moz-transform","translate3d(0,0,0)")
+				.css("-o-transform","translate3d(0,0,0)")
 				.css("transform","translate3d(0,0,0)");
 				
 			options.display = element.parent();
@@ -263,7 +267,8 @@
 	
 	
 	var initButtons = function(element, options) {
-		if( (options.buttons && options.itemsToDisplay < options.numElements) ) {
+		/* Buttons must be active and there mast be at least more than one page to show */
+		if( (options.buttons && options.numElements - options.itemsToDisplay > 0 ) ) {
 			
 			var prevButton = $('<a href="#" class="'+ options.buttonsClass +' '+ options.buttonPrevClass +'">'+ options.buttonPrevLabel +'</a>');
 			var nextButton = $('<a href="#" class="'+ options.buttonsClass +' '+ options.buttonNextClass +'">'+ options.buttonNextLabel +'</a>');
@@ -298,11 +303,14 @@
 			options.displayButtons = wrapButtons;
 			
 			applyButtons(element, options);
+		} else {
+			options.buttons = false;
 		}
 	};
 	
 	var initPager = function(element, options) {
-		if( options.pager ) {
+		/* Pagers must be active and there mast be at least more than one page to show */
+		if( options.pager && options.numElements - options.itemsToDisplay > 0 ) {
 			var wrapPager = $('<ol class="'+ options.pagerWrapClass +'" />');
 			
 			for( var count = 1; count <= options.numElements; count++ ) {
@@ -323,6 +331,8 @@
 			options.displayPager = wrapPager;
 			
 			applyPaging(element, options);
+		} else {
+			options.pager = false;
 		}
 	};
 	
@@ -352,16 +362,20 @@
 	};
 	
 	var initAutoplay = function(element, options, index) {
-		if( options.autoplay == true ) {
+		/* Autoplay must be active and there mast be at least more than one page to show */
+		if( options.autoplay == true && options.numElements - options.itemsToDisplay > 0 ) {
 			index = (options.autoplayDelayQueued) ? index : 1;
 			setTimeout( function() {
 				autoplay(element, options);
 			}, options.autoplayPause + (index * options.autoplayDelay) );
+		} else {
+			options.autoplay = false;
 		}
 	};
 	
 	var initInfinite = function(element, options) {
-		if( options.infinite ) {
+		/* Infinite must be active and there mast be at least more than one page to show */
+		if( options.infinite && options.numElements - options.itemsToDisplay > 0 ) {
 	
 			var preItem = options.items.eq(0);
 			var postItem = options.items.eq(options.numElements - 1);
@@ -398,6 +412,8 @@
 			if( options.orientation == ORIENTATION_HORIZONTAL ) {
 				element.width( element.width() + options.widthItem * options.itemsToDisplay * 2 );
 			}
+		} else {
+			options.infinite = false;
 		}
 	};
 	
