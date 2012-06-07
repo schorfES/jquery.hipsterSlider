@@ -1,21 +1,5 @@
 /** 
  *  jquery.slider.js
- *  
- *  Updates & Changes:
- *  - Release
- *  - Added Autoresize-Feature for Responsive Designs
- *  - Added Touch-Features
- *  - Added CSS3-3D acceleration for Webkit and Mozilla
- *	- Bugfix: Touch-features (added missing leave outside event)
- *  - Added Position classes to items
- *	- Bugfix: multiple slideTo-animations triggered by clicking on buttons
- *  - Added display classname
- *  - Added constants
- *	- Renamed option "direction" into "orientation"
- *  - Added direction feature for autoplay
- *  - Bugfix: autoplay, infinite, pagers and buttons with minimum of items 
- *    to display shouldn't startup
- *  - Added renderprefix for translate3D for opera
  *
  *  @author Norman Rusch (schorfES) , norman.rusch@moccu.com / webmaster@grind-it.de
  *  @repository GitHub | https://github.com/schorfES/jquery.slider
