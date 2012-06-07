@@ -753,4 +753,64 @@
 	$.slider.FORWARD = DIRECTION_FORWARD;
 	$.slider.BACKWARD = DIRECTION_BACKWARD;
 
+
+
+	/* Browser Feature-Detection
+	/-------------------------------------------------------------------------*/
+	//Renderprefixes:
+	var prefixes = ['-webkit-','-moz-','-o-','-ms-',''];
+
+	//Generic Test-Class:
+	var BrowserTest = function(name, prefixes, property, value, result, equalizeFunction) {
+		this.getName = function() { return name; };
+					
+		this.init = function() {
+			var styleDefinition = "";
+			for(var i = 0; i < prefixes.length; i++) { styleDefinition += prefixes[i] + property +':'+ value +';'; }
+			return styleDefinition;
+		};
+			
+		this.run = function(target) {
+			var 
+				temporaryResult, value,
+				css = document.defaultView.getComputedStyle(target),
+				r = {success: false, prefix: null}
+			;
+							
+			for(var i = 0; i < prefixes.length; i++) {
+				value = css.getPropertyValue(prefixes[i] + property);
+				temporaryResult = (value == result) || (typeof equalizeFunction == 'function' && equalizeFunction(value) == result);
+				if( temporaryResult ) {
+					r.success = true;
+					r.prefix = prefixes[i];
+				}
+			}
+			
+			return r;
+		};
+	};
+
+	//Test Cases:
+	var browserTestCases = [
+		// CSS3 Translate3D:
+		new BrowserTest('translate3d', prefixes, 'transform', 'translate3d(3px,6px,0)', 'matrix(1,0,0,1,3,6)', function(value) { return (value) ? value.replace(/px/g,'').replace(/\s/g,'') : value; })
+	];
+
+	$.slider.browserTest = function() {
+		//General Variables:
+		var style, results = {}, body = document.body;
+		
+		for(var index = 0; index < browserTestCases.length; index++) {
+			style = document.createElement('style');
+			style.setAttribute('type','text/css');
+			style.innerHTML = 'body { '+ browserTestCases[index].init() +' }';
+			body.appendChild(style);
+			results[ browserTestCases[index].getName() ] = browserTestCases[index].run(document.body);
+			body.removeChild(style);
+		}
+
+		//Instantiat as Singleton:
+		return ($.slider.browserTest = function() { return results })();;
+	};
+
 })( jQuery );
