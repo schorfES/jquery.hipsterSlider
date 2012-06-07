@@ -4,7 +4,7 @@ $slider-button-size: 30px;
 .slider-display {
 	@extend .shadow;
 
-	background-color: #ffffff;
+	background-color: darken($color-background, 5%);
 }
 
 .slider {
