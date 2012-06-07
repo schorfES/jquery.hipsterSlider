@@ -537,7 +537,7 @@
 		animated = (typeof animated === 'undefined' || animated);
 		force = (typeof force !== 'undefined' && force);
 		
-		var newPosition = 0;
+		var newPositionX = newPositionY = 0;
 		var infiniteOffset = 0;
 		var options = element.data('options');
 		
@@ -550,39 +550,25 @@
 			if( options.infinite == false ) {
 				if( options.position < 0 ) { options.position = 0; }
 				if( options.position > options.numElements - options.itemsToDisplay ) { options.position = options.numElements - options.itemsToDisplay; }
+			} else {
+				//Detect Offset for infinite loops:
+				infiniteOffset = (( options.orientation == ORIENTATION_HORIZONTAL) ? options.widthItem : options.heightItem) * options.itemsToDisplay * -1; 
 			}
-			
-			switch( options.orientation ) {
-			case ORIENTATION_HORIZONTAL:
-				if( options.infinite ) { infiniteOffset = options.widthItem * options.itemsToDisplay * -1; }
-				
-				newPosition = options.position * options.widthItem * -1;
-				newPosition = newPosition + infiniteOffset;
-				
-				if( animated ) 	{
-					options.playing = true;
-					element.stop().animate({marginLeft: newPosition}, options.duration, function() { applyPositionComplete(element, options) } ); 
-				} else { 
-					element.stop().css({marginLeft: newPosition}); 
-				}
-				
-				break;
-			case ORIENTATION_VERTICAL:
-				if( options.infinite ) { infiniteOffset = options.heightItem * options.itemsToDisplay * -1; }
-				
-				newPosition = options.position * options.heightItem  * -1;
-				newPosition = newPosition + infiniteOffset;
-				
-				if( animated )  { 
-					options.playing = true;
-					element.stop().animate({marginTop: newPosition}, options.duration, function() { applyPositionComplete(element, options) } ); 
-				} else { 
-					element.stop().css({marginTop: newPosition}); 
-				}
-				
-				break;
+
+			//Calculate new Positions:
+			if( options.orientation == ORIENTATION_HORIZONTAL ) {
+				newPositionX = (options.position * options.widthItem * -1) + infiniteOffset;
+			} else {
+				newPositionY = (options.position * options.heightItem * -1) + infiniteOffset;
 			}
-			
+
+			//Set New Positions:
+			if( animated ) {
+				options.playing = true;
+				element.stop().animate({marginLeft: newPositionX, marginTop: newPositionY}, options.duration, function() { applyPositionComplete(element, options) } ); 
+			} else {
+				element.stop().css({marginLeft: newPositionX, marginTop: newPositionY}); 
+			}
 			
 			applyButtons(element, options);
 			applySiteClasses(element, options);
@@ -754,6 +740,8 @@
 			$.error( 'Method ' +  method + ' does not exist on jQuery.tooltip' );
 		}    
   	};
+
+
 
 	/* Constants
 	/-------------------------------------------------------------------------*/
