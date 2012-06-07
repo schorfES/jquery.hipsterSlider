@@ -441,8 +441,8 @@
 					baseEvent = (event.originalEvent.touches) ? event.originalEvent.touches[0] : event.originalEvent;
 					target = $(event.currentTarget);
 					
-					posX = parseInt(element.css("margin-left").replace(/px/, ""));
-					posY = parseInt(element.css("margin-top").replace(/px/, ""));
+					posX = getPosition(element).left;
+					posY = getPosition(element).top;
 					startX = baseEvent.pageX;
 					startY = baseEvent.pageY;				
 					diffX = 0;
@@ -480,9 +480,9 @@
 				}
 				
 				if( options.orientation == ORIENTATION_HORIZONTAL ) {
-					element.stop().animate({marginLeft: posX + diffX},0.25);
+					setPosition(element, options, {left: posX + diffX, duration: 0.25}, true);
 				} else {
-					element.stop().animate({marginTop: posY + diffY},0.25);
+					setPosition(element, options, {top: posY + diffY, duration: 0.25}, true);
 				}
 			};
 			
@@ -490,9 +490,11 @@
 				diffAbs = Math.abs( ( options.orientation == ORIENTATION_HORIZONTAL ) ? diffX : diffY );
 				direction = ( options.orientation == ORIENTATION_HORIZONTAL ) ? -diffX / diffAbs : -diffY / diffAbs;
 					
-				if( diffAbs > options.touchTolerance ) { 
+				if( diffAbs > options.touchTolerance ) {
+					options.playing = false;
 					slideTo(element, direction ); 
 				} else {
+					options.playing = false;
 					slideTo(element, 0);
 				}
 				
@@ -522,7 +524,41 @@
 	
 	/* Private Functions: Controls
 	/-------------------------------------------------------------------------*/
-	
+	var getPosition = function(element) {
+		return {
+			left: parseInt(element.css("margin-left").replace(/px/, "")),
+			top: parseInt(element.css("margin-top").replace(/px/, ""))
+		};
+	};
+
+	var setPosition = function(element, options, properties, animated, callback) {
+		var cssProperties = {};
+
+		if( properties.duration == undefined ) {
+			properties.duration = options.duration;
+		}
+
+		if( properties.left != undefined ) {
+			cssProperties.marginLeft = properties.left;
+		}
+
+		if( properties.top != undefined ) {
+			cssProperties.marginTop = properties.top;
+		}
+
+		//Animate:
+		if( animated ) {
+			options.playing = true;
+			element.stop().animate(cssProperties, properties.duration, function() {
+				options.playing = false;
+				if( typeof callback == 'function' ) { callback(); }
+			} ); 
+		} else {
+			element.stop().css(cssProperties);
+		}
+	};
+
+
 	var slideTo = function(element, direction) {
 		var initialized = element.data('initialized');
 		var options = element.data('options');
@@ -563,13 +599,9 @@
 			}
 
 			//Set New Positions:
-			if( animated ) {
-				options.playing = true;
-				element.stop().animate({marginLeft: newPositionX, marginTop: newPositionY}, options.duration, function() { applyPositionComplete(element, options) } ); 
-			} else {
-				element.stop().css({marginLeft: newPositionX, marginTop: newPositionY}); 
-			}
-			
+			setPosition(element, options, {left: newPositionX, top: newPositionY, duration: options.duration}, animated, function() { applyPositionComplete(element, options) });
+
+			//Update features:
 			applyButtons(element, options);
 			applySiteClasses(element, options);
 			applyItemClasses(element, options);
@@ -593,7 +625,6 @@
 			}
 			
 		}
-		options.playing = false;
 		applyPaging(element, options);
 	};
 	
@@ -779,10 +810,12 @@
 							
 			for(var i = 0; i < prefixes.length; i++) {
 				value = css.getPropertyValue(prefixes[i] + property);
-				temporaryResult = (value == result) || (typeof equalizeFunction == 'function' && equalizeFunction(value) == result);
-				if( temporaryResult ) {
-					r.success = true;
-					r.prefix = prefixes[i];
+				if( typeof value == 'string' ) {
+					temporaryResult = (value == result) || (typeof equalizeFunction == 'function' && equalizeFunction(value) == result);
+					if( temporaryResult ) {
+						r.success = true;
+						r.prefix = prefixes[i];
+					}
 				}
 			}
 			
