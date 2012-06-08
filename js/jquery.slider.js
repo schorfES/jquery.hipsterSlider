@@ -508,6 +508,7 @@
 	
 	/* Private Functions: Controls
 	/-------------------------------------------------------------------------*/
+		
 	var getPosition = function(element) {
 		return {
 			left: parseInt(element.css("margin-left").replace(/px/, "")),
@@ -736,6 +737,50 @@
 	};
 
 
+	/* Private Functions: Utils
+	/-------------------------------------------------------------------------*/
+
+	/* Browser Feature Detection:
+ 	 * Taken from https://gist.github.com/556448, added "noConflict"-stuff
+	 * @author https://gist.github.com/jackfuchs
+ 	 * @repository GitHub | https://gist.github.com/556448 
+ 	 * @param p is the requested css-property
+ 	 * @param rp defines if the requested property is returned or a 
+ 	 *			 boolean should be the result
+ 	 * @param t overrides the target element
+ 	 */
+	var hasCssProperty = function(p, rp, t) {
+		var b = (t) ? t : (document.body || document.documentElement),
+		s = b.style;
+
+		// No css support detected
+		if(typeof s == 'undefined') { return false; }
+
+		// Tests for standard prop
+		if(typeof s[p] == 'string') { return rp ? p : true; }
+
+		// Tests for vendor specific prop
+		v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms', 'Icab'],
+		p = p.charAt(0).toUpperCase() + p.substr(1);
+		for(var i=0; i<v.length; i++) {
+			if(typeof s[v[i] + p] == 'string') { return rp ? (v[i] + p) : true; }
+		}
+
+		return rp ? undefined : false;
+	};
+
+	var getCssProperty = function(element, p) {
+		if( element.length > 0 ) {
+			p = hasCssProperty(p, true);
+			element = element.get(0);
+			if( typeof p === 'string' && element != undefined ) {
+				return element.style[ p ];
+			}
+		}
+		return undefined;
+	}
+
+
 
 	/* Directing
 	/-------------------------------------------------------------------------*/
@@ -761,34 +806,4 @@
 	$.slider.FORWARD = DIRECTION_FORWARD;
 	$.slider.BACKWARD = DIRECTION_BACKWARD;
 
-})( jQuery );
-
-
-
-/* Browser Feature Detection:
- * Taken from https://gist.github.com/556448, added "noConflict"-stuff
- * @author https://gist.github.com/jackfuchs
- * @repository GitHub | https://gist.github.com/556448 */
-(function($) {
-	$.support = $.support
-	$.support.cssProperty = (function() {
-		function cssProperty(p, rp) {
-			var b = document.body || document.documentElement,
-			s = b.style;
-
-			// No css support detected
-			if(typeof s == 'undefined') { return false; }
-
-			// Tests for standard prop
-			if(typeof s[p] == 'string') { return rp ? p : true; }
-
-			// Tests for vendor specific prop
-			v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms', 'Icab'],
-			p = p.charAt(0).toUpperCase() + p.substr(1);
-			for(var i=0; i<v.length; i++) {
-				if(typeof s[v[i] + p] == 'string') { return rp ? (v[i] + p) : true; }
-			}
-		}
-		return cssProperty;
-	})();
 })( jQuery );
