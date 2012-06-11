@@ -70,8 +70,10 @@
 		
 		touch: false,								/* enables / disables touchfeature for mobile devices */
 		touchTolerance: 20,							/* defines the tolerance in pixels to move before slide to a next position */					
-		touchDirectionTolerance: 75					/* defines the tolerance in pixels until the regular touchsliding terminates when the other axis is used */
+		touchDirectionTolerance: 75,				/* defines the tolerance in pixels until the regular touchsliding terminates when the other axis is used */
 		
+		useHardware: true							/* defines if the slider should detect css3-hardware-acceleration-features */
+
 		/* Created by plugin inside localOptions:
 			items: reference to jQuery-object with <li> items
 			itemsPre: reference to jQuery-objects which are clones at the beginning of all items for infinite loop
@@ -91,6 +93,10 @@
 			playing: set to true if animation is active
 			
 			siteClassesActive: name of the active siteClasses class
+
+			hasHardware: indicator if css3-hardware-acceleration-features are available
+			cssTransformKey: css property including renderprefix for css3 transforms 
+			cssTransitionKey: css property including renderprefix for css3 transitions
 		*/
   	};
 
@@ -109,6 +115,7 @@
 				
 				var initialized = initElement(element, localOptions);
 				if( initialized == true ) {
+					initHardware(element, localOptions);
 					initButtons(element, localOptions);
 					initPager(element, localOptions);
 					initBiglink(element, localOptions);
@@ -164,6 +171,10 @@
 				result = options.position;
 			}
 			return result;
+		},
+
+		options : function() {
+			return $(this).data('options');
 		}
 	};
 	
@@ -234,11 +245,7 @@
 				.wrap(display)
 				.data('options', options)
 				.data('initialized', true)
-				.css("overflow","visible")
-				.css("-webkit-transform","translate3d(0,0,0)")
-				.css("-moz-transform","translate3d(0,0,0)")
-				.css("-o-transform","translate3d(0,0,0)")
-				.css("transform","translate3d(0,0,0)");
+				.css('overflow','visible');
 				
 			options.display = element.parent();
 			options.element = element;
@@ -249,7 +256,32 @@
 		return false;
 	};
 	
-	
+	var initHardware = function(element, options) {
+		element
+			.css('-webkit-transform','translate3d(0,0,0)')
+			.css('-moz-transform','translate3d(0,0,0)')
+			.css('-o-transform','translate3d(0,0,0)')
+			.css('transform','translate3d(0,0,0)');
+
+		if( options.useHardware && hasCssProperty('transition') && hasCssProperty('transform') && (/translate3d/).test(getCssProperty(element, 'transform')) ) {
+			options.hasHardware = true;
+
+			/* Prefixes: 'Moz', 'Webkit', 'Khtml', 'O', 'ms', 'Icab' */
+			options.cssTransformKey = hasCssProperty('transform',true)
+										.replace(/MozT/,'-moz-t')
+										.replace(/WebkitT/,'-webkit-t')
+										.replace(/OT/,'-o-t')
+										.replace(/msT/,'-ms-t')
+										.replace('KhtmlT','-khtml-t');
+			options.cssTransitionKey = hasCssProperty('transition',true)
+										.replace(/MozT/,'-moz-t')
+										.replace(/WebkitT/,'-webkit-t')
+										.replace(/OT/,'-o-t')
+										.replace(/msT/,'-ms-t')
+										.replace('KhtmlT','-khtml-t');
+		}
+	};
+
 	var initButtons = function(element, options) {
 		/* Buttons must be active and there mast be at least more than one page to show */
 		if( (options.buttons && options.numElements - options.itemsToDisplay > 0 ) ) {
@@ -417,7 +449,7 @@
 	
 	var initTouch = function(element, options) {
 		if( options.touch ) {
-			var startX, startY, posX, posY, diffX, diffY, diffAbs, direction, baseEvent, target;
+			var startX, startY, pos, posX, posY, diffX, diffY, diffAbs, direction, baseEvent, target;
 			var preventDocumentTouch = function(event) { event.preventDefault(); };
 			
 			var onMouseDown = function(event) {
@@ -425,8 +457,9 @@
 					baseEvent = (event.originalEvent.touches) ? event.originalEvent.touches[0] : event.originalEvent;
 					target = $(event.currentTarget);
 					
-					posX = getPosition(element).left;
-					posY = getPosition(element).top;
+					pos = getPosition(element, options);
+					posX = pos.left;
+					posY = pos.top;
 					startX = baseEvent.pageX;
 					startY = baseEvent.pageY;				
 					diffX = 0;
@@ -462,11 +495,11 @@
 					(options.orientation == ORIENTATION_VERTICAL   && Math.abs(diffY) > options.touchDirectionTolerance) ) {
 					event.preventDefault();
 				}
-				
+
 				if( options.orientation == ORIENTATION_HORIZONTAL ) {
-					setPosition(element, options, {left: posX + diffX, duration: 0.25}, true);
+					setPosition(element, options, {left: posX + diffX, duration: 0.25}, false);
 				} else {
-					setPosition(element, options, {top: posY + diffY, duration: 0.25}, true);
+					setPosition(element, options, {top: posY + diffY, duration: 0.25}, false);
 				}
 			};
 			
@@ -509,11 +542,21 @@
 	/* Private Functions: Controls
 	/-------------------------------------------------------------------------*/
 		
-	var getPosition = function(element) {
-		return {
-			left: parseInt(element.css("margin-left").replace(/px/, "")),
-			top: parseInt(element.css("margin-top").replace(/px/, ""))
-		};
+	var getPosition = function(element, options) {
+		if( options.hasHardware ) {
+			var position = element
+							.css(options.cssTransformKey)
+							.match(/(?:[-\d]+[\s,]*)+/)[0].split(',');
+			return {
+				left: parseInt(position[4]),
+				top: parseInt(position[5])
+			}
+		} else {
+			return {
+				left: parseInt(element.css('margin-left').replace(/px/, '')),
+				top: parseInt(element.css('margin-top').replace(/px/, ''))
+			};
+		}
 	};
 
 	var setPosition = function(element, options, properties, animated, callback) {
@@ -523,24 +566,43 @@
 			properties.duration = options.duration;
 		}
 
-		if( properties.left != undefined ) {
-			cssProperties.marginLeft = properties.left;
-		}
+		if( options.hasHardware ) {
+			if( animated ) {
+				element.css(options.cssTransitionKey, options.cssTransformKey +' '+ (properties.duration / 1000) +'s ease 0s');
+				if( typeof callback == 'function' ) {
+					setTimeout( callback, properties.duration );
+				}
+			} else {
+				element.css(options.cssTransitionKey, options.cssTransformKey +' 0s ease 0s');
+				if( typeof callback == 'function' ) { 
+					callback(); 
+				}
+			}
 
-		if( properties.top != undefined ) {
-			cssProperties.marginTop = properties.top;
-		}
-
-		//Animate:
-		if( animated ) {
-			options.playing = true;
-			element.stop().animate(cssProperties, properties.duration, function() {
-				options.playing = false;
-				if( typeof callback == 'function' ) { callback(); }
-			} ); 
+			element.css(options.cssTransformKey, 'translate3d('+ (properties.left || 0) +'px,'+ (properties.top || 0) +'px,0)');
 		} else {
-			element.stop().css(cssProperties);
+			cssProperties.marginLeft = properties.left || 0;
+			cssProperties.marginTop = properties.top || 0;
+
+			//Animate:
+			if( animated ) {
+				options.playing = true;
+				element.stop().animate(cssProperties, properties.duration, function() {
+					options.playing = false;
+					if( typeof callback == 'function' ) { 
+						callback(); 
+					}
+				} ); 
+			} else {
+				element.stop().css(cssProperties);
+
+				if( typeof callback == 'function' ) { 
+					callback(); 
+				}
+			}
 		}
+		
+
 	};
 
 
