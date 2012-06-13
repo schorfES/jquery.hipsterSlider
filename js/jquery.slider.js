@@ -97,6 +97,7 @@
 			hasHardware: indicator if css3-hardware-acceleration-features are available
 			cssTransformKey: css property including renderprefix for css3 transforms 
 			cssTransitionKey: css property including renderprefix for css3 transitions
+			cssAnimationTimeout: is the timeout-instance for css3 animations
 		*/
   	};
 
@@ -567,16 +568,19 @@
 		}
 
 		if( options.hasHardware ) {
+			//Animate:
 			if( animated ) {
+				options.playing = true;
 				element.css(options.cssTransitionKey, options.cssTransformKey +' '+ (properties.duration / 1000) +'s ease 0s');
-				if( typeof callback == 'function' ) {
-					setTimeout( callback, properties.duration );
-				}
+				
+				if( typeof options.cssAnimationTimeout !== 'undefined' ) { window.clearTimeout( options.cssAnimationTimeout ); }
+				options.cssAnimationTimeout = window.setTimeout( function() {
+					options.playing = false;
+					if( typeof callback == 'function' ) { callback(); }
+				}, properties.duration );
 			} else {
 				element.css(options.cssTransitionKey, options.cssTransformKey +' 0s ease 0s');
-				if( typeof callback == 'function' ) { 
-					callback(); 
-				}
+				if( typeof callback == 'function' ) { callback(); }
 			}
 
 			element.css(options.cssTransformKey, 'translate3d('+ (properties.left || 0) +'px,'+ (properties.top || 0) +'px,0)');
@@ -589,16 +593,11 @@
 				options.playing = true;
 				element.stop().animate(cssProperties, properties.duration, function() {
 					options.playing = false;
-					if( typeof callback == 'function' ) { 
-						callback(); 
-					}
+					if( typeof callback == 'function' ) { callback(); }
 				} ); 
 			} else {
 				element.stop().css(cssProperties);
-
-				if( typeof callback == 'function' ) { 
-					callback(); 
-				}
+				if( typeof callback == 'function' ) { callback(); }
 			}
 		}
 		
