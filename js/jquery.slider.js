@@ -258,28 +258,36 @@
 	};
 	
 	var initHardware = function(element, options) {
-		element
-			.css('-webkit-transform','translate3d(0,0,0)')
-			.css('-moz-transform','translate3d(0,0,0)')
-			.css('-o-transform','translate3d(0,0,0)')
-			.css('transform','translate3d(0,0,0)');
+		if( options.useHardware ) {
+			var css = {}, key,
+				prefixes = ['-webkit-','-moz-','-o-','-ms-','-khtml-',''];
+			
+			/* Build properties with prefixes and add value to test */
+			for(key in prefixes) { css[prefixes[key]+'transform'] = 'translate3d(0,0,0)'; }
+			element.css(css);
 
-		if( options.useHardware && hasCssProperty('transition') && hasCssProperty('transform') && (/translate3d/).test(getCssProperty(element, 'transform')) ) {
-			options.hasHardware = true;
-
-			/* Prefixes: 'Moz', 'Webkit', 'Khtml', 'O', 'ms', 'Icab' */
-			options.cssTransformKey = hasCssProperty('transform',true)
-										.replace(/MozT/,'-moz-t')
-										.replace(/WebkitT/,'-webkit-t')
-										.replace(/OT/,'-o-t')
-										.replace(/msT/,'-ms-t')
-										.replace('KhtmlT','-khtml-t');
-			options.cssTransitionKey = hasCssProperty('transition',true)
-										.replace(/MozT/,'-moz-t')
-										.replace(/WebkitT/,'-webkit-t')
-										.replace(/OT/,'-o-t')
-										.replace(/msT/,'-ms-t')
-										.replace('KhtmlT','-khtml-t');
+			if( hasCssProperty('transition') && hasCssProperty('transform') && (/translate3d/).test(getCssProperty(element, 'transform')) ) {
+				options.hasHardware = true;
+	
+				/* Prefixes: 'Moz', 'Webkit', 'Khtml', 'O', 'ms', 'Icab' */
+				options.cssTransformKey = hasCssProperty('transform',true)
+											.replace(/MozT/,'-moz-t')
+											.replace(/WebkitT/,'-webkit-t')
+											.replace(/OT/,'-o-t')
+											.replace(/msT/,'-ms-t')
+											.replace('KhtmlT','-khtml-t');
+				
+				options.cssTransitionKey = hasCssProperty('transition',true)
+											.replace(/MozT/,'-moz-t')
+											.replace(/WebkitT/,'-webkit-t')
+											.replace(/OT/,'-o-t')
+											.replace(/msT/,'-ms-t')
+											.replace('KhtmlT','-khtml-t');
+			} else {
+				/* Build properties with prefixes and add empty values to remove test values. */
+				for(key in prefixes) { css[prefixes[key]+'transform'] = ''; }
+				element.css(css);
+			}
 		}
 	};
 
@@ -654,7 +662,7 @@
 			if( !animated ) { applyPaging(element, options); }
 			
 			if( typeof options.onUpdate === 'function' ) {
-				options.onUpdate();
+				options.onUpdate(element);
 			}
 			
 		}
