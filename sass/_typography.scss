@@ -14,10 +14,10 @@ h1 {
 
 h2 {
 	padding: 35px 0 10px 0;
-	
+
 	font-weight: bold;
 	font-style: italic;
-	
+
 	/* @include text-shadow(#711ac3 3px 3px 5px); */
 }
 
@@ -25,13 +25,13 @@ p {
 	padding: 4px 0;
 	line-height:130%;
 	font-size: 13px;
-	
+
 	strong {
 		color: $color-highlight;
 		font-family: monospace;
 		font-weight: bold;
 	}
-	
+
 	&.warning {
 		color: #FF0000;
 		font-weight: bold;
@@ -49,12 +49,12 @@ table {
 	width: 100%;
 	font-size: 13px;
 	line-height:130%;
-	
+
 	td {
 		padding: 5px 0 0 0;
 		vertical-align: top;
 	}
-	
+
 	.option,
 	.types,
 	.default {
@@ -62,19 +62,19 @@ table {
 		font-family: monospace;
 		font-weight: bold;
 	}
-	
+
 	.option {
 		width: 30%;
 	}
-	
+
 	.types {
 		width: 10%;
 	}
-	
+
 	.default { color: $color-highlight; }
-	.info { 
-		width: 40%; 
-		
+	.info {
+		width: 40%;
+
 		strong {
 			color: $color-highlight;
 			font-family: monospace;
