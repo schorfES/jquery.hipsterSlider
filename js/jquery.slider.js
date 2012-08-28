@@ -72,9 +72,9 @@
 		touchTolerance: 20,							/* defines the tolerance in pixels to move before slide to a next position */
 		touchDirectionTolerance: 75,				/* defines the tolerance in pixels until the regular touchsliding terminates when the other axis is used */
 
-		useHardware: true							/* defines if the slider should detect css3-hardware-acceleration-features */
+		useHardware: true,							/* defines if the slider should detect css3-hardware-acceleration-features */
 
-		flexibleItemdimensions: false,				/* defines if the items size (width & height) is not static and differ between each item.
+		flexibleItemdimensions: false				/* defines if the items size (width & height) is not static and differ between each item.
 													 * if this is set to true:
 													 *		- the option infinite will be set to false
 													 *		- the option autoresize will be set to false
