@@ -25,7 +25,7 @@
 		itemsCurrentClass: 'current',				/* defines the classname for the current position */
 		itemsNextClass: 'next',						/* defines the classname for the next positions */
 
-		itemsToDisplay: 1,
+		itemsToDisplay: 1,							/* number of items to display */
 		itemsToScroll: 1,							/* number of items to scroll */
 
 		duration: 500,								/* sliding duration */
@@ -74,7 +74,13 @@
 
 		useHardware: true							/* defines if the slider should detect css3-hardware-acceleration-features */
 
-		/* Created by plugin inside localOptions:
+		flexibleItemdimensions: false,				/* defines if the items size (width & height) is not static and differ between each item.
+													 * if this is set to true:
+													 *		- the option infinite will be set to false
+													 *		- the option autoresize will be set to false
+													 * INFO: It is useful to provide the options width & height */
+
+		/* Created by plugin inside options:
 			items: reference to jQuery-object with <li> items
 			itemsPre: reference to jQuery-objects which are clones at the beginning of all items for infinite loop
 			itemsPost: reference to jQuery-objects which are clones at the end of all items for infinite loop
@@ -82,6 +88,7 @@
 			widthItem: width of the first item
 			heightItem: height of the first item
 			position: current position
+			direction: last direction change
 			numElements: number of elements
 			display: wrapper (overflow hidden) for the ul-list
 			displayButtons: wrapper for buttons;
@@ -105,20 +112,24 @@
 	/* Public Functions:
 	/-------------------------------------------------------------------------*/
 	var methods = {
-		init : function( options ) {
-			var target = $(this);
+		init: function( options ) {
+			var
+				target = $(this),
+				index = 0,
+				element, localOptions, initialized
+			;
 			options = $.extend({}, defaults, options);
 
-			var index = 0;
 			return target.each( function() {
-				var element = $(this);
-				var localOptions = $.extend({}, options);
+				element = $(this);
+				localOptions = $.extend({}, options);
 
-				var initialized = initElement(element, localOptions);
+				initialized = initElement(element, localOptions);
 				if( initialized == true ) {
 					initHardware(element, localOptions);
 					initButtons(element, localOptions);
 					initPager(element, localOptions);
+					initFlexibleItems(element, localOptions);
 					initBiglink(element, localOptions);
 					initSiteClasses(element, localOptions);
 					initAutoplay(element, localOptions, index);
@@ -134,47 +145,51 @@
 			});
 		},
 
-		next : function() {
+		next: function() {
 			var target = $(this);
 			slideTo(target, +1);
 			return target;
 		},
 
-		prev : function() {
+		prev: function() {
 			var target = $(this);
 			slideTo(target, -1);
 			return target;
 		},
 
-		page : function(index) {
-			var target = $(this);
-			var options = target.data('options');
+		page: function(index) {
+			var
+				target = $(this),
+				options = target.data('options')
+			;
+
 			if( options ) {
 				applyPosition(target, index);
 			}
 			return target;
 		},
 
-		stop : function() {
-			var target = $(this);
-			var options = target.data('options');
-			if( options ) {
-				stopAutoplay(options);
-			}
+		stop: function() {
+			var
+				target = $(this),
+				options = target.data('options')
+			;
+
+			if( options ) { stopAutoplay(options); }
 			return target;
 		},
 
-		getPosition : function() {
-			var result = -1;
-			var target = $(this);
-			var options = target.data('options');
-			if( options ) {
-				result = options.position;
-			}
-			return result;
+		/* Returns the position of the left/top visible item */
+		getPosition: function() {
+			var
+				target = $(this),
+				options = target.data('options')
+			;
+
+			return getPage(target, options);
 		},
 
-		options : function() {
+		options: function() {
 			return $(this).data('options');
 		}
 	};
@@ -190,8 +205,10 @@
 		var elementTagname = element.get(0).tagName.toLowerCase();
 		if( elementTagname == 'ul' ) {
 
-			var display = $('<div />').addClass( options.displayClass );
-			var items = element.children();
+			var
+				display = $('<div />').addClass( options.displayClass ),
+				items = element.children()
+			;
 
 			if( options.initializeMinItems == false && items.length <= options.itemsToDisplay ) {
 				return false;
@@ -246,7 +263,10 @@
 				.wrap(display)
 				.data('options', options)
 				.data('initialized', true)
-				.css('overflow','visible');
+				.css({
+					overflow: 'visible',
+					position: 'relative'
+				});
 
 			options.display = element.parent();
 			options.element = element;
@@ -358,6 +378,13 @@
 			applyPaging(element, options);
 		} else {
 			options.pager = false;
+		}
+	};
+
+	var initFlexibleItems = function(element, options) {
+		if( options.flexibleItemdimensions == true ) {
+			options.infinite = false;
+			options.autoresize = false;
 		}
 	};
 
@@ -612,6 +639,24 @@
 
 	};
 
+	var getPage = function(element, options) {
+		var
+			result = -1,
+			position
+		;
+
+		if( options ) {
+			result = options.position;
+
+			if( options.flexibleItemdimensions ) {
+				position = getPosition(element, options);
+				result = options.items.index( getItemAt(options, position.left * -1, position.top * -1) );
+			}
+		}
+
+		return result;
+	};
+
 
 	var slideTo = function(element, direction) {
 		var initialized = element.data('initialized');
@@ -619,6 +664,7 @@
 		if( initialized && options && !options.playing ) {
 			direction = direction * options.itemsToScroll;
 			options.position = options.position + direction;
+			options.direction = direction;
 			applyPosition(element);
 		}
 	};
@@ -627,16 +673,28 @@
 		animated = (typeof animated === 'undefined' || animated);
 		force = (typeof force !== 'undefined' && force);
 
-		var newPositionX = newPositionY = 0;
-		var infiniteOffset = 0;
-		var options = element.data('options');
+		var
+			options = element.data('options'),
+			currentItem, currentPosition, nextItem, nextPosition,
+			newPositionX = newPositionY = 0,
+			infiniteOffset = 0,
+			flexWidth = flexHeight = 0,
+			direction
+		;
 
-		if( options ) {
+		if( typeof options !== 'undefined' ) {
 
-			if( typeof position !== 'undefined' ) {
+			if( typeof position === 'number' ) {
 				options.position = position;
 			}
 
+			//Get current item when items are flexible:
+			if( options.flexibleItemdimensions ) {
+				currentPosition = getPosition(element, options);
+				currentItem = getItemAt(options, currentPosition.left * -1, currentPosition.top * -1);
+			}
+
+			//Check & correct position:
 			if( options.infinite == false ) {
 				if( options.position < 0 ) { options.position = 0; }
 				if( options.position > options.numElements - options.itemsToDisplay ) { options.position = options.numElements - options.itemsToDisplay; }
@@ -645,15 +703,56 @@
 				infiniteOffset = (( options.orientation == ORIENTATION_HORIZONTAL) ? options.widthItem : options.heightItem) * options.itemsToDisplay * -1;
 			}
 
+
 			//Calculate new Positions:
 			if( options.orientation == ORIENTATION_HORIZONTAL ) {
-				newPositionX = (options.position * options.widthItem * -1) + infiniteOffset;
+				if( !options.flexibleItemdimensions ) {
+					newPositionX = (options.position * options.widthItem * -1) + infiniteOffset;
+				} else {
+					newPositionX = getPosition(element, options).left;
+					if( newPositionX > 0 ) { newPositionX = 0; }
+
+					if( options.direction > 0 ) { //Scrolling forward:
+						nextItem = getItemAt(options, currentPosition.left * -1 + options.width + 1, 0);
+						if( nextItem != undefined ) {
+							nextPosition = nextItem.position();
+							newPositionX = (nextPosition.left + nextItem.outerWidth() - options.width) * -1;
+						}
+					} else if( options.direction < 0 ) { //Scrolling backward:
+						nextItem = getItemAt(options, (currentPosition.left * -1) - 1, 0);
+						if( nextItem != undefined ) {
+							nextPosition = nextItem.position();
+							newPositionX = nextPosition.left * -1;
+						}
+					}
+				}
 			} else {
-				newPositionY = (options.position * options.heightItem * -1) + infiniteOffset;
+				if( !options.flexibleItemdimensions ) {
+					newPositionY = (options.position * options.heightItem * -1) + infiniteOffset;
+				} else {
+					newPositionY = getPosition(element, options).top;
+					if( newPositionY > 0 ) { newPositionY = 0; }
+
+					if( options.direction > 0 ) { //Scrolling forward:
+						nextItem = getItemAt(options, 0, currentPosition.top * -1 + options.height + 1);
+						if( nextItem != undefined ) {
+							nextPosition = nextItem.position();
+							newPositionY = (nextPosition.top + nextItem.outerHeight() - options.height) * -1;
+						}
+					} else if( options.direction < 0 ) { //Scrolling backward:
+						nextItem = getItemAt(options, 0, (currentPosition.top * -1) - 1);
+						if( nextItem != undefined ) {
+							nextPosition = nextItem.position();
+							newPositionY = nextPosition.top * -1;
+						}
+					}
+				}
 			}
 
 			//Set New Positions:
-			setPosition(element, options, {left: newPositionX, top: newPositionY, duration: options.duration}, animated, function() { applyPositionComplete(element, options) });
+			setPosition(element, options, {left: newPositionX, top: newPositionY, duration: options.duration}, animated, function() {
+				applyPositionComplete(element, options);
+			});
 
 			//Update features:
 			applyButtons(element, options);
@@ -706,7 +805,7 @@
 	var applySiteClasses = function(element, options) {
 		if( options.siteClasses ) {
 			options.display.parent().removeClass( options.siteClassesActive );
-			options.siteClassesActive = options.siteClassesClass + (options.position + 1);
+			options.siteClassesActive = options.siteClassesClass + (getPage(element, options) + 1);
 			options.display.parent().addClass( options.siteClassesActive );
 		}
 	};
@@ -847,7 +946,27 @@
 			}
 		}
 		return undefined;
-	}
+	};
+
+	/** This returns an item from the given list at the given coordinates. */
+	var getItemAt = function(options, x, y) {
+		var
+			item = undefined,
+			current, position, index
+		;
+
+		for(index = 0; index < options.items.length; index++) {
+			current = options.items.eq(index);
+			position = current.position();
+			if( position.left  <= x && position.top <= y ) {
+				item = current;
+			} else {
+				break;
+			}
+		}
+
+		return item;
+	};
 
 
 
