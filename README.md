@@ -118,9 +118,9 @@ Here is an **example** of all of these options in use:
 * `touchTolerance` (number) -  defines the tolerance in pixels to move before slide to a next position. Default value is `20`.
 * `touchDirectionTolerance` (number) - defines the tolerance in pixels until the regular touchsliding terminates when the other axis is used. Default value is `75`.
 
-### Hardware accelaration option:
+### Hardware acceleration option:
 The plugin always try to detect and use hardware acceleration via css3 using translate3d and transition.
-If the browser supports those features, the plugin automaticly use them and falls back to the basic css-properties when they are not available. If you don't want to use hardware accelaration set the `useHardware`-option to `false`:
+If the browser supports those features, the plugin automaticly use them and falls back to the basic css-properties when they are not available. If you don't want to use hardware acceleration set the `useHardware`-option to `false`:
 * useHardware (boolean) - defines if the slider should detect css3-hardware-acceleration-features. Default value `true`.
 
 ### Other options:
