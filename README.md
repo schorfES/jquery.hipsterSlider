@@ -11,12 +11,6 @@
 * can **skip more than one item** in a slide
 * has *customizeable classnames* for elements
 * supports and detects **hardware acceleration** via css3 using translate3d and transition
-* _**NEW:**_ can handle **items with flexible dimensions**
-
-
-
-
-
 
 
 
