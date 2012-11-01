@@ -106,15 +106,17 @@
 	/-------------------------------------------------------------------------*/
 	var methods = {
 		init : function( options ) {
-			var target = $(this);
-			options = $.extend({}, defaults, options);
+			var
+				target = $(this),
+				index = 0,
+				element, localOptions, initialized = undefined
+			;
 
-			var index = 0;
 			return target.each( function() {
-				var element = $(this);
-				var localOptions = $.extend({}, options);
+				element = $(this);
+				localOptions = $.extend({}, defaults, options);
 
-				var initialized = initElement(element, localOptions);
+				initialized = initElement(element, localOptions);
 				if( initialized == true ) {
 					initHardware(element, localOptions);
 					initButtons(element, localOptions);
@@ -127,7 +129,7 @@
 					initAutoresize(element, localOptions);
 					initTouch(element, localOptions);
 
-					applyPosition(element, options.position, false);
+					applyPosition(element, localOptions.position, false);
 
 					index++;
 				}
@@ -258,7 +260,7 @@
 	};
 
 	var initHardware = function(element, options) {
-		if( options.useHardware ) {
+		if( options.useHardware === true ) {
 			var css = {}, key,
 				prefixes = ['-webkit-','-moz-','-o-','-ms-','-khtml-',''];
 
@@ -293,7 +295,7 @@
 
 	var initButtons = function(element, options) {
 		/* Buttons must be active and there mast be at least more than one page to show */
-		if( (options.buttons && options.numElements - options.itemsToDisplay > 0 ) ) {
+		if( (options.buttons === true && options.numElements - options.itemsToDisplay > 0 ) ) {
 
 			var prevButton = $('<a href="#" class="'+ options.buttonsClass +' '+ options.buttonPrevClass +'">'+ options.buttonPrevLabel +'</a>');
 			var nextButton = $('<a href="#" class="'+ options.buttonsClass +' '+ options.buttonNextClass +'">'+ options.buttonNextLabel +'</a>');
@@ -335,7 +337,7 @@
 
 	var initPager = function(element, options) {
 		/* Pagers must be active and there mast be at least more than one page to show */
-		if( options.pager && options.numElements - options.itemsToDisplay > 0 ) {
+		if( options.pager === true && options.numElements - options.itemsToDisplay > 0 ) {
 			var wrapPager = $('<ol class="'+ options.pagerWrapClass +'" />');
 
 			for( var count = 1; count <= options.numElements; count++ ) {
@@ -362,7 +364,7 @@
 	};
 
 	var initBiglink = function(element, options) {
-		if( options.biglink ) {
+		if( options.biglink === true ) {
 
 			if( options.biglinkClass ) {
 				element
@@ -388,7 +390,7 @@
 
 	var initAutoplay = function(element, options, index) {
 		/* Autoplay must be active and there mast be at least more than one page to show */
-		if( options.autoplay == true && options.numElements - options.itemsToDisplay > 0 ) {
+		if( options.autoplay === true && options.numElements - options.itemsToDisplay > 0 ) {
 			index = (options.autoplayDelayQueued) ? index : 1;
 			setTimeout( function() {
 				autoplay(element, options);
@@ -400,7 +402,7 @@
 
 	var initInfinite = function(element, options) {
 		/* Infinite must be active and there mast be at least more than one page to show */
-		if( options.infinite && options.numElements - options.itemsToDisplay > 0 ) {
+		if( options.infinite === true && options.numElements - options.itemsToDisplay > 0 ) {
 
 			var preItem = options.items.eq(0);
 			var postItem = options.items.eq(options.numElements - 1);
@@ -450,14 +452,14 @@
 	};
 
 	var initAutoresize = function(element, options) {
-		if( options.autoresize ) {
+		if( options.autoresize === true ) {
 			$(window).resize( function() { refreshSize(options); } );
 			refreshSize(options);
 		}
 	};
 
 	var initTouch = function(element, options) {
-		if( options.touch ) {
+		if( options.touch === true ) {
 			var startX, startY, pos, posX, posY, diffX, diffY, diffAbs, direction, baseEvent, target;
 			var preventDocumentTouch = function(event) { event.preventDefault(); };
 
@@ -552,7 +554,7 @@
 	/-------------------------------------------------------------------------*/
 
 	var getPosition = function(element, options) {
-		if( options.hasHardware ) {
+		if( options.hasHardware === true ) {
 			var position = element
 							.css(options.cssTransformKey)
 							.match(/(?:[-\d]+[\s,]*)+/)[0].split(',');
@@ -575,7 +577,7 @@
 			properties.duration = options.duration;
 		}
 
-		if( options.hasHardware ) {
+		if( options.hasHardware === true ) {
 			//Animate:
 			if( animated ) {
 				options.playing = true;
@@ -584,11 +586,11 @@
 				if( typeof options.cssAnimationTimeout !== 'undefined' ) { window.clearTimeout( options.cssAnimationTimeout ); }
 				options.cssAnimationTimeout = window.setTimeout( function() {
 					options.playing = false;
-					if( typeof callback == 'function' ) { callback(); }
+					if( typeof callback === 'function' ) { callback(); }
 				}, properties.duration );
 			} else {
 				element.css(options.cssTransitionKey, options.cssTransformKey +' 0s ease 0s');
-				if( typeof callback == 'function' ) { callback(); }
+				if( typeof callback === 'function' ) { callback(); }
 			}
 
 			element.css(options.cssTransformKey, 'translate3d('+ (properties.left || 0) +'px,'+ (properties.top || 0) +'px,0)');
@@ -601,11 +603,11 @@
 				options.playing = true;
 				element.stop().animate(cssProperties, properties.duration, function() {
 					options.playing = false;
-					if( typeof callback == 'function' ) { callback(); }
+					if( typeof callback === 'function' ) { callback(); }
 				} );
 			} else {
 				element.stop().css(cssProperties);
-				if( typeof callback == 'function' ) { callback(); }
+				if( typeof callback === 'function' ) { callback(); }
 			}
 		}
 
@@ -616,7 +618,7 @@
 	var slideTo = function(element, direction) {
 		var initialized = element.data('initialized');
 		var options = element.data('options');
-		if( initialized && options && !options.playing ) {
+		if( initialized === true && options && !options.playing ) {
 			direction = direction * options.itemsToScroll;
 			options.position = options.position + direction;
 			applyPosition(element);
@@ -631,22 +633,22 @@
 		var infiniteOffset = 0;
 		var options = element.data('options');
 
-		if( options ) {
+		if( typeof options === 'object' ) {
 
 			if( typeof position !== 'undefined' ) {
 				options.position = position;
 			}
 
-			if( options.infinite == false ) {
+			if( options.infinite === false ) {
 				if( options.position < 0 ) { options.position = 0; }
 				if( options.position > options.numElements - options.itemsToDisplay ) { options.position = options.numElements - options.itemsToDisplay; }
 			} else {
 				//Detect Offset for infinite loops:
-				infiniteOffset = (( options.orientation == ORIENTATION_HORIZONTAL) ? options.widthItem : options.heightItem) * options.itemsToDisplay * -1;
+				infiniteOffset = (( options.orientation === ORIENTATION_HORIZONTAL) ? options.widthItem : options.heightItem) * options.itemsToDisplay * -1;
 			}
 
 			//Calculate new Positions:
-			if( options.orientation == ORIENTATION_HORIZONTAL ) {
+			if( options.orientation === ORIENTATION_HORIZONTAL ) {
 				newPositionX = (options.position * options.widthItem * -1) + infiniteOffset;
 			} else {
 				newPositionY = (options.position * options.heightItem * -1) + infiniteOffset;
@@ -669,7 +671,7 @@
 	};
 
 	var applyPositionComplete = function(element, options) {
-		if( options.infinite == true ) {
+		if( options.infinite === true ) {
 
 			if( options.position < -(options.itemsToDisplay - options.itemsToScroll) ) {
 				applyPosition(element, options.numElements - options.itemsToDisplay, false);
@@ -683,7 +685,7 @@
 	};
 
 	var applyButtons = function(element, options) {
-		if( options.buttons ) {
+		if( options.buttons === true ) {
 			if( typeof options.buttonPrev !== 'undefined' ) {
 				options.buttonPrev.removeClass( options.buttonDisabledClass );
 				if( options.position <= 0 && options.infinite == false ) { options.buttonPrev.addClass( options.buttonDisabledClass ); }
@@ -697,14 +699,14 @@
 	};
 
 	var applyPaging = function(element, options) {
-		if( options.pager && options.displayPager ) {
+		if( options.pager === true && options.displayPager ) {
 			options.displayPager.children('.'+ options.pagerSelectedClass ).removeClass( options.pagerSelectedClass );
 			options.displayPager.children().eq(options.position).addClass( options.pagerSelectedClass );
 		}
 	};
 
 	var applySiteClasses = function(element, options) {
-		if( options.siteClasses ) {
+		if( options.siteClasses === true ) {
 			options.display.parent().removeClass( options.siteClassesActive );
 			options.siteClassesActive = options.siteClassesClass + (options.position + 1);
 			options.display.parent().addClass( options.siteClassesActive );
@@ -712,7 +714,7 @@
 	};
 
 	var applyItemClasses = function(element, options) {
-		if( options.itemsClasses ) {
+		if( options.itemsClasses === true ) {
 			var item;
 
 			//General items:
@@ -735,7 +737,7 @@
 
 
 			//Pre and Post items:
-			if( options.infinite ) {
+			if( options.infinite === true ) {
 				var from, to;
 
 				//Preitems:
@@ -775,7 +777,7 @@
 	};
 
 	var autoplay = function(element, options) {
-		if( options.autoplay == true ) {
+		if( options.autoplay === true ) {
 			slideTo(element, options.autoplayDirection);
 			setTimeout( function() { autoplay(element, options); }, options.autoplayPause );
 		}
@@ -786,7 +788,7 @@
 	};
 
 	var refreshSize = function(options) {
-		if( options.orientation == ORIENTATION_HORIZONTAL ) {
+		if( options.orientation === ORIENTATION_HORIZONTAL ) {
 			options.width = options.display.parent().width();
 			options.widthItem = options.width;
 			options.element.width(options.width * options.itemsAll.length);
@@ -823,16 +825,16 @@
 		s = b.style;
 
 		// No css support detected
-		if(typeof s == 'undefined') { return false; }
+		if(typeof s === 'undefined') { return false; }
 
 		// Tests for standard prop
-		if(typeof s[p] == 'string') { return rp ? p : true; }
+		if(typeof s[p] === 'string') { return rp ? p : true; }
 
 		// Tests for vendor specific prop
 		v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms', 'Icab'],
 		p = p.charAt(0).toUpperCase() + p.substr(1);
 		for(var i=0; i<v.length; i++) {
-			if(typeof s[v[i] + p] == 'string') { return rp ? (v[i] + p) : true; }
+			if(typeof s[v[i] + p] === 'string') { return rp ? (v[i] + p) : true; }
 		}
 
 		return rp ? undefined : false;
