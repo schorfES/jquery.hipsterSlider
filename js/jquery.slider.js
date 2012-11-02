@@ -34,7 +34,7 @@
 		height: undefined,							/* vertical dimension for for the display (wrapper (overflow hidden)) */
 
 		buttons: false,								/* activates scrolling buttons */
-		buttonsWrap: false, 						/* creates a wrapper div for the button-links */
+		buttonsWrap: false,							/* creates a wrapper div for the button-links */
 		buttonsWrapClass: 'slider-buttons',			/* classname for the wrapper div */
 		buttonsClass: 'slider-button',				/* classname for a button */
 		buttonPrevLabel: 'previous',				/* label for the previous button */
@@ -99,7 +99,7 @@
 			cssTransitionKey: css property including renderprefix for css3 transitions
 			cssAnimationTimeout: is the timeout-instance for css3 animations
 		*/
-  	};
+	};
 
 
 	/* Public Functions:
@@ -109,7 +109,7 @@
 			var
 				target = $(this),
 				index = 0,
-				element, localOptions, initialized = undefined
+				element, localOptions, initialized
 			;
 
 			return target.each( function() {
@@ -117,7 +117,7 @@
 				localOptions = $.extend({}, defaults, options);
 
 				initialized = initElement(element, localOptions);
-				if( initialized == true ) {
+				if( initialized === true ) {
 					initHardware(element, localOptions);
 					initButtons(element, localOptions);
 					initPager(element, localOptions);
@@ -190,20 +190,18 @@
 	/-------------------------------------------------------------------------*/
 	var initElement = function(element, options) {
 		var elementTagname = element.get(0).tagName.toLowerCase();
-		if( elementTagname == 'ul' ) {
+		if( elementTagname === 'ul' ) {
 
 			var display = $('<div />').addClass( options.displayClass );
 			var items = element.children();
 
-			if( options.initializeMinItems == false && items.length <= options.itemsToDisplay ) {
+			if( options.initializeMinItems === false && items.length <= options.itemsToDisplay ) {
 				return false;
 			}
 
 			element.css({cssFloat: 'left'});
 
-			options.position = (typeof options.position === 'number' && options.position > -1)
-										? options.position
-										: 0;
+			options.position = (typeof options.position === 'number' && options.position > -1) ? options.position : 0;
 			options.numElements = items.length;
 			options.widthItem = items.outerWidth(true);
 			options.heightItem = items.outerHeight(true);
@@ -338,26 +336,26 @@
 	var initPager = function(element, options) {
 		/* Pagers must be active and there mast be at least more than one page to show */
 		if( options.pager === true && options.numElements - options.itemsToDisplay > 0 ) {
+
 			var wrapPager = $('<ol class="'+ options.pagerWrapClass +'" />');
+			var clickHandler = function(event) {
+				event.preventDefault();
+				var index = $(event.currentTarget).data('index');
+				applyPosition(element, index);
+				stopAutoplay(options);
+			};
 
 			for( var count = 1; count <= options.numElements; count++ ) {
-				var page = $('<li class="'+ options.pagerClass +'"><a href="#">'+ count +'</a></li>');
-				page
-					.data('index', count - 1)
-					.appendTo( wrapPager )
-					.click( function(event) {
-						event.preventDefault();
-						var index = $(event.currentTarget).data('index');
-						applyPosition(element, index);
-						stopAutoplay(options);
-					} );
+				var page = $('<li class="'+ options.pagerClass +'"><a href="#">'+ count +'</a></li>')
+								.data('index', count - 1)
+								.appendTo( wrapPager )
+								.click(clickHandler);
 			}
 
 			wrapPager.insertAfter( options.display );
-
 			options.displayPager = wrapPager;
-
 			applyPaging(element, options);
+
 		} else {
 			options.pager = false;
 		}
@@ -461,7 +459,6 @@
 	var initTouch = function(element, options) {
 		if( options.touch === true ) {
 			var startX, startY, pos, posX, posY, diffX, diffY, diffAbs, direction, baseEvent, target;
-			var preventDocumentTouch = function(event) { event.preventDefault(); };
 
 			var onMouseDown = function(event) {
 				if( !options.playing ) {
@@ -502,8 +499,8 @@
 				diffX = baseEvent.pageX - startX;
 				diffY = baseEvent.pageY - startY;
 
-				if( (options.orientation == ORIENTATION_HORIZONTAL && Math.abs(diffX) > options.touchDirectionTolerance) ||
-					(options.orientation == ORIENTATION_VERTICAL   && Math.abs(diffY) > options.touchDirectionTolerance) ) {
+				if( (options.orientation === ORIENTATION_HORIZONTAL && Math.abs(diffX) > options.touchDirectionTolerance) ||
+					(options.orientation === ORIENTATION_VERTICAL   && Math.abs(diffY) > options.touchDirectionTolerance) ) {
 					event.preventDefault();
 				}
 
@@ -515,8 +512,8 @@
 			};
 
 			var onMouseLeave = function(event) {
-				diffAbs = Math.abs( ( options.orientation == ORIENTATION_HORIZONTAL ) ? diffX : diffY );
-				direction = ( options.orientation == ORIENTATION_HORIZONTAL ) ? -diffX / diffAbs : -diffY / diffAbs;
+				diffAbs = Math.abs( ( options.orientation === ORIENTATION_HORIZONTAL ) ? diffX : diffY );
+				direction = ( options.orientation === ORIENTATION_HORIZONTAL ) ? -diffX / diffAbs : -diffY / diffAbs;
 
 				if( diffAbs > options.touchTolerance ) {
 					options.playing = false;
@@ -559,13 +556,13 @@
 							.css(options.cssTransformKey)
 							.match(/(?:[-\d]+[\s,]*)+/)[0].split(',');
 			return {
-				left: parseInt(position[4]),
-				top: parseInt(position[5])
-			}
+				left: parseInt(position[4], 10),
+				top: parseInt(position[5], 10)
+			};
 		} else {
 			return {
-				left: parseInt(element.css('margin-left').replace(/px/, '')),
-				top: parseInt(element.css('margin-top').replace(/px/, ''))
+				left: parseInt(element.css('margin-left').replace(/px/, ''), 10),
+				top: parseInt(element.css('margin-top').replace(/px/, ''), 10)
 			};
 		}
 	};
@@ -573,7 +570,7 @@
 	var setPosition = function(element, options, properties, animated, callback) {
 		var cssProperties = {};
 
-		if( properties.duration == undefined ) {
+		if( properties.duration === undefined ) {
 			properties.duration = options.duration;
 		}
 
@@ -629,9 +626,12 @@
 		animated = (typeof animated === 'undefined' || animated);
 		force = (typeof force !== 'undefined' && force);
 
-		var newPositionX = newPositionY = 0;
-		var infiniteOffset = 0;
-		var options = element.data('options');
+		var
+			newPositionX = 0,
+			newPositionY = 0,
+			infiniteOffset = 0,
+			options = element.data('options')
+		;
 
 		if( typeof options === 'object' ) {
 
@@ -655,7 +655,14 @@
 			}
 
 			//Set New Positions:
-			setPosition(element, options, {left: newPositionX, top: newPositionY, duration: options.duration}, animated, function() { applyPositionComplete(element, options) });
+			setPosition(element, options, {
+					left: newPositionX,
+					top: newPositionY,
+					duration: options.duration
+				}, animated, function() {
+					applyPositionComplete(element, options);
+				}
+			);
 
 			//Update features:
 			applyButtons(element, options);
@@ -688,12 +695,12 @@
 		if( options.buttons === true ) {
 			if( typeof options.buttonPrev !== 'undefined' ) {
 				options.buttonPrev.removeClass( options.buttonDisabledClass );
-				if( options.position <= 0 && options.infinite == false ) { options.buttonPrev.addClass( options.buttonDisabledClass ); }
+				if( options.position <= 0 && options.infinite === false ) { options.buttonPrev.addClass( options.buttonDisabledClass ); }
 			}
 
 			if( typeof options.buttonNext !== 'undefined' ) {
 				options.buttonNext.removeClass( options.buttonDisabledClass );
-				if( options.position >= options.numElements - options.itemsToDisplay && options.infinite == false ) { options.buttonNext.addClass( options.buttonDisabledClass ); }
+				if( options.position >= options.numElements - options.itemsToDisplay && options.infinite === false ) { options.buttonNext.addClass( options.buttonDisabledClass ); }
 			}
 		}
 	};
@@ -812,17 +819,20 @@
 	/-------------------------------------------------------------------------*/
 
 	/* Browser Feature Detection:
- 	 * Taken from https://gist.github.com/556448, added "noConflict"-stuff
-	 * @author https://gist.github.com/jackfuchs
- 	 * @repository GitHub | https://gist.github.com/556448
- 	 * @param p is the requested css-property
- 	 * @param rp defines if the requested property is returned or a
- 	 *			 boolean should be the result
- 	 * @param t overrides the target element
- 	 */
+	* Taken from https://gist.github.com/556448, added "noConflict"-stuff
+	* @author https://gist.github.com/jackfuchs
+	* @repository GitHub | https://gist.github.com/556448
+	* @param p is the requested css-property
+	* @param rp defines if the requested property is returned or a
+	*			boolean should be the result
+	* @param t overrides the target element
+	*/
 	var hasCssProperty = function(p, rp, t) {
-		var b = (t) ? t : (document.body || document.documentElement),
-		s = b.style;
+		var
+			b = (t) ? t : (document.body || document.documentElement),
+			s = b.style,
+			v
+		;
 
 		// No css support detected
 		if(typeof s === 'undefined') { return false; }
@@ -831,7 +841,7 @@
 		if(typeof s[p] === 'string') { return rp ? p : true; }
 
 		// Tests for vendor specific prop
-		v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms', 'Icab'],
+		v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms', 'Icab'];
 		p = p.charAt(0).toUpperCase() + p.substr(1);
 		for(var i=0; i<v.length; i++) {
 			if(typeof s[v[i] + p] === 'string') { return rp ? (v[i] + p) : true; }
@@ -844,12 +854,12 @@
 		if( element.length > 0 ) {
 			p = hasCssProperty(p, true);
 			element = element.get(0);
-			if( typeof p === 'string' && element != undefined ) {
+			if( typeof p === 'string' && element !== undefined ) {
 				return element.style[ p ];
 			}
 		}
 		return undefined;
-	}
+	};
 
 
 
@@ -858,12 +868,12 @@
 	$.fn.slider = function( method ) {
 		if ( methods[method] ) {
 			return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
-		} else if ( typeof method === 'object' || ! method ) {
+		} else if ( typeof method === 'object' || method === undefined ) {
 			return methods.init.apply( this, arguments );
 		} else {
 			$.error( 'Method ' +  method + ' does not exist on jQuery.tooltip' );
 		}
-  	};
+	};
 
 
 
