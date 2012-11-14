@@ -87,6 +87,8 @@
 			itemsAll: reference to jQuery-objects with regular-, pre- and post-items
 			widthItem: width of the first item
 			heightItem: height of the first item
+			widthElement: width of the scrollable container
+			heigthElement: height of the scrollable container
 			position: current position
 			direction: last direction change
 			numElements: number of elements
@@ -207,7 +209,8 @@
 
 			var
 				display = $('<div />').addClass( options.displayClass ),
-				items = element.children()
+				items = element.children(),
+				item
 			;
 
 			if( options.initializeMinItems == false && items.length <= options.itemsToDisplay ) {
@@ -222,10 +225,15 @@
 			options.numElements = items.length;
 			options.widthItem = items.outerWidth(true);
 			options.heightItem = items.outerHeight(true);
+			options.widthElement = 0;
+			options.heightElement = 0;
 
 			items.each( function() {
-				options.widthItem = Math.max($(this).outerWidth(true), options.widthItem);
-				options.heightItem = Math.max($(this).outerHeight(true), options.heightItem);
+				item = $(this);
+				options.widthItem = Math.max(item.outerWidth(true), options.widthItem);
+				options.heightItem = Math.max(item.outerHeight(true), options.heightItem);
+				options.widthElement = options.widthElement + item.outerWidth(true);
+				options.heightElement = options.heightElement + item.outerHeight(true);
 			});
 
 			options.items = items;
@@ -240,8 +248,8 @@
 					items.css('float','left');
 
 					element
-						.width( items.outerWidth() * items.length )
-						.height( options.height );
+						.width( options.widthElement )
+						.height( options.height || options.heightItem );
 
 
 					break;
@@ -251,6 +259,10 @@
 					options.height = options.height || (options.heightItem * options.itemsToDisplay);
 					display.width( options.width ).height( options.height );
 					items.css('float','none');
+
+					element
+						.width( options.width || options.widthItem )
+						.height( options.heightElement );
 
 					break;
 			}
