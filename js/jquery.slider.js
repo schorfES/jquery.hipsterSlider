@@ -569,6 +569,12 @@
 
 	var setPosition = function(element, options, properties, animated, callback) {
 		var cssProperties = {};
+		var onCallback = function() {
+			options.playing = false;
+			if( typeof callback === 'function' ) {
+				callback();
+			}
+		};
 
 		if( properties.duration === undefined ) {
 			properties.duration = options.duration;
@@ -576,18 +582,19 @@
 
 		if( options.hasHardware === true ) {
 			//Animate:
-			if( animated ) {
+			if( animated === true ) {
 				options.playing = true;
 				element.css(options.cssTransitionKey, options.cssTransformKey +' '+ (properties.duration / 1000) +'s ease 0s');
 
-				if( typeof options.cssAnimationTimeout !== 'undefined' ) { window.clearTimeout( options.cssAnimationTimeout ); }
-				options.cssAnimationTimeout = window.setTimeout( function() {
-					options.playing = false;
-					if( typeof callback === 'function' ) { callback(); }
-				}, properties.duration );
+				if( typeof options.cssAnimationTimeout !== 'undefined' ) {
+					window.clearTimeout( options.cssAnimationTimeout );
+				}
+
+				options.cssAnimationTimeout = window.setTimeout(onCallback, properties.duration);
+
 			} else {
 				element.css(options.cssTransitionKey, options.cssTransformKey +' 0s ease 0s');
-				if( typeof callback === 'function' ) { callback(); }
+				onCallback();
 			}
 
 			element.css(options.cssTransformKey, 'translate3d('+ (properties.left || 0) +'px,'+ (properties.top || 0) +'px,0)');
@@ -596,19 +603,14 @@
 			cssProperties.marginTop = properties.top || 0;
 
 			//Animate:
-			if( animated ) {
+			if( animated === true ) {
 				options.playing = true;
-				element.stop().animate(cssProperties, properties.duration, function() {
-					options.playing = false;
-					if( typeof callback === 'function' ) { callback(); }
-				} );
+				element.stop().animate(cssProperties, properties.duration, onCallback);
 			} else {
 				element.stop().css(cssProperties);
-				if( typeof callback === 'function' ) { callback(); }
+				onCallback();
 			}
 		}
-
-
 	};
 
 
