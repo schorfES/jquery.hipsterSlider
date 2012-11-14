@@ -517,7 +517,7 @@
 
 				if( diffAbs > options.touchTolerance ) {
 					options.playing = false;
-					slideTo(element, direction );
+					slideTo(element, direction);
 				} else {
 					options.playing = false;
 					slideTo(element, 0);
@@ -586,12 +586,18 @@
 				options.playing = true;
 				element.css(options.cssTransitionKey, options.cssTransformKey +' '+ (properties.duration / 1000) +'s ease 0s');
 
-				if( typeof options.cssAnimationTimeout !== 'undefined' ) {
+				/* Use events when transition is competed for webkit and
+				 * mozilla firefox, fallback to timeout for other browsers
+				 *
+				 * @TODO: Check for other browser support */
+				if( $.browser.webkit === true ) {
+					options.element.one('webkitTransitionEnd', onCallback);
+				} else if ( $.browser.mozilla === true ) {
+					options.element.one('transitionend', onCallback);
+				} else {
 					window.clearTimeout( options.cssAnimationTimeout );
+					options.cssAnimationTimeout = window.setTimeout(onCallback, properties.duration);
 				}
-
-				options.cssAnimationTimeout = window.setTimeout(onCallback, properties.duration);
-
 			} else {
 				element.css(options.cssTransitionKey, options.cssTransformKey +' 0s ease 0s');
 				onCallback();
