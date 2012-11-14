@@ -2,7 +2,7 @@
  *  jquery.slider.js
  *
  *  @author Norman Rusch (schorfES) , norman.rusch@moccu.com / webmaster@grind-it.de
- *  @repository GitHub | https://github.com/schorfES/jquery.slider
+ *  @repository GitHub | https://github.com/schorfES/jquery.slider
  */
 
 ;(function( $ ){
@@ -25,7 +25,7 @@
 		itemsCurrentClass: 'current',				/* defines the classname for the current position */
 		itemsNextClass: 'next',						/* defines the classname for the next positions */
 
-		itemsToDisplay: 1,							/* number of items to display */
+		itemsToDisplay: 1,
 		itemsToScroll: 1,							/* number of items to scroll */
 
 		duration: 500,								/* sliding duration */
@@ -34,7 +34,7 @@
 		height: undefined,							/* vertical dimension for for the display (wrapper (overflow hidden)) */
 
 		buttons: false,								/* activates scrolling buttons */
-		buttonsWrap: false, 						/* creates a wrapper div for the button-links */
+		buttonsWrap: false,							/* creates a wrapper div for the button-links */
 		buttonsWrapClass: 'slider-buttons',			/* classname for the wrapper div */
 		buttonsClass: 'slider-button',				/* classname for a button */
 		buttonPrevLabel: 'previous',				/* label for the previous button */
@@ -80,7 +80,7 @@
 													 *		- the option autoresize will be set to false
 													 * INFO: It is useful to provide the options width & height */
 
-		/* Created by plugin inside options:
+		/* Created by plugin inside localOptions:
 			items: reference to jQuery-object with <li> items
 			itemsPre: reference to jQuery-objects which are clones at the beginning of all items for infinite loop
 			itemsPost: reference to jQuery-objects which are clones at the end of all items for infinite loop
@@ -108,26 +108,25 @@
 			cssTransitionKey: css property including renderprefix for css3 transitions
 			cssAnimationTimeout: is the timeout-instance for css3 animations
 		*/
-  	};
+	};
 
 
 	/* Public Functions:
 	/-------------------------------------------------------------------------*/
 	var methods = {
-		init: function( options ) {
+		init : function( options ) {
 			var
 				target = $(this),
 				index = 0,
 				element, localOptions, initialized
 			;
-			options = $.extend({}, defaults, options);
 
 			return target.each( function() {
 				element = $(this);
-				localOptions = $.extend({}, options);
+				localOptions = $.extend({}, defaults, options);
 
 				initialized = initElement(element, localOptions);
-				if( initialized == true ) {
+				if( initialized === true ) {
 					initHardware(element, localOptions);
 					initButtons(element, localOptions);
 					initPager(element, localOptions);
@@ -140,20 +139,20 @@
 					initAutoresize(element, localOptions);
 					initTouch(element, localOptions);
 
-					applyPosition(element, options.position, false);
+					applyPosition(element, localOptions.position, false);
 
 					index++;
 				}
 			});
 		},
 
-		next: function() {
+		next : function() {
 			var target = $(this);
 			slideTo(target, +1);
 			return target;
 		},
 
-		prev: function() {
+		prev : function() {
 			var target = $(this);
 			slideTo(target, -1);
 			return target;
@@ -191,7 +190,7 @@
 			return getPage(target, options);
 		},
 
-		options: function() {
+		options : function() {
 			return $(this).data('options');
 		}
 	};
@@ -205,7 +204,7 @@
 	/-------------------------------------------------------------------------*/
 	var initElement = function(element, options) {
 		var elementTagname = element.get(0).tagName.toLowerCase();
-		if( elementTagname == 'ul' ) {
+		if( elementTagname === 'ul' ) {
 
 			var
 				display = $('<div />').addClass( options.displayClass ),
@@ -222,6 +221,7 @@
 			options.position = (typeof options.position === 'number' && options.position > -1)
 										? options.position
 										: 0;
+
 			options.numElements = items.length;
 			options.widthItem = items.outerWidth(true);
 			options.heightItem = items.outerHeight(true);
@@ -290,7 +290,7 @@
 	};
 
 	var initHardware = function(element, options) {
-		if( options.useHardware ) {
+		if( options.useHardware === true ) {
 			var css = {}, key,
 				prefixes = ['-webkit-','-moz-','-o-','-ms-','-khtml-',''];
 
@@ -325,7 +325,7 @@
 
 	var initButtons = function(element, options) {
 		/* Buttons must be active and there mast be at least more than one page to show */
-		if( (options.buttons && options.numElements - options.itemsToDisplay > 0 ) ) {
+		if( (options.buttons === true && options.numElements - options.itemsToDisplay > 0 ) ) {
 
 			var prevButton = $('<a href="#" class="'+ options.buttonsClass +' '+ options.buttonPrevClass +'">'+ options.buttonPrevLabel +'</a>');
 			var nextButton = $('<a href="#" class="'+ options.buttonsClass +' '+ options.buttonNextClass +'">'+ options.buttonNextLabel +'</a>');
@@ -367,27 +367,27 @@
 
 	var initPager = function(element, options) {
 		/* Pagers must be active and there mast be at least more than one page to show */
-		if( options.pager && options.numElements - options.itemsToDisplay > 0 ) {
+		if( options.pager === true && options.numElements - options.itemsToDisplay > 0 ) {
+
 			var wrapPager = $('<ol class="'+ options.pagerWrapClass +'" />');
+			var clickHandler = function(event) {
+				event.preventDefault();
+				var index = $(event.currentTarget).data('index');
+				applyPosition(element, index);
+				stopAutoplay(options);
+			};
 
 			for( var count = 1; count <= options.numElements; count++ ) {
-				var page = $('<li class="'+ options.pagerClass +'"><a href="#">'+ count +'</a></li>');
-				page
-					.data('index', count - 1)
-					.appendTo( wrapPager )
-					.click( function(event) {
-						event.preventDefault();
-						var index = $(event.currentTarget).data('index');
-						applyPosition(element, index);
-						stopAutoplay(options);
-					} );
+				var page = $('<li class="'+ options.pagerClass +'"><a href="#">'+ count +'</a></li>')
+								.data('index', count - 1)
+								.appendTo( wrapPager )
+								.click(clickHandler);
 			}
 
 			wrapPager.insertAfter( options.display );
-
 			options.displayPager = wrapPager;
-
 			applyPaging(element, options);
+
 		} else {
 			options.pager = false;
 		}
@@ -401,7 +401,7 @@
 	};
 
 	var initBiglink = function(element, options) {
-		if( options.biglink ) {
+		if( options.biglink === true ) {
 
 			if( options.biglinkClass ) {
 				element
@@ -427,7 +427,7 @@
 
 	var initAutoplay = function(element, options, index) {
 		/* Autoplay must be active and there mast be at least more than one page to show */
-		if( options.autoplay == true && options.numElements - options.itemsToDisplay > 0 ) {
+		if( options.autoplay === true && options.numElements - options.itemsToDisplay > 0 ) {
 			index = (options.autoplayDelayQueued) ? index : 1;
 			setTimeout( function() {
 				autoplay(element, options);
@@ -439,7 +439,7 @@
 
 	var initInfinite = function(element, options) {
 		/* Infinite must be active and there mast be at least more than one page to show */
-		if( options.infinite && options.numElements - options.itemsToDisplay > 0 ) {
+		if( options.infinite === true && options.numElements - options.itemsToDisplay > 0 ) {
 
 			var preItem = options.items.eq(0);
 			var postItem = options.items.eq(options.numElements - 1);
@@ -489,16 +489,15 @@
 	};
 
 	var initAutoresize = function(element, options) {
-		if( options.autoresize ) {
+		if( options.autoresize === true ) {
 			$(window).resize( function() { refreshSize(options); } );
 			refreshSize(options);
 		}
 	};
 
 	var initTouch = function(element, options) {
-		if( options.touch ) {
+		if( options.touch === true ) {
 			var startX, startY, pos, posX, posY, diffX, diffY, diffAbs, direction, baseEvent, target;
-			var preventDocumentTouch = function(event) { event.preventDefault(); };
 
 			var onMouseDown = function(event) {
 				if( !options.playing ) {
@@ -539,8 +538,8 @@
 				diffX = baseEvent.pageX - startX;
 				diffY = baseEvent.pageY - startY;
 
-				if( (options.orientation == ORIENTATION_HORIZONTAL && Math.abs(diffX) > options.touchDirectionTolerance) ||
-					(options.orientation == ORIENTATION_VERTICAL   && Math.abs(diffY) > options.touchDirectionTolerance) ) {
+				if( (options.orientation === ORIENTATION_HORIZONTAL && Math.abs(diffX) > options.touchDirectionTolerance) ||
+					(options.orientation === ORIENTATION_VERTICAL   && Math.abs(diffY) > options.touchDirectionTolerance) ) {
 					event.preventDefault();
 				}
 
@@ -552,8 +551,8 @@
 			};
 
 			var onMouseLeave = function(event) {
-				diffAbs = Math.abs( ( options.orientation == ORIENTATION_HORIZONTAL ) ? diffX : diffY );
-				direction = ( options.orientation == ORIENTATION_HORIZONTAL ) ? -diffX / diffAbs : -diffY / diffAbs;
+				diffAbs = Math.abs( ( options.orientation === ORIENTATION_HORIZONTAL ) ? diffX : diffY );
+				direction = ( options.orientation === ORIENTATION_HORIZONTAL ) ? -diffX / diffAbs : -diffY / diffAbs;
 
 				if( diffAbs > options.touchTolerance ) {
 					options.playing = false;
@@ -591,18 +590,18 @@
 	/-------------------------------------------------------------------------*/
 
 	var getPosition = function(element, options) {
-		if( options.hasHardware ) {
+		if( options.hasHardware === true ) {
 			var position = element
 							.css(options.cssTransformKey)
 							.match(/(?:[-\d]+[\s,]*)+/)[0].split(',');
 			return {
-				left: parseInt(position[4]),
-				top: parseInt(position[5])
-			}
+				left: parseInt(position[4], 10),
+				top: parseInt(position[5], 10)
+			};
 		} else {
 			return {
-				left: parseInt(element.css('margin-left').replace(/px/, '')),
-				top: parseInt(element.css('margin-top').replace(/px/, ''))
+				left: parseInt(element.css('margin-left').replace(/px/, ''), 10),
+				top: parseInt(element.css('margin-top').replace(/px/, ''), 10)
 			};
 		}
 	};
@@ -610,11 +609,11 @@
 	var setPosition = function(element, options, properties, animated, callback) {
 		var cssProperties = {};
 
-		if( properties.duration == undefined ) {
+		if( properties.duration === undefined ) {
 			properties.duration = options.duration;
 		}
 
-		if( options.hasHardware ) {
+		if( options.hasHardware === true ) {
 			//Animate:
 			if( animated ) {
 				options.playing = true;
@@ -623,11 +622,11 @@
 				if( typeof options.cssAnimationTimeout !== 'undefined' ) { window.clearTimeout( options.cssAnimationTimeout ); }
 				options.cssAnimationTimeout = window.setTimeout( function() {
 					options.playing = false;
-					if( typeof callback == 'function' ) { callback(); }
+					if( typeof callback === 'function' ) { callback(); }
 				}, properties.duration );
 			} else {
 				element.css(options.cssTransitionKey, options.cssTransformKey +' 0s ease 0s');
-				if( typeof callback == 'function' ) { callback(); }
+				if( typeof callback === 'function' ) { callback(); }
 			}
 
 			element.css(options.cssTransformKey, 'translate3d('+ (properties.left || 0) +'px,'+ (properties.top || 0) +'px,0)');
@@ -640,15 +639,13 @@
 				options.playing = true;
 				element.stop().animate(cssProperties, properties.duration, function() {
 					options.playing = false;
-					if( typeof callback == 'function' ) { callback(); }
+					if( typeof callback === 'function' ) { callback(); }
 				} );
 			} else {
 				element.stop().css(cssProperties);
-				if( typeof callback == 'function' ) { callback(); }
+				if( typeof callback === 'function' ) { callback(); }
 			}
 		}
-
-
 	};
 
 	var getPage = function(element, options) {
@@ -657,10 +654,10 @@
 			position
 		;
 
-		if( options ) {
+		if( typeof options === 'object' ) {
 			result = options.position;
 
-			if( options.flexibleItemdimensions ) {
+			if( options.flexibleItemdimensions === true ) {
 				position = getPosition(element, options);
 				result = options.items.index( getItemAt(options, position.left * -1, position.top * -1) );
 			}
@@ -673,7 +670,7 @@
 	var slideTo = function(element, direction) {
 		var initialized = element.data('initialized');
 		var options = element.data('options');
-		if( initialized && options && !options.playing ) {
+		if( initialized === true && options && !options.playing ) {
 			direction = direction * options.itemsToScroll;
 			options.position = options.position + direction;
 			options.direction = direction;
@@ -695,19 +692,18 @@
 		;
 
 		if( typeof options !== 'undefined' ) {
-
 			if( typeof position === 'number' ) {
 				options.position = position;
 			}
 
 			//Get current item when items are flexible:
-			if( options.flexibleItemdimensions ) {
+			if( options.flexibleItemdimensions === true ) {
 				currentPosition = getPosition(element, options);
 				currentItem = getItemAt(options, currentPosition.left * -1, currentPosition.top * -1);
 			}
 
 			//Check & correct position:
-			if( options.infinite == false ) {
+			if( options.infinite === false ) {
 				if( options.position < 0 ) { options.position = 0; }
 				if( options.position > options.numElements - options.itemsToDisplay ) { options.position = options.numElements - options.itemsToDisplay; }
 			} else {
@@ -715,14 +711,15 @@
 				infiniteOffset = (( options.orientation == ORIENTATION_HORIZONTAL) ? options.widthItem : options.heightItem) * options.itemsToDisplay * -1;
 			}
 
-
 			//Calculate new Positions:
-			if( options.orientation == ORIENTATION_HORIZONTAL ) {
+			if( options.orientation === ORIENTATION_HORIZONTAL ) {
 				if( !options.flexibleItemdimensions ) {
 					newPositionX = (options.position * options.widthItem * -1) + infiniteOffset;
 				} else {
 					newPositionX = getPosition(element, options).left;
-					if( newPositionX > 0 ) { newPositionX = 0; }
+					if( newPositionX > 0 ) {
+						newPositionX = 0;
+					}
 
 					if( options.direction > 0 ) { //Scrolling forward:
 						nextItem = getItemAt(options, currentPosition.left * -1 + options.width + 1, 0);
@@ -739,7 +736,7 @@
 					}
 				}
 			} else {
-				if( !options.flexibleItemdimensions ) {
+				if( options.flexibleItemdimensions === false) {
 					newPositionY = (options.position * options.heightItem * -1) + infiniteOffset;
 				} else {
 					newPositionY = getPosition(element, options).top;
@@ -770,7 +767,9 @@
 			applyButtons(element, options);
 			applySiteClasses(element, options);
 			applyItemClasses(element, options);
-			if( !animated ) { applyPaging(element, options); }
+			if( !animated ) {
+				applyPaging(element, options);
+			}
 
 			if( typeof options.onUpdate === 'function' ) {
 				options.onUpdate(element);
@@ -780,7 +779,7 @@
 	};
 
 	var applyPositionComplete = function(element, options) {
-		if( options.infinite == true ) {
+		if( options.infinite === true ) {
 
 			if( options.position < -(options.itemsToDisplay - options.itemsToScroll) ) {
 				applyPosition(element, options.numElements - options.itemsToDisplay, false);
@@ -794,36 +793,36 @@
 	};
 
 	var applyButtons = function(element, options) {
-		if( options.buttons ) {
+		if( options.buttons === true ) {
 			if( typeof options.buttonPrev !== 'undefined' ) {
 				options.buttonPrev.removeClass( options.buttonDisabledClass );
-				if( options.position <= 0 && options.infinite == false ) { options.buttonPrev.addClass( options.buttonDisabledClass ); }
+				if( options.position <= 0 && options.infinite === false ) { options.buttonPrev.addClass( options.buttonDisabledClass ); }
 			}
 
 			if( typeof options.buttonNext !== 'undefined' ) {
 				options.buttonNext.removeClass( options.buttonDisabledClass );
-				if( options.position >= options.numElements - options.itemsToDisplay && options.infinite == false ) { options.buttonNext.addClass( options.buttonDisabledClass ); }
+				if( options.position >= options.numElements - options.itemsToDisplay && options.infinite === false ) { options.buttonNext.addClass( options.buttonDisabledClass ); }
 			}
 		}
 	};
 
 	var applyPaging = function(element, options) {
-		if( options.pager && options.displayPager ) {
+		if( options.pager === true && options.displayPager ) {
 			options.displayPager.children('.'+ options.pagerSelectedClass ).removeClass( options.pagerSelectedClass );
 			options.displayPager.children().eq(options.position).addClass( options.pagerSelectedClass );
 		}
 	};
 
 	var applySiteClasses = function(element, options) {
-		if( options.siteClasses ) {
+		if( options.siteClasses === true ) {
 			options.display.parent().removeClass( options.siteClassesActive );
-			options.siteClassesActive = options.siteClassesClass + (getPage(element, options) + 1);
+			options.siteClassesActive = options.siteClassesClass + (options.position + 1);
 			options.display.parent().addClass( options.siteClassesActive );
 		}
 	};
 
 	var applyItemClasses = function(element, options) {
-		if( options.itemsClasses ) {
+		if( options.itemsClasses === true ) {
 			var item;
 
 			//General items:
@@ -846,7 +845,7 @@
 
 
 			//Pre and Post items:
-			if( options.infinite ) {
+			if( options.infinite === true ) {
 				var from, to;
 
 				//Preitems:
@@ -886,7 +885,7 @@
 	};
 
 	var autoplay = function(element, options) {
-		if( options.autoplay == true ) {
+		if( options.autoplay === true ) {
 			slideTo(element, options.autoplayDirection);
 			setTimeout( function() { autoplay(element, options); }, options.autoplayPause );
 		}
@@ -897,7 +896,7 @@
 	};
 
 	var refreshSize = function(options) {
-		if( options.orientation == ORIENTATION_HORIZONTAL ) {
+		if( options.orientation === ORIENTATION_HORIZONTAL ) {
 			options.width = options.display.parent().width();
 			options.widthItem = options.width;
 			options.element.width(options.width * options.itemsAll.length);
@@ -921,29 +920,32 @@
 	/-------------------------------------------------------------------------*/
 
 	/* Browser Feature Detection:
- 	 * Taken from https://gist.github.com/556448, added "noConflict"-stuff
-	 * @author https://gist.github.com/jackfuchs
- 	 * @repository GitHub | https://gist.github.com/556448
- 	 * @param p is the requested css-property
- 	 * @param rp defines if the requested property is returned or a
- 	 *			 boolean should be the result
- 	 * @param t overrides the target element
- 	 */
+	* Taken from https://gist.github.com/556448, added "noConflict"-stuff
+	* @author https://gist.github.com/jackfuchs
+	* @repository GitHub | https://gist.github.com/556448
+	* @param p is the requested css-property
+	* @param rp defines if the requested property is returned or a
+	*			boolean should be the result
+	* @param t overrides the target element
+	*/
 	var hasCssProperty = function(p, rp, t) {
-		var b = (t) ? t : (document.body || document.documentElement),
-		s = b.style;
+		var
+			b = (t) ? t : (document.body || document.documentElement),
+			s = b.style,
+			v
+		;
 
 		// No css support detected
-		if(typeof s == 'undefined') { return false; }
+		if(typeof s === 'undefined') { return false; }
 
 		// Tests for standard prop
-		if(typeof s[p] == 'string') { return rp ? p : true; }
+		if(typeof s[p] === 'string') { return rp ? p : true; }
 
 		// Tests for vendor specific prop
-		v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms', 'Icab'],
+		v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms', 'Icab'];
 		p = p.charAt(0).toUpperCase() + p.substr(1);
 		for(var i=0; i<v.length; i++) {
-			if(typeof s[v[i] + p] == 'string') { return rp ? (v[i] + p) : true; }
+			if(typeof s[v[i] + p] === 'string') { return rp ? (v[i] + p) : true; }
 		}
 
 		return rp ? undefined : false;
@@ -953,7 +955,7 @@
 		if( element.length > 0 ) {
 			p = hasCssProperty(p, true);
 			element = element.get(0);
-			if( typeof p === 'string' && element != undefined ) {
+			if( typeof p === 'string' && element !== undefined ) {
 				return element.style[ p ];
 			}
 		}
@@ -987,12 +989,12 @@
 	$.fn.slider = function( method ) {
 		if ( methods[method] ) {
 			return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
-		} else if ( typeof method === 'object' || ! method ) {
+		} else if ( typeof method === 'object' || method === undefined ) {
 			return methods.init.apply( this, arguments );
 		} else {
 			$.error( 'Method ' +  method + ' does not exist on jQuery.tooltip' );
 		}
-  	};
+	};
 
 
 
