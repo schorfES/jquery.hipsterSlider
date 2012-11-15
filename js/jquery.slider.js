@@ -325,7 +325,16 @@
 
 	var initButtons = function(element, options) {
 		/* Buttons must be active and there mast be at least more than one page to show */
-		if( (options.buttons === true && options.numElements - options.itemsToDisplay > 0 ) ) {
+		if( options.buttons === true &&
+			options.numElements - options.itemsToDisplay > 0 &&
+			( options.flexibleItemdimensions === false ||
+			  ( options.flexibleItemdimensions === true &&
+				( (options.orientation === ORIENTATION_HORIZONTAL && options.widthElement > options.width) ||
+				  (options.orientation === ORIENTATION_VERTICAL && options.heightElement > options.height)
+				)
+			  )
+			)
+		) {
 
 			var prevButton = $('<a href="#" class="'+ options.buttonsClass +' '+ options.buttonPrevClass +'">'+ options.buttonPrevLabel +'</a>');
 			var nextButton = $('<a href="#" class="'+ options.buttonsClass +' '+ options.buttonNextClass +'">'+ options.buttonNextLabel +'</a>');
