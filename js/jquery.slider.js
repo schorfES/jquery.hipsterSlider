@@ -814,10 +814,19 @@
 		if( options.orientation === ORIENTATION_HORIZONTAL ) {
 			options.width = options.display.parent().width();
 			options.widthItem = options.width;
+
 			options.element.width(options.width * options.itemsAll.length);
 		} else {
-			options.height = options.display.parent().height();
+			//in this case, the aspect ratio must stay the same
+			var width = options.display.parent().width();
+			var ratio = options.height / options.width;
+
+			options.width = width;
+			options.height = ratio * width;
+			options.widthItem = options.width;
 			options.heightItem = options.height;
+
+			options.element.width(options.width);
 			options.element.height(options.height * options.itemsAll.length);
 		}
 
