@@ -68,6 +68,7 @@
 		selectedClass: 'selected',					/* classname for a selected item */
 
 		autoresize: false,							/* recalculates new available dimensions, when browser resizes */
+		autoresizeKeepRatio: false,					/* forces the slider to keep the start aspectratio when the slidshow resizes (note: this only works for horizontal scroling, in vertical orientation the aspectration is always the same)*/
 
 		touch: false,								/* enables / disables touchfeature for mobile devices */
 		touchTolerance: 20,							/* defines the tolerance in pixels to move before slide to a next position */
@@ -919,13 +920,8 @@
 	};
 
 	var refreshSize = function(options) {
-		if( options.orientation === ORIENTATION_HORIZONTAL ) {
-			options.width = options.display.parent().width();
-			options.widthItem = options.width;
-
-			options.element.width(options.width * options.itemsAll.length);
-		} else {
-			//in this case, the aspect ratio must stay the same
+		//in the case of orientation vertical, the aspect ratio must stay the same...
+		if( options.orientation === ORIENTATION_VERTICAL || options.autoresizeKeepRatio === true ) {
 			var width = options.display.parent().width();
 			var ratio = options.height / options.width;
 
@@ -934,8 +930,18 @@
 			options.widthItem = options.width;
 			options.heightItem = options.height;
 
-			options.element.width(options.width);
-			options.element.height(options.height * options.itemsAll.length);
+			if( options.orientation === ORIENTATION_VERTICAL ) {
+				options.element.width(options.width);
+				options.element.height(options.height * options.itemsAll.length);
+			} else {
+				options.element.width(options.width * options.itemsAll.length);
+				options.element.height(options.height);
+			}
+		} else {
+			options.width = options.display.parent().width();
+			options.widthItem = options.width;
+
+			options.element.width(options.width * options.itemsAll.length);
 		}
 
 		options.display.width(options.width);
