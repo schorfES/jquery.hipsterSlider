@@ -14,6 +14,7 @@
 	var DIRECTION_BACKWARD = -1;
 
 	var defaults = {
+		tagName: 'ul',								/* default base selector */
 		orientation: ORIENTATION_HORIZONTAL,		/* sets the slide-orientation */
 
 		displayClass: 'slider-display',				/* defines the classname for the display wrapper */
@@ -204,7 +205,7 @@
 	/-------------------------------------------------------------------------*/
 	var initElement = function(element, options) {
 		var elementTagname = element.get(0).tagName.toLowerCase();
-		if( elementTagname === 'ul' ) {
+		if( elementTagname === options.tagName ) {
 
 			var
 				display = $('<div />').addClass( options.displayClass ),
