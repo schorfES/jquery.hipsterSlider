@@ -149,13 +149,20 @@
 			return target;
 		},
 
-		page : function(index) {
-			var target = $(this);
-			var options = target.data('options');
-			if( options ) {
-				applyPosition(target, index);
+		page: function(index) {
+			var
+				target = $(this),
+				options = target.data('options')
+			;
+
+			if( typeof index === 'number' ) {
+				if( options ) {
+					applyPosition(target, index);
+				}
+				return target;
+			} else {
+				return options.position;
 			}
-			return target;
 		},
 
 		stop : function() {
