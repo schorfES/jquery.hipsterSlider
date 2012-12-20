@@ -165,10 +165,14 @@
 				options = target.data('options')
 			;
 
-			if( options ) {
-				applyPosition(target, index);
+			if( typeof index === 'number' ) {
+				if( options ) {
+					applyPosition(target, index);
+				}
+				return target;
+			} else {
+				return options.position;
 			}
-			return target;
 		},
 
 		stop: function() {
