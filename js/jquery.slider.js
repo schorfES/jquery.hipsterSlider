@@ -153,7 +153,7 @@
 		page: function(index) {
 			var
 				target = $(this),
-				options = target.data('options')
+				options = target.data('sliderOptions')
 			;
 
 			if( typeof index === 'number' ) {
@@ -168,7 +168,7 @@
 
 		stop : function() {
 			var target = $(this);
-			var options = target.data('options');
+			var options = target.data('sliderOptions');
 			if( options ) {
 				stopAutoplay(options);
 			}
@@ -178,7 +178,7 @@
 		getPosition : function() {
 			var result = -1;
 			var target = $(this);
-			var options = target.data('options');
+			var options = target.data('sliderOptions');
 			if( options ) {
 				result = options.position;
 			}
@@ -186,7 +186,7 @@
 		},
 
 		options : function() {
-			return $(this).data('options');
+			return $(this).data('sliderOptions');
 		}
 	};
 
@@ -253,7 +253,7 @@
 
 			element
 				.wrap(display)
-				.data('options', options)
+				.data('sliderOptions', options)
 				.data('initialized', true)
 				.css('overflow','visible');
 
@@ -631,7 +631,7 @@
 
 	var slideTo = function(element, direction) {
 		var initialized = element.data('initialized');
-		var options = element.data('options');
+		var options = element.data('sliderOptions');
 		if( initialized === true && options && !options.playing ) {
 			direction = direction * options.itemsToScroll;
 			options.position = options.position + direction;
@@ -647,7 +647,7 @@
 			newPositionX = 0,
 			newPositionY = 0,
 			infiniteOffset = 0,
-			options = element.data('options')
+			options = element.data('sliderOptions')
 		;
 
 		if( typeof options === 'object' ) {
