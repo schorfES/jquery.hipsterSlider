@@ -210,6 +210,35 @@
 					});
 				</div>
 
+				<h2>Touch (horizontal/vertical)</h2>
+				<div class="slider">
+					<ul class="infinite touch">
+						<li><img src="http://lorempixel.com/800/200/abstract/6" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/3" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/7" alt="" /></li>
+					</ul>
+				</div>
+
+				<div class="slider">
+					<ul class="touch vertical">
+						<li><img src="http://lorempixel.com/800/200/abstract/6" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/3" alt="" /></li>
+						<li><img src="http://lorempixel.com/800/200/abstract/7" alt="" /></li>
+					</ul>
+				</div>
+
+				<p>
+					The slider has support for touch devices. Set the
+					<strong>touch</strong> option to <strong>true</strong> to
+					enable this feature.
+				</p>
+
+				<div class="code">
+					$('.slider ul').slider({<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;touch: true<br />
+					});
+				</div>
+
 			</section>
 		</div>
 
@@ -227,7 +256,8 @@
 						orientation: slider.hasClass('vertical') ? $.slider.VERTICAL : $.slider.HORIZONTAL,
 						autoplayDirection: slider.hasClass('backward') ? $.slider.BACKWARD : $.slider.FORWARD,
 						buttons: slider.hasClass('buttons'),
-						pager: slider.hasClass('pager')
+						pager: slider.hasClass('pager'),
+						touch: slider.hasClass('touch')
 					});
 				});
 			} );
