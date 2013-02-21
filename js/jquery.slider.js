@@ -53,7 +53,7 @@
 		siteClassesClass: 'page',					/* classname for the active page */
 
 		biglink: false,								/* allows to open a link inside a target-element defined by classname */
-		biglinkClass: undefined,					/* classname for the biglink target*/
+		biglinkClass: 'biglink',					/* classname for the biglink target*/
 
 		infinite: false,							/* allows unlimited scrolling in both directions */
 
@@ -77,6 +77,8 @@
 		useHardware: true							/* defines if the slider should detect css3-hardware-acceleration-features */
 
 		/* Created by plugin inside localOptions:
+			initialized: boolean that indicates if slider is initialized
+			element: reference to slideshow element
 			items: reference to jQuery-object with <li> items
 			itemsPre: reference to jQuery-objects which are clones at the beginning of all items for infinite loop
 			itemsPost: reference to jQuery-objects which are clones at the end of all items for infinite loop
@@ -100,6 +102,8 @@
 			cssTransformKey: css property including renderprefix for css3 transforms
 			cssTransitionKey: css property including renderprefix for css3 transitions
 			cssAnimationTimeout: is the timeout-instance for css3 animations
+
+			preInitStyles: object that stores all styles of modified DOM elements
 		*/
 	};
 
@@ -111,15 +115,15 @@
 			var
 				target = $(this),
 				index = 0,
-				element, localOptions, initialized
+				element, localOptions
 			;
 
 			return target.each( function() {
 				element = $(this);
 				localOptions = $.extend({}, defaults, options);
 
-				initialized = initElement(element, localOptions);
-				if( initialized === true ) {
+				initElement(element, localOptions);
+				if( localOptions.initialized === true ) {
 					initHardware(element, localOptions);
 					initButtons(element, localOptions);
 					initPager(element, localOptions);
@@ -132,7 +136,6 @@
 					initTouch(element, localOptions);
 
 					applyPosition(element, localOptions.position, false);
-
 					index++;
 				}
 			});
@@ -157,7 +160,7 @@
 			;
 
 			if( typeof index === 'number' ) {
-				if( options ) {
+				if( typeof options === 'object' ) {
 					applyPosition(target, index);
 				}
 				return target;
@@ -169,7 +172,7 @@
 		stop : function() {
 			var target = $(this);
 			var options = target.data('sliderOptions');
-			if( options ) {
+			if( typeof options === 'object' ) {
 				stopAutoplay(options);
 			}
 			return target;
@@ -179,7 +182,7 @@
 			var result = -1;
 			var target = $(this);
 			var options = target.data('sliderOptions');
-			if( options ) {
+			if( typeof options === 'object' ) {
 				result = options.position;
 			}
 			return result;
@@ -187,19 +190,36 @@
 
 		options : function() {
 			return $(this).data('sliderOptions');
+		},
+
+		destroy : function() {
+			var options = $(this).data('sliderOptions');
+			if( typeof options === 'object' ) {
+				/* destruction function should be called reversed to init functions */
+				destroyTouch(options);
+				destroyAutoresize(options);
+				destroyInfinite(options);
+				destroyAutoplay(options);
+				destroySiteClasses(options);
+				destroyBiglink(options);
+				destroyPager(options);
+				destroyButtons(options);
+				destroyHardware(options);
+				destroyElement(options);
+			}
 		}
 	};
 
 
-
-
-
-
 	/* Private Functions: Initialization
 	/-------------------------------------------------------------------------*/
+
 	var initElement = function(element, options) {
 		var elementTagname = element.get(0).tagName.toLowerCase();
 		if( elementTagname === options.tagName ) {
+
+			options.preInitStyles = options.preInitStyles || {};
+			options.preInitStyles.element = { attrStyle: element.attr('style') };
 
 			var display = $('<div />').addClass( options.displayClass );
 			var items = element.children();
@@ -215,9 +235,16 @@
 			options.widthItem = items.outerWidth(true);
 			options.heightItem = items.outerHeight(true);
 
+			var item;
+			options.preInitStyles.items = [];
 			items.each( function() {
-				options.widthItem = Math.max($(this).outerWidth(true), options.widthItem);
-				options.heightItem = Math.max($(this).outerHeight(true), options.heightItem);
+				item = $(this);
+				options.preInitStyles.items.push({
+					item: item,
+					attrStyle: item.attr('style')
+				});
+				options.widthItem = Math.max(item.outerWidth(true), options.widthItem);
+				options.heightItem = Math.max(item.outerHeight(true), options.heightItem);
 			});
 
 			options.items = items;
@@ -254,12 +281,12 @@
 			element
 				.wrap(display)
 				.data('sliderOptions', options)
-				.data('initialized', true)
 				.css('overflow','visible');
 
 			options.display = element.parent();
 			options.element = element;
 			options.playing = false;
+			options.initialized = true;
 
 			return true;
 		}
@@ -316,7 +343,7 @@
 
 			prevButton
 				.appendTo( wrapButtons )
-				.click( function(event) {
+				.bind('click.slider', function(event) {
 					event.preventDefault();
 					slideTo(element, -1);
 					stopAutoplay(options);
@@ -325,7 +352,7 @@
 
 			nextButton
 				.appendTo( wrapButtons )
-				.click( function(event) {
+				.bind('click.slider', function(event) {
 					event.preventDefault();
 					slideTo(element, +1);
 					stopAutoplay(options);
@@ -358,7 +385,7 @@
 				var page = $('<li class="'+ options.pagerClass +'"><a href="#">'+ count +'</a></li>')
 								.data('index', count - 1)
 								.appendTo( wrapPager )
-								.click(clickHandler);
+								.bind('click.slider', clickHandler);
 			}
 
 			wrapPager.insertAfter( options.display );
@@ -371,17 +398,31 @@
 	};
 
 	var initBiglink = function(element, options) {
-		if( options.biglink === true ) {
+		if( options.biglink === true && typeof options.biglinkClass === 'string' ) {
+			var
+				biglinks = element.find( '.'+ options.biglinkClass ),
+				biglink
+			;
 
-			if( options.biglinkClass ) {
-				element
-					.find( '.'+ options.biglinkClass )
-					.css('cursor','pointer')
-					.click( function(event) {
+			if( biglinks.length > 0 ) {
+				options.preInitStyles = options.preInitStyles || {};
+				options.preInitStyles.biglinks = [];
+
+				biglinks.each(function() {
+					biglink = $(this);
+					options.preInitStyles.biglinks.push({
+						biglink: biglink,
+						attrStyle: biglink.attr('style')
+					});
+				});
+
+
+				biglinks.css('cursor','pointer')
+					.bind('click.slider', function(event) {
 						event.preventDefault();
 						event.stopPropagation();
-						var target = $(event.currentTarget);
-						var link = target.find('a').eq(0);
+
+						var link = $(event.currentTarget).find('a').eq(0);
 						if( link.length > 0 ) {
 							document.location.href = link.attr('href');
 						}
@@ -460,7 +501,7 @@
 
 	var initAutoresize = function(element, options) {
 		if( options.autoresize === true ) {
-			$(window).resize( function() { refreshSize(options); } );
+			$(window).bind('resize.slider', function() { refreshSize(options); } );
 			refreshSize(options);
 		}
 	};
@@ -483,16 +524,16 @@
 					diffY = 0;
 
 					target
-						.bind('mousemove', onMouseMove )
-						.bind('touchmove', onMouseMove );
+						.bind('mousemove.slider', onMouseMove )
+						.bind('touchmove.slider', onMouseMove );
 
 					$(document)
-						.bind('mouseup', onMouseLeave )
-						.bind('touchend', onMouseLeave );
+						.bind('mouseup.slider', onMouseLeave )
+						.bind('touchend.slider', onMouseLeave );
 
 					options.itemsAll
-						.unbind('mousedown', onMouseDown )
-						.unbind('touchstart', onMouseDown );
+						.unbind('mousedown.slider', onMouseDown )
+						.unbind('touchstart.slider', onMouseDown );
 
 					//Prevent Imagedragging:
 					if( event.target.tagName.toLowerCase() == 'img' ) {
@@ -533,27 +574,186 @@
 				}
 
 				target
-					.unbind('mousemove', onMouseMove )
-					.unbind('touchmove', onMouseMove );
+					.unbind('mousemove.slider', onMouseMove )
+					.unbind('touchmove.slider', onMouseMove );
 
 				$(document)
-					.unbind('mouseup', onMouseLeave )
-					.unbind('touchend', onMouseLeave );
+					.unbind('mouseup.slider', onMouseLeave )
+					.unbind('touchend.slider', onMouseLeave );
 
 				options.itemsAll
-					.bind('mousedown', onMouseDown )
-					.bind('touchstart', onMouseDown );
+					.bind('mousedown.slider', onMouseDown )
+					.bind('touchstart.slider', onMouseDown );
 
 				target = $();
 			};
 
 
 			options.itemsAll
-				.bind('mousedown', onMouseDown )
-				.bind('touchstart', onMouseDown );
+				.bind('mousedown.slider', onMouseDown )
+				.bind('touchstart.slider', onMouseDown );
 		}
 	};
 
+
+	/* Private Functions: Destruction
+	/-------------------------------------------------------------------------*/
+
+	var destroyElement = function(options) {
+		if( typeof options.preInitStyles.element.attrStyle === 'string' ) {
+			options.element.attr('style', options.preInitStyles.element.attrStyle);
+		} else {
+			options.element.removeAttr('style');
+		}
+		options.element.insertAfter(options.display);
+		options.display.remove();
+
+
+		if( options.itemsClasses === true ) {
+			options.items
+				.removeClass(options.itemsPrevClass)
+				.removeClass(options.itemsCurrentClass)
+				.removeClass(options.itemsNextClass);
+			options.itemsClasses = false;
+		}
+
+		if( options.preInitStyles.items.length > 0 ) {
+			var itemData;
+			for(var i = 0; i < options.preInitStyles.items.length; i++) {
+				itemData = options.preInitStyles.items[i];
+				if( typeof itemData.attrStyle === 'string' ) {
+					itemData.item.attr('style', itemData.attrStyle);
+				} else {
+					itemData.item.removeAttr('style');
+				}
+			}
+		}
+
+		options.element.removeData('sliderOptions');
+		delete(options.element);
+		delete(options.items);
+		delete(options.itemsAll);
+		delete(options.widthItem);
+		delete(options.heightItem);
+		delete(options.position);
+		delete(options.numElements);
+		delete(options.display);
+		delete(options.playing)
+		delete(options.preInitStyles);
+		delete(options.initialized);
+		delete(options);
+	};
+
+	var destroyHardware = function(options) {
+		if( options.useHardware === true ) {
+			if( options.hasHardware === true ) {
+				delete(options.hasHardware);
+				delete(options.cssTransformKey);
+				delete(options.cssTransitionKey);
+			}
+		}
+	};
+
+	var destroyButtons = function(options) {
+		if( (options.buttons === true ) ) {
+			options.buttonPrev.unbind('click.slider').remove();
+			options.buttonNext.unbind('click.slider').remove();
+
+			if( options.buttonsWrap === true ) {
+				options.displayButtons.remove();
+			}
+
+			delete(options.buttonPrev);
+			delete(options.buttonNext);
+			delete(options.displayButtons);
+			options.buttons = false;
+
+		} else {
+			options.buttons = false;
+		}
+	};
+
+	var destroyPager = function(options) {
+		if( options.pager === true ) {
+			options.displayPager.find('.'+ options.pagerClass).unbind('click.slider');
+			options.displayPager.remove();
+
+			delete(options.displayPager);
+			options.pager = false;
+		}
+	};
+
+	var destroyBiglink = function(options) {
+		if( options.biglink === true && typeof options.biglinkClass === 'string' ) {
+			var biglinkData;
+			for(var i = 0; i < options.preInitStyles.biglinks.length; i++) {
+				biglinkData = options.preInitStyles.biglinks[i];
+				biglinkData.biglink.unbind('click.slider');
+
+				if( typeof biglinkData.attrStyle === 'string' ) {
+					biglinkData.biglink.attr('style', biglinkData.attrStyle);
+				} else {
+					biglinkData.biglink.removeAttr('style');
+				}
+			}
+
+			delete(options.preInitStyles.biglinks);
+		}
+	};
+
+	var destroySiteClasses = function(options) {
+		if( options.siteClasses === true ) {
+			options.display.parent().removeClass( options.siteClassesActive );
+			options.siteClassesActive = undefined;
+			delete(options.siteClassesActive);
+		}
+	};
+
+	var destroyAutoplay = function(options) {
+		if( options.autoplay === true ) {
+			stopAutoplay(options);
+		}
+	};
+
+	var destroyInfinite = function(options) {
+		if( options.infinite === true ) {
+			options.itemsPre.remove();
+			options.itemsPost.remove();
+
+			options.itemsPre = undefined;
+			options.itemsPost = undefined;
+
+			delete(options.itemsPre);
+			delete(options.itemsPost);
+
+			options.infinite = false;
+		}
+	};
+
+	var destroyAutoresize = function(options) {
+		if( options.autoresize === true ) {
+			$(window).unbind('resize.slider');
+			options.autoresize = false;
+		}
+	};
+
+	var destroyTouch = function(options) {
+		if( options.touch === true ) {
+			options.itemsAll
+				.unbind('mousedown.slider')
+				.unbind('mousemove.slider')
+				.unbind('mouseup.slider')
+				.unbind('touchstart.slider')
+				.unbind('touchmove.slider')
+				.unbind('touchend.slider');
+
+			$(document)
+				.unbind('mouseup.slider')
+				.unbind('touchend.slider');
+
+			options.touch = false;
+		}
+	};
 
 
 	/* Private Functions: Controls
@@ -630,9 +830,8 @@
 
 
 	var slideTo = function(element, direction) {
-		var initialized = element.data('initialized');
 		var options = element.data('sliderOptions');
-		if( initialized === true && options && !options.playing ) {
+		if( options.initialized === true && options && !options.playing ) {
 			direction = direction * options.itemsToScroll;
 			options.position = options.position + direction;
 			applyPosition(element);
@@ -893,7 +1092,6 @@
 	};
 
 
-
 	/* Directing
 	/-------------------------------------------------------------------------*/
 	$.fn.slider = function( method ) {
@@ -905,7 +1103,6 @@
 			$.error( 'Method ' +  method + ' does not exist on jQuery.slider' );
 		}
 	};
-
 
 
 	/* Constants
