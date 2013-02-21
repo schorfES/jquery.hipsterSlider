@@ -11,8 +11,15 @@ $slider-button-size: 30px;
 	position: relative;
 
 	li {
+		position: relative;
 		width: 800px;
 		height: 200px;
+
+		a {
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
 	}
 
 	.pager-buttons {
