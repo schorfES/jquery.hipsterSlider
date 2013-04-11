@@ -332,15 +332,7 @@
 	var initButtons = function(element, options) {
 		/* Buttons must be active and there mast be at least more than one page to show */
 		if( options.buttons === true &&
-			options.numElements - options.itemsToDisplay > 0 &&
-			( options.flexibleItemdimensions === false ||
-			  ( options.flexibleItemdimensions === true &&
-				( (options.orientation === ORIENTATION_HORIZONTAL && options.widthElement > options.width) ||
-				  (options.orientation === ORIENTATION_VERTICAL && options.heightElement > options.height)
-				)
-			  )
-			)
-		) {
+			(options.numElements - options.itemsToDisplay > 0 || options.flexibleItemdimensions === true)) {
 
 			var prevButton = $('<a href="#" class="'+ options.buttonsClass +' '+ options.buttonPrevClass +'">'+ options.buttonPrevLabel +'</a>');
 			var nextButton = $('<a href="#" class="'+ options.buttonsClass +' '+ options.buttonNextClass +'">'+ options.buttonNextLabel +'</a>');
@@ -411,7 +403,7 @@
 	var initFlexibleItems = function(element, options) {
 		if( options.flexibleItemdimensions == true ) {
 			options.infinite = false;
-			options.autoresize = false;
+			//options.autoresize = false;
 		}
 	};
 
@@ -814,18 +806,24 @@
 
 		}
 		applyPaging(element, options);
+		applyButtons(element, options);
 	};
 
 	var applyButtons = function(element, options) {
 		if( options.buttons === true ) {
 			if( typeof options.buttonPrev !== 'undefined' ) {
 				options.buttonPrev.removeClass( options.buttonDisabledClass );
-				if( options.position <= 0 && options.infinite === false ) { options.buttonPrev.addClass( options.buttonDisabledClass ); }
+				if( options.position <= 0 && options.infinite === false ) {
+					options.buttonPrev.addClass( options.buttonDisabledClass );
+				}
 			}
 
 			if( typeof options.buttonNext !== 'undefined' ) {
 				options.buttonNext.removeClass( options.buttonDisabledClass );
-				if( options.position >= options.numElements - options.itemsToDisplay && options.infinite === false ) { options.buttonNext.addClass( options.buttonDisabledClass ); }
+				if(    (options.flexibleItemdimensions === false && options.position >= options.numElements - options.itemsToDisplay && options.infinite === false)
+				    || (options.flexibleItemdimensions === true && (options.widthElement + getPosition(element, options).left) <= options.width) ) {
+					options.buttonNext.addClass( options.buttonDisabledClass );
+				}
 			}
 		}
 	};
@@ -921,34 +919,40 @@
 
 	var refreshSize = function(options) {
 		//in the case of orientation vertical, the aspect ratio must stay the same...
-		if( options.orientation === ORIENTATION_VERTICAL || options.autoresizeKeepRatio === true ) {
-			var width = options.display.parent().width();
-			var ratio = options.height / options.width;
-
-			options.width = width;
-			options.height = ratio * width;
-			options.widthItem = options.width;
-			options.heightItem = options.height;
-
-			if( options.orientation === ORIENTATION_VERTICAL ) {
-				options.element.width(options.width);
-				options.element.height(options.height * options.itemsAll.length);
-			} else {
-				options.element.width(options.width * options.itemsAll.length);
-				options.element.height(options.height);
-			}
-		} else {
+		if( options.flexibleItemdimensions === true ) {
 			options.width = options.display.parent().width();
-			options.widthItem = options.width;
+		} else {
+			if( options.orientation === ORIENTATION_VERTICAL || options.autoresizeKeepRatio === true ) {
+				var width = options.display.parent().width();
+				var ratio = options.height / options.width;
 
-			options.element.width(options.width * options.itemsAll.length);
+				options.width = width;
+				options.height = ratio * width;
+				options.widthItem = options.width;
+				options.heightItem = options.height;
+
+				if( options.orientation === ORIENTATION_VERTICAL ) {
+					options.element.width(options.width);
+					options.element.height(options.height * options.itemsAll.length);
+				} else {
+					options.element.width(options.width * options.itemsAll.length);
+					options.element.height(options.height);
+				}
+			} else {
+				options.width = options.display.parent().width();
+				options.widthItem = options.width;
+
+				options.element.width(options.width * options.itemsAll.length);
+			}
 		}
 
 		options.display.width(options.width);
 		options.display.height(options.height);
 
-		options.itemsAll.width(options.widthItem);
-		options.itemsAll.height(options.heightItem);
+		if( options.flexibleItemdimensions === false ) {
+			options.itemsAll.width(options.widthItem);
+			options.itemsAll.height(options.heightItem);
+		}
 
 		applyPosition(options.element, undefined, false);
 	};
