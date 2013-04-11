@@ -2,3 +2,4 @@
 .sass-cache
 *.psd
 README.html
+node_modules
