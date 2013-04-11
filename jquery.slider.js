@@ -1,7 +1,7 @@
 /**
  *  jquery.slider.js
  *
- *  @author Norman Rusch (schorfES) , norman.rusch@moccu.com / webmaster@grind-it.de
+ *  @author Norman Rusch (schorfES)
  *  @repository GitHub | https://github.com/schorfES/jquery.slider
  */
 
