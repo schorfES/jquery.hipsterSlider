@@ -18,25 +18,6 @@
 	<body>
 		<article>
 			<section class="content">
-				<div class="slider">
-					<ul class="infinite touch hardware">
-						<li class="biglink" style="background: #FF00FF">
-							<img src="http://lorempixel.com/800/200/abstract/6" alt="" />
-							<a href="http://www.google.com/">link to google</a>
-						</li>
-						<li>
-							<div class="biglink" style="background: #FF00FF">
-								<img src="http://lorempixel.com/800/200/abstract/3" alt="" />
-								<a href="http://www.google.com/">link to google</a>
-							</div>
-						</li>
-						<li class="biglink">
-							<img src="http://lorempixel.com/800/200/abstract/7" alt="" />
-							<a href="http://www.google.com/">link to google</a>
-						</li>
-					</ul>
-				</div>
-
 				<a href="javascript:void(0)" class="toggle">Destroy</a>
 			</section>
 		</article>
@@ -45,32 +26,166 @@
 		<script type="text/javascript" src="../jquery.slider.js"></script>
 		<script type="text/javascript">
 			$(document).ready( function() {
-				var slider = $('.slider ul');
-				var button = $('.toggle');
+				var
+					target = $('article'),
+					button = $('.toggle'),
+					slider,
+					classNames,
+					match,
+					method,
+					target,
 
-				var init = function() {
-					slider.slider({
-						autoplayPause: 1000,
-						autoplay: true,
-						infinite: true,
-						touch: true,
-						buttons: true,
-						pager: true,
-						biglink: true,
-						siteClasses: true,
-						itemsClasses: true
+					methods = {
+						append: $.slider.METHOD_APPEND,
+						prepend: $.slider.METHOD_PREPEND,
+						replace: $.slider.METHOD_REPLACE,
+						insertAfter: $.slider.METHOD_AFTER,
+						insertBefore: $.slider.METHOD_BEFORE,
+						defaultMethod: $.slider.METHOD_AFTER,
+					},
+
+					variants = [
+						{
+							name: 'Default',
+							target: undefined,
+							method: undefined,
+							wrap: false
+						},{
+							name: 'Method Append, No Button-Wrap',
+							target: 'append',
+							method: $.slider.METHOD_APPEND,
+							wrap: false
+						},{
+							name: 'Method Prepend, No Button-Wrap',
+							target: 'prepend',
+							method: $.slider.METHOD_PREPEND,
+							wrap: false
+						},{
+							name: 'Method Replace, No Button-Wrap',
+							target: 'replace',
+							method: $.slider.METHOD_REPLACE,
+							wrap: false
+						},{
+							name: 'Method After, No Button-Wrap',
+							target: 'after',
+							method: $.slider.METHOD_AFTER,
+							wrap: false
+						},{
+							name: 'Method Before, No Button-Wrap',
+							target: 'before',
+							method: $.slider.METHOD_BEFORE,
+							wrap: false
+						},{
+							name: 'Default, Button-Wrap',
+							target: undefined,
+							method: undefined,
+							wrap: true
+						},{
+							name: 'Method Append, Button-Wrap',
+							target: 'append',
+							method: $.slider.METHOD_APPEND,
+							wrap: true
+						},{
+							name: 'Method Prepend, Button-Wrap',
+							target: 'prepend',
+							method: $.slider.METHOD_PREPEND,
+							wrap: true
+						},{
+							name: 'Method Replace, Button-Wrap',
+							target: 'replace',
+							method: $.slider.METHOD_REPLACE,
+							wrap: true
+						},{
+							name: 'Method After, Button-Wrap',
+							target: 'after',
+							method: $.slider.METHOD_AFTER,
+							wrap: true
+						},{
+							name: 'Method Before, Button-Wrap',
+							target: 'before',
+							method: $.slider.METHOD_BEFORE,
+							wrap: true
+						}
+					]
+				;
+
+				function init() {
+					for(var i = 0; i < variants.length; i++) {
+						createSlider(variants[i], i);
+					}
+
+					run();
+				}
+
+				function createSlider(variant, index) {
+					var
+						content = $('<section class="content '+ variant.method +' '+ ((variant.wrap) ? 'button-wrap' : 'no-button-wrap') +'" />'),
+						headline = $('<h1>'+ variant.name +'</h1>'),
+						localTarget = $('<div><p>Target for '+ variant.name +'</p></div>'),
+						container = $('<div class="slider" />'),
+						list = $('<ul class="method-'+ variant.method +' target-class-'+ variant.target +'-'+ index +' '+ ((variant.wrap) ? 'button-wrap' : 'no-button-wrap') +'"/>'),
+						slide1 = $('<li class="biglink" style="background: #FF00FF"><img src="http://lorempixel.com/800/200/abstract/6" alt="" /><a href="http://www.google.com/">link to google</a></li>'),
+						slide2 = $('<li class="biglink" style="background: #FF00FF"><img src="http://lorempixel.com/800/200/abstract/3" alt="" /><a href="http://www.google.com/">link to google</a></li>'),
+						slide3 = $('<li class="biglink" style="background: #FF00FF"><img src="http://lorempixel.com/800/200/abstract/7" alt="" /><a href="http://www.google.com/">link to google</a></li>')
+					;
+
+					if( variant.target ) {
+						localTarget.addClass(variant.target +'-'+ index);
+					}
+
+					content.appendTo(target);
+					headline.appendTo(content);
+					localTarget.appendTo(content);
+					container.appendTo(content);
+					list.appendTo(container);
+					slide1.appendTo(list);
+					slide2.appendTo(list);
+					slide3.appendTo(list);
+				};
+
+				function run() {
+					$('.slider ul').each(function() {
+						slider = $(this);
+						classNames = slider.get(0).className;
+
+						match = classNames.match(/(method-[^\s]*)/g);
+						method = match[0].replace(/\s/,'').replace(/method-/,'');
+						method = methods[method] || $.slider.METHOD_DEFAULT,
+
+						match = classNames.match(/(target-class-[^\s]*)/g);
+						target = match[0].replace(/\s/,'').replace(/target-class-/,'');
+						target = ($('.'+ target).length > 0) ? '.'+ target : undefined;
+
+						slider.slider({
+							autoplayPause: 1000,
+							autoplay: true,
+							infinite: true,
+							touch: true,
+							buttons: true,
+							pager: true,
+							biglink: true,
+							siteClasses: true,
+							itemsClasses: true,
+
+							buttonsWrap: slider.hasClass('button-wrap'),
+							buttonTargetSelector: target,
+							buttonTargetInsertionMethod: method,
+
+							pagerTargetSelector: target,
+							pagerTargetInsertionMethod: method
+						});
 					});
 				}
 
 				button.toggle(
 					function(event) {
 						event.preventDefault();
-						slider.slider('destroy');
+						$('.slider ul').slider('destroy');
 						button.html('Create');
 					},
 					function(event) {
 						event.preventDefault();
-						init();
+						run();
 						button.html('Destroy');
 					}
 				);
