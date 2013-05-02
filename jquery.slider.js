@@ -590,7 +590,7 @@
 			;
 
 			//Prevent Imagedragging:
-			element.find('img').on('dragstart', function(event) {
+			element.find('img').bind('dragstart.slider', function(event) {
 				event.preventDefault();
 			});
 
@@ -824,6 +824,9 @@
 			$(document)
 				.unbind('mouseup.slider')
 				.unbind('touchend.slider');
+
+			options.element.find('img')
+				.unbind('dragstart.slider');
 
 			options.touch = false;
 		}
