@@ -831,13 +831,21 @@
 	};
 
 	var setPosition = function(element, options, properties, animated, callback) {
-		var cssProperties = {};
-		var onCallback = function() {
-			options.playing = false;
-			if( typeof callback === 'function' ) {
-				callback();
+		var
+			cssProperties = {},
+			currentPosition = getPosition(element, options),
+			onCallback = function() {
+				options.playing = false;
+				if( typeof callback === 'function' ) {
+					callback();
+				}
 			}
-		};
+		;
+
+		//Check if the is nothing to change:
+		if( currentPosition.left === properties.left && currentPosition.top === properties.top ) {
+			return;
+		}
 
 		if( properties.duration === undefined ) {
 			properties.duration = options.duration;
