@@ -1070,7 +1070,7 @@
 		;
 
 		//Calculate width:
-		width = options.display.parent().outerWidth();
+		width = options.display.parent().outerWidth(true);
 		if( options.orientation === ORIENTATION_HORIZONTAL ) {
 			options.itemsAll.width((options.width || width) / options.itemsToDisplay);
 			options.element.width(options.itemsAll.length * ((options.width || width) / options.itemsToDisplay));
@@ -1086,7 +1086,7 @@
 
 		//Calculate height:
 		options.itemsAll.each(function() {
-			height = Math.max($(this).outerHeight(), height);
+			height = Math.max($(this).outerHeight(true), height);
 		});
 
 		//Store and apply values:
