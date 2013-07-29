@@ -9,10 +9,11 @@ module.exports = function(grunt) {
 						'/*  <%= pkg.repository.url %> */\n'
 			},
 			build: {
-				src: 'versions/<%= pkg.name %>.<%= pkg.version %>.js',
-				dest: 'versions/<%= pkg.name %>.<%= pkg.version %>.min.js'
+				src: '<%= pkg.name %>.js',
+				dest: '<%= pkg.name %>.min.js'
 			}
 		},
+
 		jshint: {
 			all: ['Gruntfile.js', '<%= pkg.name %>.js'],
 			options: {
@@ -37,26 +38,15 @@ module.exports = function(grunt) {
 				'undef': true,
 				'unused': true
 			}
-		},
-		copy: {
-			main: {
-				files: [
-					{
-						src: ['<%= pkg.name %>.js'],
-						dest: 'versions/<%= pkg.name %>.<%= pkg.version %>.js'
-					}
-				]
-			}
 		}
 	});
 
 	// Load tasks
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
-	grunt.loadNpmTasks('grunt-contrib-copy');
 
 	// Tasks
 	grunt.registerTask('default', ['validate', 'build']);
 	grunt.registerTask('validate', ['jshint']);
-	grunt.registerTask('build', ['copy', 'uglify']);
+	grunt.registerTask('build', ['uglify']);
 };

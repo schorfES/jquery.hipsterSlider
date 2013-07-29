@@ -8,7 +8,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" />
-		<title>jquery.slider Documentation</title>
+		<title>jquery.hipsterSlider Documentation</title>
 		<meta content="An other jQuery Slider, the documentation" name="description" />
 		<meta content="Norman Rusch" name="author" />
 		<meta content="width=device-width, initial-scale=1.0" name="viewport" />
@@ -74,14 +74,14 @@
 		</article>
 
 		<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.js"></script>
-		<script type="text/javascript" src="../jquery.slider.js"></script>
+		<script type="text/javascript" src="../jquery.hipsterSlider.js"></script>
 		<script type="text/javascript">
-			$(document).ready( function() {
+			$(window).load( function() {
 				var slider;
 				$('.slider ul').each( function() {
 					slider = $(this);
-					slider.slider({
-						orientation: slider.hasClass('horizontal') ? $.slider.HORIZONTAL : $.slider.VERTICAL,
+					slider.hipsterSlider({
+						orientation: slider.hasClass('horizontal') ? $.hipsterSlider.HORIZONTAL : $.hipsterSlider.VERTICAL,
 						infinite: true,
 						autoplay: false,
 						autoresize: true,

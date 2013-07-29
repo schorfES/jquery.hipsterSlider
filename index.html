@@ -8,7 +8,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" />
-		<title>jquery.slider Documentation</title>
+		<title>jquery.hipsterSlider Documentation</title>
 		<meta content="An other jQuery Slider, the documentation" name="description" />
 		<meta content="Norman Rusch" name="author" />
 		<meta content="width=device-width, initial-scale=1.0" name="viewport" />
@@ -18,7 +18,7 @@
 	<body>
 
 		<header>
-			<h1>jquery.slider <span>Documentation & Demonstration</span></h1>
+			<h1>jquery.hipsterSlider <span>Documentation &amp; Demonstration</span></h1>
 		</header>
 
 		<article role="main" class="content">
@@ -35,8 +35,8 @@
 					<tr>
 						<td class="option">orientation</td>
 						<td class="types">string</td>
-						<td class="default">$.slider.HORIZONTAL</td>
-						<td class="info">sets the slide-orientation. possible values are <strong>$.slider.HORIZONTAL</strong> or <strong>$.slider.VERTICAL</strong>.</td>
+						<td class="default">$.hipsterSlider.HORIZONTAL</td>
+						<td class="info">sets the slide-orientation. possible values are <strong>$.hipsterSlider.HORIZONTAL</strong> or <strong>$.hipsterSlider.VERTICAL</strong>.</td>
 					</tr>
 
 					<tr>
@@ -80,7 +80,7 @@
 					<tr>
 						<td class="option">autoplayDirection</td>
 						<td class="types">number</td>
-						<td class="default">$.slider.FORWARD</td>
+						<td class="default">$.hipsterSlider.FORWARD</td>
 						<td class="info">defines the slide direction for autoplay</td>
 					</tr>
 				</table>
@@ -106,11 +106,11 @@
 				</p>
 
 				<div class="code">
-					$('.slider ul').slider();
+					$('.slider ul').hipsterSlider();
 				</div>
 
 
-				<h2>Autoplay & infinite</h2>
+				<h2>Autoplay &amp; infinite</h2>
 				<div class="slider">
 					<ul class="autoplay infinite">
 						<li><img src="http://lorempixel.com/800/200/abstract/6" alt="" /></li>
@@ -128,13 +128,13 @@
 				</p>
 
 				<div class="code">
-					$('.slider ul').slider({<br />
+					$('.slider ul').hipsterSlider({<br />
 						&nbsp;&nbsp;&nbsp;&nbsp;infinite: true,<br />
 						&nbsp;&nbsp;&nbsp;&nbsp;autoplay: true<br />
 					});
 				</div>
 
-				<h2>Orientation & Direction</h2>
+				<h2>Orientation &amp; Direction</h2>
 				<div class="slider">
 					<ul class="autoplay infinite vertical">
 						<li><img src="http://lorempixel.com/800/200/abstract/6" alt="" /></li>
@@ -157,23 +157,23 @@
 					value to <strong>'horizontal'</strong>.
 				</p>
 				<p>
-					Both values can also be set by the variables <strong>$.slider.HORIZONTAL</strong>
-					and <strong>$.slider.VERTICAL</strong>.
+					Both values can also be set by the variables <strong>$.hipsterSlider.HORIZONTAL</strong>
+					and <strong>$.hipsterSlider.VERTICAL</strong>.
 				</p>
 				<p>
 					To set the direction of the autoplay animation, you can set the
 					<strong>autoplayDirection</strong> option to <strong>1</strong> or
 					<strong>-1</strong>. The default value is <strong>1</strong>. You can also
-					set the value by the variables <strong>$.slider.FORWARD</strong> and
-					<strong>$.slider.BACKWARD</strong>.
+					set the value by the variables <strong>$.hipsterSlider.FORWARD</strong> and
+					<strong>$.hipsterSlider.BACKWARD</strong>.
 				</p>
 
 				<div class="code">
-					$('.slider ul').slider({<br />
+					$('.slider ul').hipsterSlider({<br />
 						&nbsp;&nbsp;&nbsp;&nbsp;infinite: true,<br />
 						&nbsp;&nbsp;&nbsp;&nbsp;autoplay: true,<br />
-						&nbsp;&nbsp;&nbsp;&nbsp;autoplayDirection: $.slider.BACKWARD,<br />
-						&nbsp;&nbsp;&nbsp;&nbsp;orientation: $.slider.VERTICAL<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;autoplayDirection: $.hipsterSlider.BACKWARD,<br />
+						&nbsp;&nbsp;&nbsp;&nbsp;orientation: $.hipsterSlider.VERTICAL<br />
 					});
 				</div>
 
@@ -201,7 +201,7 @@
 				</p>
 
 				<div class="code">
-					$('.slider ul').slider({<br />
+					$('.slider ul').hipsterSlider({<br />
 						&nbsp;&nbsp;&nbsp;&nbsp;infinite: true,<br />
 						&nbsp;&nbsp;&nbsp;&nbsp;buttons: true,<br />
 						&nbsp;&nbsp;&nbsp;&nbsp;pager: true<br />
@@ -232,7 +232,7 @@
 				</p>
 
 				<div class="code">
-					$('.slider ul').slider({<br />
+					$('.slider ul').hipsterSlider({<br />
 						&nbsp;&nbsp;&nbsp;&nbsp;touch: true<br />
 					});
 				</div>
@@ -242,17 +242,17 @@
 
 
 		<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.js"></script>
-		<script type="text/javascript" src="jquery.slider.js"></script>
+		<script type="text/javascript" src="jquery.hipsterSlider.js"></script>
 		<script type="text/javascript">
-			$(document).ready( function() {
+			$(window).load( function() {
 				var slider;
 				$('.slider ul').each( function() {
 					slider = $(this);
-					slider.slider({
+					slider.hipsterSlider({
 						autoplay: slider.hasClass('autoplay'),
 						infinite: slider.hasClass('infinite'),
-						orientation: slider.hasClass('vertical') ? $.slider.VERTICAL : $.slider.HORIZONTAL,
-						autoplayDirection: slider.hasClass('backward') ? $.slider.BACKWARD : $.slider.FORWARD,
+						orientation: slider.hasClass('vertical') ? $.hipsterSlider.VERTICAL : $.hipsterSlider.HORIZONTAL,
+						autoplayDirection: slider.hasClass('backward') ? $.hipsterSlider.BACKWARD : $.hipsterSlider.FORWARD,
 						buttons: slider.hasClass('buttons'),
 						pager: slider.hasClass('pager'),
 						touch: slider.hasClass('touch')

@@ -1,3 +1,19 @@
+# $.hipsterSlider
+
+## **IMPORTANT**: New pluginname, new reponame:
+The name of the plugin was changed to avoid collisions with other jQuery plugins such as jQuery UI slider...
+<pre>
+	//This is old, doesn't work anymore:
+	//$('.slider').slider();
+
+	//Use this instead:
+	$('.slider').hipsterSlider();
+</pre>
+
+### Why the name *hipsterSlider*?
+I have no idea what's going wrong...
+
+
 ## Features
 * can slide **horizontal** or **vertical**
 * can create a **previous-button** and *next-button*
@@ -9,13 +25,12 @@
 * can **autoresize** items for example responsive websites
 * can **display multiple items** in a slide in one slide position
 * can **skip more than one item** in a slide
-* has *customizeable classnames* for elements
+* has **customizeable classnames** for elements
 * supports and detects **hardware acceleration** via css3 using translate3d and transition
 
 
-
 ## Options
-The slider provides a lot of options. If no options are defined, the slider initializes but doesn't perform any actions.  
+The slider provides a lot of options. If no options are defined, the slider initializes but doesn't perform any actions.
 To initialize the slider and provide some options take a look at the following code:
 <pre>
 	$('ul.slider').slider({

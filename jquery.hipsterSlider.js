@@ -1,8 +1,8 @@
 /**
- *  jquery.slider.js
+ *  jquery.hipsterSlider.js
  *
  *  @author Norman Rusch (schorfES)
- *  @repository GitHub | https://github.com/schorfES/jquery.slider
+ *  @repository GitHub | https://github.com/schorfES/jquery.hipsterSlider
  */
 
 ;(function( $ ){
@@ -53,14 +53,14 @@
 			buttonNextClass: 'next',					/* classname for the next button */
 			buttonDisabledClass: 'disabled',			/* classname as indicator for a not available scrolling */
 			buttonTargetSelector: undefined,			/* if set, the buttons will be placed into the defined selector */
-			buttonTargetInsertionMethod: METHOD_DEFAULT,/* possible variants: append, prepend, replace, insertAfter, insertBefore. Better see the public constants such as $.slider.METHOD_APPEND etc. */
+			buttonTargetInsertionMethod: METHOD_DEFAULT,/* possible variants: append, prepend, replace, insertAfter, insertBefore. Better see the public constants such as $.hipsterSlider.METHOD_APPEND etc. */
 
 			pager: false,								/* activates paging buttons */
 			pagerWrapClass: 'pager-buttons',			/* classname for the ul list of the pagers */
 			pagerClass: 'pager-button',					/* classname for the li pager entry */
 			pagerSelectedClass: 'selected',				/* classname for the selected/active page */
 			pagerTargetSelector: undefined,				/* if set, the pager will be placed into the defined selector */
-			pagerTargetInsertionMethod: METHOD_DEFAULT,	/* possible variants: append, prepend, replace, insertAfter, insertBefore. Better see the public constants such as $.slider.METHOD_APPEND etc. */
+			pagerTargetInsertionMethod: METHOD_DEFAULT,	/* possible variants: append, prepend, replace, insertAfter, insertBefore. Better see the public constants such as $.hipsterSlider.METHOD_APPEND etc. */
 
 			siteClasses: false,							/* adds to the display's parent the active page as classname */
 			siteClassesClass: 'page',					/* classname for the active page */
@@ -81,11 +81,10 @@
 			selectedClass: 'selected',					/* classname for a selected item */
 
 			autoresize: false,							/* recalculates new available dimensions, when browser resizes */
-			autoresizeKeepRatio: false,					/* forces the slider to keep the start aspectratio when the slidshow resizes (note: this only works for horizontal scroling, in vertical orientation the aspectration is always the same)*/
 
 			touch: false,								/* enables / disables touchfeature for mobile devices */
 			touchTolerance: 20,							/* defines the tolerance in pixels to move before slide to a next position */
-			touchDirectionTolerance: 75,				/* defines the tolerance in pixels until the regular touchsliding terminates when the other axis is used */
+			touchDirectionTolerance: 45,				/* defines the tolerance in pixels until the regular touchsliding terminates when the other axis is used */
 
 			useHardware: true							/* defines if the slider should detect css3-hardware-acceleration-features */
 
@@ -150,7 +149,7 @@
 					initAutoresize(element, localOptions);
 					initTouch(element, localOptions);
 
-					applyPosition(element, localOptions.position, false);
+					refreshSize(localOptions);
 					index++;
 				}
 			});
@@ -225,7 +224,16 @@
 					destroyElement(options);
 				}
 			});
+		},
 
+		refreshSize : function() {
+			var options;
+			return $(this).each(function() {
+				options = $(this).data('sliderOptions');
+				if( typeof options === 'object' ) {
+					refreshSize(options);
+				}
+			});
 		}
 	};
 
@@ -251,8 +259,6 @@
 
 			options.position = (typeof options.position === 'number' && options.position > -1) ? options.position : 0;
 			options.numElements = items.length;
-			options.widthItem = items.outerWidth(true);
-			options.heightItem = items.outerHeight(true);
 
 			var item;
 			options.preInitStyles.items = [];
@@ -262,8 +268,6 @@
 					item: item,
 					attrStyle: item.attr('style')
 				});
-				options.widthItem = Math.max(item.outerWidth(true), options.widthItem);
-				options.heightItem = Math.max(item.outerHeight(true), options.heightItem);
 			});
 
 			options.items = items;
@@ -271,25 +275,10 @@
 
 			switch( options.orientation ) {
 				case ORIENTATION_HORIZONTAL:
-
-					options.width = options.width || (options.widthItem * options.itemsToDisplay);
-					options.height = options.height || options.heightItem;
-					display.width( options.width ).height( options.height );
 					items.css('float','left');
-
-					element
-						.width( items.outerWidth() * items.length )
-						.height( options.height );
-
-
 					break;
 				case ORIENTATION_VERTICAL:
-
-					options.width = options.width || options.widthItem;
-					options.height = options.height || (options.heightItem * options.itemsToDisplay);
-					display.width( options.width ).height( options.height );
 					items.css('float','none');
-
 					break;
 			}
 
@@ -301,6 +290,7 @@
 				.wrap(display)
 				.data('sliderOptions', options)
 				.css('overflow','visible');
+
 
 			options.display = element.parent();
 			options.element = element;
@@ -390,7 +380,7 @@
 
 			//Create Events:
 			prevButton
-				.bind('click.slider', function(event) {
+				.bind('click.hipsterSlider', function(event) {
 					event.preventDefault();
 					slideTo(element, -1);
 					stopAutoplay(options);
@@ -398,7 +388,7 @@
 
 
 			nextButton
-				.bind('click.slider', function(event) {
+				.bind('click.hipsterSlider', function(event) {
 					event.preventDefault();
 					slideTo(element, +1);
 					stopAutoplay(options);
@@ -434,7 +424,7 @@
 				var page = $('<li class="'+ options.pagerClass +'"><a href="#">'+ count +'</a></li>')
 								.data('index', count - 1)
 								.appendTo( wrapPager )
-								.bind('click.slider', clickHandler);
+								.bind('click.hipsterSlider', clickHandler);
 			}
 
 			//Define target for pager:
@@ -492,7 +482,7 @@
 
 
 				biglinks.css('cursor','pointer')
-					.bind('click.slider', function(event) {
+					.bind('click.hipsterSlider', function(event) {
 						event.preventDefault();
 						event.stopPropagation();
 
@@ -558,9 +548,6 @@
 				options.itemsAll = options.itemsAll.add(options.itemsPre).add(options.itemsPost);
 			}
 
-			if( options.orientation == ORIENTATION_HORIZONTAL ) {
-				element.width( element.width() + options.widthItem * options.itemsToDisplay * 2 );
-			}
 		} else {
 			options.infinite = false;
 		}
@@ -575,22 +562,23 @@
 
 	var initAutoresize = function(element, options) {
 		if( options.autoresize === true ) {
-			$(window).bind('resize.slider', function() { refreshSize(options); } );
-			refreshSize(options);
+			$(window).bind('resize.hipsterSlider', function() { refreshSize(options); } );
 		}
 	};
 
 	var initTouch = function(element, options) {
 		if( options.touch === true ) {
 			var
+				doc = $(document),
 				startX, startY,
 				pos, posX, posY,
 				diffX, diffY, diffAbs,
-				direction, baseEvent, target
+				direction, baseEvent, target,
+				isToleranceReched
 			;
 
-			//Prevent Imagedragging:
-			element.find('img').on('dragstart', function(event) {
+			//Prevent Image and link dragging:
+			element.find('img, a').bind('dragstart.hipsterSlider', function(event) {
 				event.preventDefault();
 			});
 
@@ -606,38 +594,49 @@
 					startY = baseEvent.pageY;
 					diffX = 0;
 					diffY = 0;
+					isToleranceReched = false;
 
-					target
-						.bind('mousemove.slider', onMouseMove )
-						.bind('touchmove.slider', onMouseMove );
-
-					$(document)
-						.bind('mouseup.slider', onMouseLeave )
-						.bind('touchend.slider', onMouseLeave );
-
-					options.itemsAll
-						.unbind('mousedown.slider', onMouseDown )
-						.unbind('touchstart.slider', onMouseDown );
+					target.bind('mousemove.hipsterSlider touchmove.hipsterSlider', onMouseMove);
+					options.itemsAll.unbind('mousedown.hipsterSlider touchstart.hipsterSlider', onMouseDown);
 				}
 			};
 
 			var onMouseMove = function(event) {
+				var
+					tolerance = options.touchDirectionTolerance * (2 - getViewportScale()),
+					reachedHorizontalTolerance,
+					reachedVerticalTolerance
+				;
+
 				options.autoplay = false;
 				baseEvent = (event.originalEvent.touches) ? event.originalEvent.touches[0] : event.originalEvent;
 
 				diffX = baseEvent.pageX - startX;
 				diffY = baseEvent.pageY - startY;
 
-				if( (options.orientation === ORIENTATION_HORIZONTAL && Math.abs(diffX) > options.touchDirectionTolerance) ||
-					(options.orientation === ORIENTATION_VERTICAL   && Math.abs(diffY) > options.touchDirectionTolerance) ) {
-					event.preventDefault();
+				reachedHorizontalTolerance = (options.orientation === ORIENTATION_HORIZONTAL && Math.abs(diffX) < tolerance);
+				reachedVerticalTolerance = (options.orientation === ORIENTATION_VERTICAL && Math.abs(diffY) < tolerance);
+
+				if( !isToleranceReched && (reachedHorizontalTolerance || reachedVerticalTolerance)) {
+					return;
+				} else if ( !isToleranceReched ) {
+					isToleranceReched = true;
+
+					doc.bind('mouseup.hipsterSlider touchend.hipsterSlider', onMouseLeave);
 				}
 
-				if( options.orientation == ORIENTATION_HORIZONTAL ) {
-					setPosition(element, options, {left: posX + diffX, duration: 0.25}, false);
-				} else {
-					setPosition(element, options, {top: posY + diffY, duration: 0.25}, false);
+				event.preventDefault();
+				event.stopPropagation();
+
+				switch(options.orientation) {
+					case ORIENTATION_HORIZONTAL:
+						setPosition(element, options, {left: posX + diffX, duration: 0.25}, true);
+						break;
+					case ORIENTATION_VERTICAL:
+						setPosition(element, options, {top: posY + diffY, duration: 0.25}, true);
+						break;
 				}
+
 			};
 
 			var onMouseLeave = function(event) {
@@ -652,25 +651,15 @@
 					slideTo(element, 0);
 				}
 
-				target
-					.unbind('mousemove.slider', onMouseMove )
-					.unbind('touchmove.slider', onMouseMove );
-
-				$(document)
-					.unbind('mouseup.slider', onMouseLeave )
-					.unbind('touchend.slider', onMouseLeave );
-
-				options.itemsAll
-					.bind('mousedown.slider', onMouseDown )
-					.bind('touchstart.slider', onMouseDown );
+				target.unbind('mousemove.hipsterSlider touchmove.hipsterSlider', onMouseMove);
+				doc.unbind('mouseup.hipsterSlider touchend.hipsterSlider', onMouseLeave);
+				options.itemsAll.bind('mousedown.hipsterSlider touchstart.hipsterSlider', onMouseDown);
 
 				target = $();
 			};
 
 
-			options.itemsAll
-				.bind('mousedown.slider', onMouseDown )
-				.bind('touchstart.slider', onMouseDown );
+			options.itemsAll.bind('mousedown.hipsterSlider touchstart.hipsterSlider', onMouseDown);
 		}
 	};
 
@@ -735,8 +724,8 @@
 
 	var destroyButtons = function(options) {
 		if( (options.buttons === true ) ) {
-			options.buttonPrev.unbind('click.slider');
-			options.buttonNext.unbind('click.slider');
+			options.buttonPrev.unbind('click.hipsterSlider');
+			options.buttonNext.unbind('click.hipsterSlider');
 			options.buttonsAll.remove();
 
 			delete(options.buttonPrev);
@@ -749,7 +738,7 @@
 
 	var destroyPager = function(options) {
 		if( options.pager === true ) {
-			options.displayPager.find('.'+ options.pagerClass).unbind('click.slider');
+			options.displayPager.find('.'+ options.pagerClass).unbind('click.hipsterSlider');
 			options.displayPager.remove();
 
 			delete(options.displayPager);
@@ -762,7 +751,7 @@
 			var biglinkData;
 			for(var i = 0; i < options.preInitStyles.biglinks.length; i++) {
 				biglinkData = options.preInitStyles.biglinks[i];
-				biglinkData.biglink.unbind('click.slider');
+				biglinkData.biglink.unbind('click.hipsterSlider');
 
 				if( typeof biglinkData.attrStyle === 'string' ) {
 					biglinkData.biglink.attr('style', biglinkData.attrStyle);
@@ -806,7 +795,7 @@
 
 	var destroyAutoresize = function(options) {
 		if( options.autoresize === true ) {
-			$(window).unbind('resize.slider');
+			$(window).unbind('resize.hipsterSlider');
 			options.autoresize = false;
 		}
 	};
@@ -814,16 +803,19 @@
 	var destroyTouch = function(options) {
 		if( options.touch === true ) {
 			options.itemsAll
-				.unbind('mousedown.slider')
-				.unbind('mousemove.slider')
-				.unbind('mouseup.slider')
-				.unbind('touchstart.slider')
-				.unbind('touchmove.slider')
-				.unbind('touchend.slider');
+				.unbind('mousedown.hipsterSlider')
+				.unbind('mousemove.hipsterSlider')
+				.unbind('mouseup.hipsterSlider')
+				.unbind('touchstart.hipsterSlider')
+				.unbind('touchmove.hipsterSlider')
+				.unbind('touchend.hipsterSlider');
 
 			$(document)
-				.unbind('mouseup.slider')
-				.unbind('touchend.slider');
+				.unbind('mouseup.hipsterSlider')
+				.unbind('touchend.hipsterSlider');
+
+			options.element.find('img, a')
+				.unbind('dragstart.hipsterSlider');
 
 			options.touch = false;
 		}
@@ -851,13 +843,21 @@
 	};
 
 	var setPosition = function(element, options, properties, animated, callback) {
-		var cssProperties = {};
-		var onCallback = function() {
-			options.playing = false;
-			if( typeof callback === 'function' ) {
-				callback();
+		var
+			cssProperties = {},
+			currentPosition = getPosition(element, options),
+			onCallback = function() {
+				options.playing = false;
+				if( typeof callback === 'function' ) {
+					callback();
+				}
 			}
-		};
+		;
+
+		//Check if the is nothing to change:
+		if( currentPosition.left === properties.left && currentPosition.top === properties.top ) {
+			return;
+		}
 
 		if( properties.duration === undefined ) {
 			properties.duration = options.duration;
@@ -867,20 +867,9 @@
 			//Animate:
 			if( animated === true ) {
 				options.playing = true;
-				element.css(options.cssTransitionKey, options.cssTransformKey +' '+ (properties.duration / 1000) +'s ease 0s');
-
-				/* Use events when transition is competed for webkit and
-				 * mozilla firefox, fallback to timeout for other browsers
-				 *
-				 * @TODO: Check for other browser support */
-				if( $.browser.webkit === true ) {
-					options.element.one('webkitTransitionEnd', onCallback);
-				} else if ( $.browser.mozilla === true ) {
-					options.element.one('transitionend', onCallback);
-				} else {
-					window.clearTimeout( options.cssAnimationTimeout );
-					options.cssAnimationTimeout = window.setTimeout(onCallback, properties.duration);
-				}
+				element
+					.css(options.cssTransitionKey, options.cssTransformKey +' '+ (properties.duration / 1000) +'s ease 0s')
+					.one('webkitTransitionEnd mozTransitionEnd msTransitionEnd oTransitionEnd transitionend', onCallback);
 			} else {
 				element.css(options.cssTransitionKey, options.cssTransformKey +' 0s ease 0s');
 				onCallback();
@@ -914,7 +903,6 @@
 
 	var applyPosition = function(element, position, animated) {
 		animated = (typeof animated === 'undefined' || animated);
-		force = (typeof force !== 'undefined' && force);
 
 		var
 			newPositionX = 0,
@@ -1085,35 +1073,48 @@
 	};
 
 	var refreshSize = function(options) {
-		//in the case of orientation vertical, the aspect ratio must stay the same...
-		if( options.orientation === ORIENTATION_VERTICAL || options.autoresizeKeepRatio === true ) {
-			var width = options.display.parent().width();
-			var ratio = options.height / options.width;
+		var
+			width = 0,
+			height = 0
+		;
 
-			options.width = width;
-			options.height = ratio * width;
-			options.widthItem = options.width;
-			options.heightItem = options.height;
-
-			if( options.orientation === ORIENTATION_VERTICAL ) {
-				options.element.width(options.width);
-				options.element.height(options.height * options.itemsAll.length);
-			} else {
-				options.element.width(options.width * options.itemsAll.length);
-				options.element.height(options.height);
-			}
+		//Calculate width:
+		width = options.display.parent().outerWidth(true);
+		if( options.orientation === ORIENTATION_HORIZONTAL ) {
+			options.itemsAll.width((options.width || width) / options.itemsToDisplay);
+			options.element.width(options.itemsAll.length * ((options.width || width) / options.itemsToDisplay));
 		} else {
-			options.width = options.display.parent().width();
-			options.widthItem = options.width;
-
-			options.element.width(options.width * options.itemsAll.length);
+			options.itemsAll.width(options.width || width);
+			options.element.width(options.itemsAll.length * (options.width || width));
 		}
 
-		options.display.width(options.width);
-		options.display.height(options.height);
+		//Reset height forvertical elements:
+		if( options.orientation === ORIENTATION_VERTICAL ) {
+			options.itemsAll.height('auto');
+		}
 
-		options.itemsAll.width(options.widthItem);
-		options.itemsAll.height(options.heightItem);
+		//Calculate height:
+		options.itemsAll.each(function() {
+			height = Math.max($(this).outerHeight(true), height);
+		});
+
+		//Store and apply values:
+		if( options.orientation === ORIENTATION_HORIZONTAL ) {
+			options.widthItem = (options.width || width) / options.itemsToDisplay;
+			options.heightItem = options.height || height;
+			options.display
+						.width(options.width || width)
+						.height(options.height || height);
+		} else {
+			options.itemsAll.height(options.height || height);
+			options.widthItem = options.width || width;
+			options.heightItem = options.height || height;
+			options.display
+						.width(options.width || width)
+						.height((options.height || height * options.itemsToDisplay));
+		}
+
+
 
 		applyPosition(options.element, undefined, false);
 	};
@@ -1165,37 +1166,46 @@
 		return undefined;
 	};
 
+	var getViewportScale = function() {
+		var
+			clientWidth = $(window).width(),
+			documentWidth = $(document).width()
+		;
+
+		return clientWidth / documentWidth;
+	};
+
 
 	/* Directing
 	/-------------------------------------------------------------------------*/
-	$.fn.slider = function( method ) {
+	$.fn.hipsterSlider = function( method ) {
 		if ( methods[method] ) {
 			return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
 		} else if ( typeof method === 'object' || method === undefined ) {
 			return methods.init.apply( this, arguments );
 		} else {
-			$.error( 'Method ' +  method + ' does not exist on jQuery.slider' );
+			$.error( 'Method ' +  method + ' does not exist on jQuery.hipsterSlider' );
 		}
 	};
 
 
 	/* Public Constants
 	/-------------------------------------------------------------------------*/
-	$.slider = $.slider || {};
+	$.hipsterSlider = $.hipsterSlider || {};
 
-	$.slider.HORIZONTAL = ORIENTATION_HORIZONTAL;
-	$.slider.VERTICAL = ORIENTATION_VERTICAL;
+	$.hipsterSlider.HORIZONTAL = ORIENTATION_HORIZONTAL;
+	$.hipsterSlider.VERTICAL = ORIENTATION_VERTICAL;
 
-	$.slider.FORWARD = DIRECTION_FORWARD;
-	$.slider.BACKWARD = DIRECTION_BACKWARD;
+	$.hipsterSlider.FORWARD = DIRECTION_FORWARD;
+	$.hipsterSlider.BACKWARD = DIRECTION_BACKWARD;
 
-	$.slider.METHOD_APPEND = METHOD_APPEND;
-	$.slider.METHOD_PREPEND = METHOD_PREPEND;
-	$.slider.METHOD_REPLACE = METHOD_REPLACE;
-	$.slider.METHOD_AFTER = METHOD_AFTER;
-	$.slider.METHOD_BEFORE = METHOD_BEFORE;
-	$.slider.METHOD_DEFAULT = METHOD_DEFAULT;
+	$.hipsterSlider.METHOD_APPEND = METHOD_APPEND;
+	$.hipsterSlider.METHOD_PREPEND = METHOD_PREPEND;
+	$.hipsterSlider.METHOD_REPLACE = METHOD_REPLACE;
+	$.hipsterSlider.METHOD_AFTER = METHOD_AFTER;
+	$.hipsterSlider.METHOD_BEFORE = METHOD_BEFORE;
+	$.hipsterSlider.METHOD_DEFAULT = METHOD_DEFAULT;
 
-	$.slider.DEFAULTS = DEFAULTS;
+	$.hipsterSlider.DEFAULTS = DEFAULTS;
 
 })( jQuery );

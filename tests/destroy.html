@@ -8,7 +8,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" />
-		<title>jquery.slider Documentation</title>
+		<title>jquery.hipsterSlider Documentation</title>
 		<meta content="An other jQuery Slider, the documentation" name="description" />
 		<meta content="Norman Rusch" name="author" />
 		<meta content="width=device-width, initial-scale=1.0" name="viewport" />
@@ -23,9 +23,9 @@
 		</article>
 
 		<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.js"></script>
-		<script type="text/javascript" src="../jquery.slider.js"></script>
+		<script type="text/javascript" src="../jquery.hipsterSlider.js"></script>
 		<script type="text/javascript">
-			$(document).ready( function() {
+			$(window).load( function() {
 				var
 					target = $('article'),
 					button = $('.toggle'),
@@ -36,12 +36,12 @@
 					target,
 
 					methods = {
-						append: $.slider.METHOD_APPEND,
-						prepend: $.slider.METHOD_PREPEND,
-						replace: $.slider.METHOD_REPLACE,
-						insertAfter: $.slider.METHOD_AFTER,
-						insertBefore: $.slider.METHOD_BEFORE,
-						defaultMethod: $.slider.METHOD_AFTER,
+						append: $.hipsterSlider.METHOD_APPEND,
+						prepend: $.hipsterSlider.METHOD_PREPEND,
+						replace: $.hipsterSlider.METHOD_REPLACE,
+						insertAfter: $.hipsterSlider.METHOD_AFTER,
+						insertBefore: $.hipsterSlider.METHOD_BEFORE,
+						defaultMethod: $.hipsterSlider.METHOD_AFTER,
 					},
 
 					variants = [
@@ -53,27 +53,27 @@
 						},{
 							name: 'Method Append, No Button-Wrap',
 							target: 'append',
-							method: $.slider.METHOD_APPEND,
+							method: $.hipsterSlider.METHOD_APPEND,
 							wrap: false
 						},{
 							name: 'Method Prepend, No Button-Wrap',
 							target: 'prepend',
-							method: $.slider.METHOD_PREPEND,
+							method: $.hipsterSlider.METHOD_PREPEND,
 							wrap: false
 						},{
 							name: 'Method Replace, No Button-Wrap',
 							target: 'replace',
-							method: $.slider.METHOD_REPLACE,
+							method: $.hipsterSlider.METHOD_REPLACE,
 							wrap: false
 						},{
 							name: 'Method After, No Button-Wrap',
 							target: 'after',
-							method: $.slider.METHOD_AFTER,
+							method: $.hipsterSlider.METHOD_AFTER,
 							wrap: false
 						},{
 							name: 'Method Before, No Button-Wrap',
 							target: 'before',
-							method: $.slider.METHOD_BEFORE,
+							method: $.hipsterSlider.METHOD_BEFORE,
 							wrap: false
 						},{
 							name: 'Default, Button-Wrap',
@@ -83,27 +83,27 @@
 						},{
 							name: 'Method Append, Button-Wrap',
 							target: 'append',
-							method: $.slider.METHOD_APPEND,
+							method: $.hipsterSlider.METHOD_APPEND,
 							wrap: true
 						},{
 							name: 'Method Prepend, Button-Wrap',
 							target: 'prepend',
-							method: $.slider.METHOD_PREPEND,
+							method: $.hipsterSlider.METHOD_PREPEND,
 							wrap: true
 						},{
 							name: 'Method Replace, Button-Wrap',
 							target: 'replace',
-							method: $.slider.METHOD_REPLACE,
+							method: $.hipsterSlider.METHOD_REPLACE,
 							wrap: true
 						},{
 							name: 'Method After, Button-Wrap',
 							target: 'after',
-							method: $.slider.METHOD_AFTER,
+							method: $.hipsterSlider.METHOD_AFTER,
 							wrap: true
 						},{
 							name: 'Method Before, Button-Wrap',
 							target: 'before',
-							method: $.slider.METHOD_BEFORE,
+							method: $.hipsterSlider.METHOD_BEFORE,
 							wrap: true
 						}
 					]
@@ -150,13 +150,13 @@
 
 						match = classNames.match(/(method-[^\s]*)/g);
 						method = match[0].replace(/\s/,'').replace(/method-/,'');
-						method = methods[method] || $.slider.METHOD_DEFAULT,
+						method = methods[method] || $.hipsterSlider.METHOD_DEFAULT,
 
 						match = classNames.match(/(target-class-[^\s]*)/g);
 						target = match[0].replace(/\s/,'').replace(/target-class-/,'');
 						target = ($('.'+ target).length > 0) ? '.'+ target : undefined;
 
-						slider.slider({
+						slider.hipsterSlider({
 							autoplayPause: 1000,
 							autoplay: true,
 							infinite: true,
@@ -180,7 +180,7 @@
 				button.toggle(
 					function(event) {
 						event.preventDefault();
-						$('.slider ul').slider('destroy');
+						$('.slider ul').hipsterSlider('destroy');
 						button.html('Create');
 					},
 					function(event) {
