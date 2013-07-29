@@ -1079,7 +1079,8 @@
 		;
 
 		//Calculate width:
-		width = options.display.parent().outerWidth(true);
+		width = options.display.parent().width();
+
 		if( options.orientation === ORIENTATION_HORIZONTAL ) {
 			options.itemsAll.width((options.width || width) / options.itemsToDisplay);
 			options.element.width(options.itemsAll.length * ((options.width || width) / options.itemsToDisplay));
