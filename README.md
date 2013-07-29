@@ -4,10 +4,10 @@
 The name of the plugin was changed to avoid collisions with other jQuery plugins such as jQuery UI slider...
 <pre>
 	//This is old, doesn't work anymore:
-	//$('.slider').slider();
+	//$('.slider').slider(/* options */);
 
 	//Use this instead:
-	$('.slider').hipsterSlider();
+	$('.slider').hipsterSlider(/* options */);
 </pre>
 
 ### Why the name *hipsterSlider*?
@@ -33,7 +33,7 @@ I have no idea what's going wrong...
 The slider provides a lot of options. If no options are defined, the slider initializes but doesn't perform any actions.
 To initialize the slider and provide some options take a look at the following code:
 <pre>
-	$('ul.slider').slider({
+	$('ul.slider').hipsterSlider({
 		someOption: 'a value',
 		someOtherOption: 'an other value'
 	});
@@ -52,7 +52,7 @@ To initialize the slider and provide some options take a look at the following c
 
 Here is an **example** of all of these options in use:
 <pre>
-	$('ul.slider').slider({
+	$('ul.slider').hipsterSlider({
 		width: 800,
 		height: 200,
 		orientation: $.slider.VERTICAL,
@@ -75,7 +75,7 @@ Here is an **example** of all of these options in use:
 
 Here is an **example** of all of these options in use:
 <pre>
-	$('ul.slider').slider({
+	$('ul.slider').hipsterSlider({
 		buttons: true,
 		buttonsClass: 'slider-button',
 		buttonPrevLabel: 'previous',
@@ -96,7 +96,7 @@ Here is an **example** of all of these options in use:
 
 Here is an **example** of all of these options in use:
 <pre>
-	$('ul.slider').slider({
+	$('ul.slider').hipsterSlider({
 		pager: true,
 		pagerWrapClass: 'pager-buttons',
 		pagerClass: 'pager-button',
@@ -113,7 +113,7 @@ Here is an **example** of all of these options in use:
 
 Here is an **example** of all of these options in use:
 <pre>
-	$('ul.slider').slider({
+	$('ul.slider').hipsterSlider({
 		autoplay: true,
 		autoplayPause: 5000,
 		autoplayDelayQueued: true,
