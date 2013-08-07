@@ -829,15 +829,19 @@
 		if( options.hasHardware === true ) {
 			var position = element
 							.css(options.cssTransformKey)
-							.match(/(?:[-\d]+[\s,]*)+/)[0].split(',');
+							.match(/(?:[-\d(\.(\d)*)?]+[\s,]*)+/)[0].split(','),
+				left = parseFloat(position[4]) || 0,
+				top = parseFloat(position[5]) || 0
+			;
+
 			return {
-				left: parseInt(position[4], 10),
-				top: parseInt(position[5], 10)
+				left: left,
+				top: top
 			};
 		} else {
 			return {
-				left: parseInt(element.css('margin-left').replace(/px/, ''), 10),
-				top: parseInt(element.css('margin-top').replace(/px/, ''), 10)
+				left: parseInt(element.css('margin-left').replace(/px/, ''), 10) || 0,
+				top: parseInt(element.css('margin-top').replace(/px/, ''), 10) || 0
 			};
 		}
 	};
@@ -854,8 +858,9 @@
 			}
 		;
 
-		//Check if the is nothing to change:
-		if( currentPosition.left === properties.left && currentPosition.top === properties.top ) {
+		// Check if there is nothing to change:
+		if( Math.floor(currentPosition.left) === Math.floor(properties.left) &&
+			Math.floor(currentPosition.top) === Math.floor(properties.top) ) {
 			return;
 		}
 
@@ -918,8 +923,11 @@
 			}
 
 			if( options.infinite === false ) {
-				if( options.position < 0 ) { options.position = 0; }
-				if( options.position > options.numElements - options.itemsToDisplay ) { options.position = options.numElements - options.itemsToDisplay; }
+				if( options.position < 0 ) {
+					options.position = 0;
+				} else if( options.position > options.numElements - options.itemsToDisplay ) {
+					options.position = options.numElements - options.itemsToDisplay;
+				}
 			} else {
 				//Detect Offset for infinite loops:
 				infiniteOffset = (( options.orientation === ORIENTATION_HORIZONTAL) ? options.widthItem : options.heightItem) * options.itemsToDisplay * -1;
