@@ -420,7 +420,7 @@
 			};
 
 			//Create pagers:
-			for( var count = 1; count <= options.numElements; count++ ) {
+			for( var count = 1; count <= options.numElements - options.itemsToDisplay + 1; count++ ) {
 				var page = $('<li class="'+ options.pagerClass +'"><a href="#">'+ count +'</a></li>')
 								.data('index', count - 1)
 								.appendTo( wrapPager )
