@@ -206,6 +206,39 @@
 			return $(this).data('sliderOptions');
 		},
 
+		itemsToDisplay : function(value) {
+			if( typeof value === 'number' ) {
+				return $(this).each(function() {
+					var
+						element = $(this),
+						options = element.data('sliderOptions')
+					;
+
+					if( typeof value === 'number' &&
+						value !== options.itemsToDisplay &&
+						value > 0 && value <= options.numElements ) {
+
+						if( options.infinite ) {
+							//TODO: add possebility to change value for infinite mode:
+							throw new Error('You can only set "itemsToDisplay" when the option "infinite" is disabled.');
+						}
+
+						options.itemsToDisplay = value;
+						refreshSize(options);
+
+						//Update pager:
+						if( options.pager ) {
+							destroyPager(options);
+							options.pager = true; //destroyPager resets pageroption...
+							initPager(element, options);
+						}
+					}
+				});
+			} else {
+				return $(this).data('sliderOptions').itemsToDisplay;
+			}
+		},
+
 		destroy : function() {
 			var options;
 			return $(this).each(function() {
@@ -405,8 +438,8 @@
 	};
 
 	var initPager = function(element, options) {
-		/* Pagers must be active and there mast be at least more than one page to show */
-		if( options.pager === true && options.numElements - options.itemsToDisplay > 0 ) {
+		/* Pagers must be active */
+		if( options.pager === true ) {
 			var
 				wrapPager = $('<ol class="'+ options.pagerWrapClass +'" />'),
 				wrapPagerTarget
