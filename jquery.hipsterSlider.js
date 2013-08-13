@@ -884,8 +884,8 @@
 			};
 		} else {
 			return {
-				left: parseInt(element.css('margin-left').replace(/px/, ''), 10) || 0,
-				top: parseInt(element.css('margin-top').replace(/px/, ''), 10) || 0
+				left: parseFloat(element.css('margin-left').replace(/px/, '')) || 0,
+				top: parseFloat(element.css('margin-top').replace(/px/, '')) || 0
 			};
 		}
 	};
