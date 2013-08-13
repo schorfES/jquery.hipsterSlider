@@ -860,12 +860,23 @@
 
 	var getPosition = function(element, options) {
 		if( options.hasHardware === true ) {
-			var position = element
-							.css(options.cssTransformKey)
-							.match(/(?:[-\d(\.(\d)*)?]+[\s,]*)+/)[0].split(','),
-				left = parseFloat(position[4]) || 0,
-				top = parseFloat(position[5]) || 0
+			var
+				matrix = element.css(options.cssTransformKey),
+				isMatrix3d = matrix.indexOf('matrix3d') > -1
 			;
+
+			matrix = matrix
+						.replace(/matrix3d/,'matrix')
+						.match(/(?:[-\d(\.(\d)*)?]+[\s,]*)+/)[0]
+						.split(',');
+
+			if( isMatrix3d ) {
+				left = parseFloat(matrix[12]) || 0;
+				top = parseFloat(matrix[13]) || 0;
+			} else {
+				left = parseFloat(matrix[4]) || 0;
+				top = parseFloat(matrix[5]) || 0;
+			}
 
 			return {
 				left: left,
