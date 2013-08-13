@@ -1,11 +1,11 @@
 http_path = "../"
-css_dir = "../css"
-sass_dir = "../sass"
-images_dir = "../img"
-javascripts_dir = "../js"
+css_dir = "../assets/css"
+sass_dir = "../assets/sass"
+images_dir = "../assets/img"
+javascripts_dir = "../"
 
 line_comments = false
 
 preferred_syntax = :scss
 
-output_style = :compressed # by Compass.app 
+output_style = :compressed # by Compass.app
