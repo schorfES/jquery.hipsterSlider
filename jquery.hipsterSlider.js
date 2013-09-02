@@ -12,7 +12,7 @@
 		ORIENTATION_HORIZONTAL = 'horizontal',
 		ORIENTATION_VERTICAL = 'vertical',
 
-		DIRECTION_FORWARD = 1;
+		DIRECTION_FORWARD = 1,
 		DIRECTION_BACKWARD = -1,
 
 		METHOD_APPEND = 'append',
@@ -118,171 +118,184 @@
 
 				preInitStyles: object that stores all styles of modified DOM elements
 			*/
-		}
-	;
 
-
-	/* Public Functions:
-	/-------------------------------------------------------------------------*/
-	var methods = {
-		init : function( options ) {
-			var
-				target = $(this),
-				index = 0,
-				element, localOptions
-			;
-
-			return target.each( function() {
-				element = $(this);
-				localOptions = $.extend({}, DEFAULTS, options);
-
-				initElement(element, localOptions);
-				if( localOptions.initialized === true ) {
-					initHardware(element, localOptions);
-					initButtons(element, localOptions);
-					initPager(element, localOptions);
-					initBiglink(element, localOptions);
-					initSiteClasses(element, localOptions);
-					initAutoplay(element, localOptions, index);
-					initInfinite(element, localOptions);
-					initSelected(element, localOptions);
-					initAutoresize(element, localOptions);
-					initTouch(element, localOptions);
-
-					refreshSize(localOptions);
-					index++;
-				}
-			});
 		},
 
-		next : function() {
-			var target = $(this);
-			slideTo(target, +1);
-			return target;
-		},
+		/* Public Functions:
+		/---------------------------------------------------------------------*/
+		methods = {
+			init: function( options ) {
+				var
+					target = $(this),
+					index = 0,
+					element, localOptions
+				;
 
-		prev : function() {
-			var target = $(this);
-			slideTo(target, -1);
-			return target;
-		},
+				return target.each( function() {
+					element = $(this);
+					localOptions = $.extend({}, DEFAULTS, options);
 
-		page: function(index) {
-			var
-				target = $(this),
-				options = target.data('sliderOptions')
-			;
+					initElement(element, localOptions);
+					if( localOptions.initialized === true ) {
+						initHardware(element, localOptions);
+						initButtons(element, localOptions);
+						initPager(element, localOptions);
+						initBiglink(element, localOptions);
+						initSiteClasses(element, localOptions);
+						initAutoplay(element, localOptions, index);
+						initInfinite(element, localOptions);
+						initSelected(element, localOptions);
+						initAutoresize(element, localOptions);
+						initTouch(element, localOptions);
 
-			if( typeof index === 'number' ) {
-				if( typeof options === 'object' ) {
-					applyPosition(target, index);
-				}
-				return target;
-			} else {
-				return options.position;
-			}
-		},
-
-		stop : function() {
-			var target = $(this);
-			var options = target.data('sliderOptions');
-			if( typeof options === 'object' ) {
-				stopAutoplay(options);
-			}
-			return target;
-		},
-
-		getPosition : function() {
-			var result = -1;
-			var target = $(this);
-			var options = target.data('sliderOptions');
-			if( typeof options === 'object' ) {
-				result = options.position;
-			}
-			return result;
-		},
-
-		options : function() {
-			return $(this).data('sliderOptions');
-		},
-
-		itemsToDisplay : function(value) {
-			if( typeof value === 'number' ) {
-				return $(this).each(function() {
-					var
-						element = $(this),
-						options = element.data('sliderOptions')
-					;
-
-					if( typeof value === 'number' &&
-						value !== options.itemsToDisplay &&
-						value > 0 && value <= options.numElements ) {
-
-						if( options.infinite ) {
-							//TODO: add possebility to change value for infinite mode:
-							throw new Error('You can only set "itemsToDisplay" when the option "infinite" is disabled.');
-						}
-
-						options.itemsToDisplay = value;
-						refreshSize(options);
-
-						//Update pager:
-						if( options.pager ) {
-							destroyPager(options);
-							options.pager = true; //destroyPager resets pageroption...
-							initPager(element, options);
-						}
+						refreshSize(localOptions);
+						index++;
 					}
 				});
-			} else {
-				return $(this).data('sliderOptions').itemsToDisplay;
+			},
+
+			next: function() {
+				var target = $(this);
+				slideTo(target, +1);
+				return target;
+			},
+
+			prev: function() {
+				var target = $(this);
+				slideTo(target, -1);
+				return target;
+			},
+
+			page: function(index) {
+				var
+					target = $(this),
+					options = target.data('sliderOptions')
+				;
+
+				if( typeof index === 'number' ) {
+					if( typeof options === 'object' ) {
+						applyPosition(target, index);
+					}
+					return target;
+				} else {
+					return options.position;
+				}
+			},
+
+			stop: function() {
+				var
+					target = $(this),
+					options = target.data('sliderOptions')
+				;
+
+				if( typeof options === 'object' ) {
+					stopAutoplay(options);
+				}
+
+				return target;
+			},
+
+			getPosition: function() {
+				var
+					result = -1,
+					target = $(this),
+					options = target.data('sliderOptions')
+				;
+
+				if( typeof options === 'object' ) {
+					result = options.position;
+				}
+
+				return result;
+			},
+
+			options: function() {
+				return $(this).data('sliderOptions');
+			},
+
+			itemsToDisplay: function(value) {
+				if( typeof value === 'number' ) {
+					return $(this).each(function() {
+						var
+							element = $(this),
+							options = element.data('sliderOptions')
+						;
+
+						if( typeof value === 'number' &&
+							value !== options.itemsToDisplay &&
+							value > 0 && value <= options.numElements ) {
+
+							if( options.infinite ) {
+								//TODO: add possebility to change value for infinite mode:
+								throw new Error('You can only set "itemsToDisplay" when the option "infinite" is disabled.');
+							}
+
+							options.itemsToDisplay = value;
+							refreshSize(options);
+
+							//Update pager:
+							if( options.pager ) {
+								destroyPager(options);
+								options.pager = true; //destroyPager resets pageroption...
+								initPager(element, options);
+							}
+						}
+					});
+				} else {
+					return $(this).data('sliderOptions').itemsToDisplay;
+				}
+			},
+
+			destroy: function() {
+				var options;
+				return $(this).each(function() {
+					options = $(this).data('sliderOptions');
+					if( typeof options === 'object' ) {
+						/* destruction function should be called reversed to init functions */
+						destroyTouch(options);
+						destroyAutoresize(options);
+						destroyInfinite(options);
+						destroyAutoplay(options);
+						destroySiteClasses(options);
+						destroyBiglink(options);
+						destroyPager(options);
+						destroyButtons(options);
+						destroyHardware(options);
+						destroyElement(options);
+					}
+				});
+			},
+
+			refreshSize: function() {
+				var options;
+				return $(this).each(function() {
+					options = $(this).data('sliderOptions');
+					if( typeof options === 'object' ) {
+						refreshSize(options);
+					}
+				});
 			}
-		},
-
-		destroy : function() {
-			var options;
-			return $(this).each(function() {
-				options = $(this).data('sliderOptions');
-				if( typeof options === 'object' ) {
-					/* destruction function should be called reversed to init functions */
-					destroyTouch(options);
-					destroyAutoresize(options);
-					destroyInfinite(options);
-					destroyAutoplay(options);
-					destroySiteClasses(options);
-					destroyBiglink(options);
-					destroyPager(options);
-					destroyButtons(options);
-					destroyHardware(options);
-					destroyElement(options);
-				}
-			});
-		},
-
-		refreshSize : function() {
-			var options;
-			return $(this).each(function() {
-				options = $(this).data('sliderOptions');
-				if( typeof options === 'object' ) {
-					refreshSize(options);
-				}
-			});
 		}
-	};
+	;
 
 
 	/* Private Functions: Initialization
 	/-------------------------------------------------------------------------*/
 
-	var initElement = function(element, options) {
-		var elementTagname = element.get(0).tagName.toLowerCase();
-		if( elementTagname === options.tagName ) {
+	function initElement(element, options) {
+		var
+			tagName = element.get(0).tagName.toLowerCase(),
+			display,
+			items,
+			item
+		;
 
+		if( tagName === options.tagName ) {
 			options.preInitStyles = options.preInitStyles || {};
 			options.preInitStyles.element = { attrStyle: element.attr('style') };
 
-			var display = $('<div />').addClass( options.displayClass );
-			var items = element.children();
+			display = $('<div />').addClass( options.displayClass );
+			items = element.children();
 
 			if( options.initializeMinItems === false && items.length <= options.itemsToDisplay ) {
 				return false;
@@ -293,7 +306,6 @@
 			options.position = (typeof options.position === 'number' && options.position > -1) ? options.position : 0;
 			options.numElements = items.length;
 
-			var item;
 			options.preInitStyles.items = [];
 			items.each( function() {
 				item = $(this);
@@ -333,9 +345,9 @@
 			return true;
 		}
 		return false;
-	};
+	}
 
-	var initHardware = function(element, options) {
+	function initHardware(element, options) {
 		if( options.useHardware === true ) {
 			var css = {}, key,
 				prefixes = ['-webkit-','-moz-','-o-','-ms-','-khtml-',''];
@@ -367,9 +379,9 @@
 				element.css(css);
 			}
 		}
-	};
+	}
 
-	var initButtons = function(element, options) {
+	function initButtons(element, options) {
 		/* Buttons must be active and there mast be at least more than one page to show */
 		if( (options.buttons === true && options.numElements - options.itemsToDisplay > 0 ) ) {
 
@@ -435,29 +447,30 @@
 		} else {
 			options.buttons = false;
 		}
-	};
+	}
 
-	var initPager = function(element, options) {
+	function initPager(element, options) {
 		/* Pagers must be active */
 		if( options.pager === true ) {
 			var
 				wrapPager = $('<ol class="'+ options.pagerWrapClass +'" />'),
-				wrapPagerTarget
+				wrapPagerTarget,
+				clickHandler = function(event) {
+					event.preventDefault();
+					var index = $(event.currentTarget).data('index');
+					applyPosition(element, index);
+					stopAutoplay(options);
+				},
+				count,
+				page
 			;
 
-			var clickHandler = function(event) {
-				event.preventDefault();
-				var index = $(event.currentTarget).data('index');
-				applyPosition(element, index);
-				stopAutoplay(options);
-			};
-
 			//Create pagers:
-			for( var count = 1; count <= options.numElements - options.itemsToDisplay + 1; count++ ) {
-				var page = $('<li class="'+ options.pagerClass +'"><a href="#">'+ count +'</a></li>')
-								.data('index', count - 1)
-								.appendTo( wrapPager )
-								.bind('click.hipsterSlider', clickHandler);
+			for(count = 1; count <= options.numElements - options.itemsToDisplay + 1; count++) {
+				page = $('<li class="'+ options.pagerClass +'"><a href="#">'+ count +'</a></li>')
+					.data('index', count - 1)
+					.appendTo( wrapPager )
+					.bind('click.hipsterSlider', clickHandler);
 			}
 
 			//Define target for pager:
@@ -492,9 +505,9 @@
 		} else {
 			options.pager = false;
 		}
-	};
+	}
 
-	var initBiglink = function(element, options) {
+	function initBiglink(element, options) {
 		if( options.biglink === true && typeof options.biglinkClass === 'string' ) {
 			var
 				biglinks = element.find( '.'+ options.biglinkClass ),
@@ -526,40 +539,47 @@
 					} );
 			}
 		}
-	};
+	}
 
-	var initSiteClasses = function(element, options) {
+	function initSiteClasses(element, options) {
 		options.siteClassesActive = options.siteClassesClass + (options.position + 1);
 		applySiteClasses(element, options);
-	};
+	}
 
-	var initAutoplay = function(element, options, index) {
+	function initAutoplay(element, options, index) {
 		/* Autoplay must be active and there mast be at least more than one page to show */
 		if( options.autoplay === true && options.numElements - options.itemsToDisplay > 0 ) {
 			index = (options.autoplayDelayQueued) ? index : 1;
-			setTimeout( function() {
+			window.setTimeout( function() {
 				autoplay(element, options);
 			}, options.autoplayPause + (index * options.autoplayDelay) );
 		} else {
 			options.autoplay = false;
 		}
-	};
+	}
 
-	var initInfinite = function(element, options) {
+	function initInfinite(element, options) {
 		/* Infinite must be active and there mast be at least more than one page to show */
 		if( options.infinite === true && options.numElements - options.itemsToDisplay > 0 ) {
+			var
+				preItem = options.items.eq(0),
+				postItem = options.items.eq(options.numElements - 1),
+				counter,
+				preCloneIndex,
+				preClone,
+				postCloneIndex,
+				postClone,
+				cssFloat
+			;
 
-			var preItem = options.items.eq(0);
-			var postItem = options.items.eq(options.numElements - 1);
+			for(counter = 0; counter < options.itemsToDisplay; counter++) {
+				preCloneIndex = options.numElements - 1 - counter;
+				preClone = options.items.eq(preCloneIndex).clone();
 
-			for(var counter = 0; counter < options.itemsToDisplay; counter++) {
-				var preCloneIndex = options.numElements - 1 - counter;
-				var preClone = options.items.eq(preCloneIndex).clone();
+				postCloneIndex = counter;
+				postClone = options.items.eq(postCloneIndex).clone();
 
-				var postCloneIndex = counter;
-				var postClone = options.items.eq(postCloneIndex).clone();
-
-				var cssFloat = ( options.orientation == ORIENTATION_HORIZONTAL ) ? 'left' : 'none';
+				cssFloat = (options.orientation === ORIENTATION_HORIZONTAL) ? 'left' : 'none';
 				postClone.css({cssFloat: cssFloat}).addClass('clone post').insertAfter(postItem);
 				preClone.css({cssFloat: cssFloat}).addClass('clone pre').insertBefore(preItem);
 
@@ -584,22 +604,22 @@
 		} else {
 			options.infinite = false;
 		}
-	};
+	}
 
-	var initSelected = function(element, options) {
+	function initSelected(element, options) {
 		var selected = options.items.filter('.'+ options.selectedClass);
 		if( selected.length > 0 ) {
 			options.position = options.items.index( selected.get(0) );
 		}
-	};
+	}
 
-	var initAutoresize = function(element, options) {
+	function initAutoresize(element, options) {
 		if( options.autoresize === true ) {
 			$(window).bind('resize.hipsterSlider', function() { refreshSize(options); } );
 		}
-	};
+	}
 
-	var initTouch = function(element, options) {
+	function initTouch(element, options) {
 		if( options.touch === true ) {
 			var
 				doc = $(document),
@@ -607,7 +627,11 @@
 				pos, posX, posY,
 				diffX, diffY, diffAbs,
 				direction, baseEvent, target,
-				isToleranceReched
+				isToleranceReched,
+
+				onMouseDown,
+				onMouseMove,
+				onMouseLeave
 			;
 
 			//Prevent Image and link dragging:
@@ -615,7 +639,7 @@
 				event.preventDefault();
 			});
 
-			var onMouseDown = function(event) {
+			onMouseDown = function(event) {
 				if( !options.playing ) {
 					baseEvent = (event.originalEvent.touches) ? event.originalEvent.touches[0] : event.originalEvent;
 					target = $(event.currentTarget);
@@ -634,7 +658,7 @@
 				}
 			};
 
-			var onMouseMove = function(event) {
+			onMouseMove = function(event) {
 				var
 					tolerance = options.touchDirectionTolerance * (2 - getViewportScale()),
 					reachedHorizontalTolerance,
@@ -672,7 +696,7 @@
 
 			};
 
-			var onMouseLeave = function(event) {
+			onMouseLeave = function(/* event */) {
 				diffAbs = Math.abs( ( options.orientation === ORIENTATION_HORIZONTAL ) ? diffX : diffY );
 				direction = ( options.orientation === ORIENTATION_HORIZONTAL ) ? -diffX / diffAbs : -diffY / diffAbs;
 
@@ -694,13 +718,18 @@
 
 			options.itemsAll.bind('mousedown.hipsterSlider touchstart.hipsterSlider', onMouseDown);
 		}
-	};
+	}
 
 
 	/* Private Functions: Destruction
 	/-------------------------------------------------------------------------*/
 
-	var destroyElement = function(options) {
+	function destroyElement(options) {
+		var
+			itemData,
+			index
+		;
+
 		if( typeof options.preInitStyles.element.attrStyle === 'string' ) {
 			options.element.attr('style', options.preInitStyles.element.attrStyle);
 		} else {
@@ -719,9 +748,8 @@
 		}
 
 		if( options.preInitStyles.items.length > 0 ) {
-			var itemData;
-			for(var i = 0; i < options.preInitStyles.items.length; i++) {
-				itemData = options.preInitStyles.items[i];
+			for( index = 0; index < options.preInitStyles.items.length; index++ ) {
+				itemData = options.preInitStyles.items[index];
 				if( typeof itemData.attrStyle === 'string' ) {
 					itemData.item.attr('style', itemData.attrStyle);
 				} else {
@@ -739,13 +767,12 @@
 		delete(options.position);
 		delete(options.numElements);
 		delete(options.display);
-		delete(options.playing)
+		delete(options.playing);
 		delete(options.preInitStyles);
 		delete(options.initialized);
-		delete(options);
-	};
+	}
 
-	var destroyHardware = function(options) {
+	function destroyHardware(options) {
 		if( options.useHardware === true ) {
 			if( options.hasHardware === true ) {
 				delete(options.hasHardware);
@@ -753,9 +780,9 @@
 				delete(options.cssTransitionKey);
 			}
 		}
-	};
+	}
 
-	var destroyButtons = function(options) {
+	function destroyButtons(options) {
 		if( (options.buttons === true ) ) {
 			options.buttonPrev.unbind('click.hipsterSlider');
 			options.buttonNext.unbind('click.hipsterSlider');
@@ -767,9 +794,9 @@
 			options.buttons = false;
 
 		}
-	};
+	}
 
-	var destroyPager = function(options) {
+	function destroyPager(options) {
 		if( options.pager === true ) {
 			options.displayPager.find('.'+ options.pagerClass).unbind('click.hipsterSlider');
 			options.displayPager.remove();
@@ -777,13 +804,17 @@
 			delete(options.displayPager);
 			options.pager = false;
 		}
-	};
+	}
 
-	var destroyBiglink = function(options) {
+	function destroyBiglink(options) {
 		if( options.biglink === true && typeof options.biglinkClass === 'string' ) {
-			var biglinkData;
-			for(var i = 0; i < options.preInitStyles.biglinks.length; i++) {
-				biglinkData = options.preInitStyles.biglinks[i];
+			var
+				biglinkData,
+				index
+			;
+
+			for(index = 0; index < options.preInitStyles.biglinks.length; index++) {
+				biglinkData = options.preInitStyles.biglinks[index];
 				biglinkData.biglink.unbind('click.hipsterSlider');
 
 				if( typeof biglinkData.attrStyle === 'string' ) {
@@ -795,23 +826,23 @@
 
 			delete(options.preInitStyles.biglinks);
 		}
-	};
+	}
 
-	var destroySiteClasses = function(options) {
+	function destroySiteClasses(options) {
 		if( options.siteClasses === true ) {
 			options.display.parent().removeClass( options.siteClassesActive );
 			options.siteClassesActive = undefined;
 			delete(options.siteClassesActive);
 		}
-	};
+	}
 
-	var destroyAutoplay = function(options) {
+	function destroyAutoplay(options) {
 		if( options.autoplay === true ) {
 			stopAutoplay(options);
 		}
-	};
+	}
 
-	var destroyInfinite = function(options) {
+	function destroyInfinite(options) {
 		if( options.infinite === true ) {
 			options.itemsPre.remove();
 			options.itemsPost.remove();
@@ -824,16 +855,16 @@
 
 			options.infinite = false;
 		}
-	};
+	}
 
-	var destroyAutoresize = function(options) {
+	function destroyAutoresize(options) {
 		if( options.autoresize === true ) {
 			$(window).unbind('resize.hipsterSlider');
 			options.autoresize = false;
 		}
-	};
+	}
 
-	var destroyTouch = function(options) {
+	function destroyTouch(options) {
 		if( options.touch === true ) {
 			options.itemsAll
 				.unbind('mousedown.hipsterSlider')
@@ -852,17 +883,18 @@
 
 			options.touch = false;
 		}
-	};
-
+	}
 
 	/* Private Functions: Controls
 	/-------------------------------------------------------------------------*/
 
-	var getPosition = function(element, options) {
+	function getPosition(element, options) {
 		if( options.hasHardware === true ) {
 			var
 				matrix = element.css(options.cssTransformKey),
-				isMatrix3d = matrix.indexOf('matrix3d') > -1
+				isMatrix3d = matrix.indexOf('matrix3d') > -1,
+				left,
+				top
 			;
 
 			matrix = matrix
@@ -888,9 +920,9 @@
 				top: parseFloat(element.css('margin-top').replace(/px/, '')) || 0
 			};
 		}
-	};
+	}
 
-	var setPosition = function(element, options, properties, animated, callback) {
+	function setPosition(element, options, properties, animated, callback) {
 		var
 			cssProperties = {},
 			currentPosition = getPosition(element, options),
@@ -938,19 +970,19 @@
 				onCallback();
 			}
 		}
-	};
+	}
 
 
-	var slideTo = function(element, direction) {
+	function slideTo(element, direction) {
 		var options = element.data('sliderOptions');
 		if( options.initialized === true && options && !options.playing ) {
 			direction = direction * options.itemsToScroll;
 			options.position = options.position + direction;
 			applyPosition(element);
 		}
-	};
+	}
 
-	var applyPosition = function(element, position, animated) {
+	function applyPosition(element, position, animated) {
 		animated = (typeof animated === 'undefined' || animated);
 
 		var
@@ -1005,9 +1037,9 @@
 			}
 
 		}
-	};
+	}
 
-	var applyPositionComplete = function(element, options) {
+	function applyPositionComplete(element, options) {
 		if( options.infinite === true ) {
 
 			if( options.position < -(options.itemsToDisplay - options.itemsToScroll) ) {
@@ -1019,9 +1051,9 @@
 
 		}
 		applyPaging(element, options);
-	};
+	}
 
-	var applyButtons = function(element, options) {
+	function applyButtons(element, options) {
 		if( options.buttons === true ) {
 			if( typeof options.buttonPrev !== 'undefined' ) {
 				options.buttonPrev.removeClass( options.buttonDisabledClass );
@@ -1033,26 +1065,26 @@
 				if( options.position >= options.numElements - options.itemsToDisplay && options.infinite === false ) { options.buttonNext.addClass( options.buttonDisabledClass ); }
 			}
 		}
-	};
+	}
 
-	var applyPaging = function(element, options) {
+	function applyPaging(element, options) {
 		if( options.pager === true && options.displayPager ) {
 			options.displayPager.children('.'+ options.pagerSelectedClass ).removeClass( options.pagerSelectedClass );
 			options.displayPager.children().eq(options.position).addClass( options.pagerSelectedClass );
 		}
-	};
+	}
 
-	var applySiteClasses = function(element, options) {
+	function applySiteClasses(element, options) {
 		if( options.siteClasses === true ) {
 			options.display.parent().removeClass( options.siteClassesActive );
 			options.siteClassesActive = options.siteClassesClass + (options.position + 1);
 			options.display.parent().addClass( options.siteClassesActive );
 		}
-	};
+	}
 
-	var applyItemClasses = function(element, options) {
+	function applyItemClasses(element, options) {
 		if( options.itemsClasses === true ) {
-			var item;
+			var item, from, to;
 
 			//General items:
 			options.items.each( function(index) {
@@ -1061,7 +1093,7 @@
 					item.removeClass( options.itemsCurrentClass )
 						.removeClass( options.itemsNextClass )
 						.addClass( options.itemsPrevClass );
-				} else if( index == options.position && !item.hasClass( options.itemsCurrentClass ) ) {
+				} else if( index === options.position && !item.hasClass( options.itemsCurrentClass ) ) {
 					item.removeClass( options.itemsPrevClass )
 						.removeClass( options.itemsNextClass )
 						.addClass( options.itemsCurrentClass );
@@ -1075,8 +1107,6 @@
 
 			//Pre and Post items:
 			if( options.infinite === true ) {
-				var from, to;
-
 				//Preitems:
 				if( options.position < -(options.itemsToDisplay - options.itemsToScroll) ) {
 					from = options.numElements - options.itemsToDisplay;
@@ -1091,7 +1121,11 @@
 					options.itemsPre
 						.removeClass( options.itemsPrevClass )
 						.addClass( options.itemsCurrentClass );
-				} else { options.itemsPre.removeClass( options.itemsCurrentClass ).addClass( options.itemsPrevClass ); }
+				} else {
+					options.itemsPre
+					.removeClass(options.itemsCurrentClass)
+					.addClass(options.itemsPrevClass);
+				}
 
 				//Postitems:
 				if( options.position >= options.numElements ) {
@@ -1099,32 +1133,34 @@
 					to = options.itemsToDisplay;
 					if( to < options.numElements ) {
 						options.items.slice( from, to )
-							.removeClass( options.itemsPrevClass )
-							.removeClass( options.itemsNextClass )
-							.addClass( options.itemsCurrentClass );
+							.removeClass(options.itemsPrevClass)
+							.removeClass(options.itemsNextClass)
+							.addClass(options.itemsCurrentClass);
 					}
 					options.itemsPost
-						.removeClass( options.itemsNextClass )
-						.addClass( options.itemsCurrentClass );
-				} else { options.itemsPost.removeClass( options.itemsCurrentClass ).addClass( options.itemsNextClass ); }
-
-
+						.removeClass(options.itemsNextClass)
+						.addClass(options.itemsCurrentClass);
+				} else {
+					options.itemsPost
+						.removeClass(options.itemsCurrentClass)
+						.addClass(options.itemsNextClass);
+				}
 			}
 		}
-	};
+	}
 
-	var autoplay = function(element, options) {
+	function autoplay(element, options) {
 		if( options.autoplay === true ) {
 			slideTo(element, options.autoplayDirection);
-			setTimeout( function() { autoplay(element, options); }, options.autoplayPause );
+			window.setTimeout( function() { autoplay(element, options); }, options.autoplayPause );
 		}
-	};
+	}
 
-	var stopAutoplay = function(options) {
+	function stopAutoplay(options) {
 		options.autoplay = false;
-	};
+	}
 
-	var refreshSize = function(options) {
+	function refreshSize(options) {
 		var
 			width = 0,
 			height = 0
@@ -1170,7 +1206,7 @@
 
 
 		applyPosition(options.element, undefined, false);
-	};
+	}
 
 
 	/* Private Functions: Utils
@@ -1185,11 +1221,12 @@
 	*			boolean should be the result
 	* @param t overrides the target element
 	*/
-	var hasCssProperty = function(p, rp, t) {
+	function hasCssProperty(p, rp, t) {
 		var
 			b = (t) ? t : (document.body || document.documentElement),
 			s = b.style,
-			v
+			v,
+			i
 		;
 
 		// No css support detected
@@ -1201,14 +1238,14 @@
 		// Tests for vendor specific prop
 		v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms', 'Icab'];
 		p = p.charAt(0).toUpperCase() + p.substr(1);
-		for(var i=0; i<v.length; i++) {
+		for(i=0; i<v.length; i++) {
 			if(typeof s[v[i] + p] === 'string') { return rp ? (v[i] + p) : true; }
 		}
 
 		return rp ? undefined : false;
-	};
+	}
 
-	var getCssProperty = function(element, p) {
+	function getCssProperty(element, p) {
 		if( element.length > 0 ) {
 			p = hasCssProperty(p, true);
 			element = element.get(0);
@@ -1217,16 +1254,16 @@
 			}
 		}
 		return undefined;
-	};
+	}
 
-	var getViewportScale = function() {
+	function getViewportScale() {
 		var
 			clientWidth = $(window).width(),
 			documentWidth = $(document).width()
 		;
 
 		return clientWidth / documentWidth;
-	};
+	}
 
 
 	/* Directing
