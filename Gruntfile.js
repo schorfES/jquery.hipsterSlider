@@ -38,15 +38,30 @@ module.exports = function(grunt) {
 				'undef': true,
 				'unused': true
 			}
+		},
+
+		lintspaces: {
+			all: {
+				src: [
+					'Gruntfile.js',
+					'jquery.hipsterSlider.js'
+				],
+				options: {
+					newline: true,
+					trailingspaces: true,
+					indentation: 'tabs'
+				}
+			}
 		}
 	});
 
 	// Load tasks
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-lintspaces');
 
 	// Tasks
 	grunt.registerTask('default', ['validate', 'build']);
-	grunt.registerTask('validate', ['jshint']);
+	grunt.registerTask('validate', ['jshint', 'lintspaces']);
 	grunt.registerTask('build', ['uglify']);
 };
