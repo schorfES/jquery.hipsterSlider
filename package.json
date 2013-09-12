@@ -1,7 +1,7 @@
 {
   "name": "jquery.hipsterSlider",
   "title": "jquery.hipsterSlider",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "An other jQuery Slideshow Plugin",
   "repository": {
     "type": "git",
@@ -12,6 +12,7 @@
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-uglify": "~0.2.0",
-    "grunt-contrib-jshint": "~0.4.3"
+    "grunt-contrib-jshint": "~0.4.3",
+    "grunt-lintspaces": "~0.1.0"
   }
 }

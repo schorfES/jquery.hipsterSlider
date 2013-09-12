@@ -1,9 +1,9 @@
 /**
- *  jquery.hipsterSlider.js
- *
- *  @author Norman Rusch (schorfES)
- *  @repository GitHub | https://github.com/schorfES/jquery.hipsterSlider
- */
+*  jquery.hipsterSlider.js
+*
+*  @author Norman Rusch (schorfES)
+*  @repository GitHub | https://github.com/schorfES/jquery.hipsterSlider
+*/
 
 ;(function( $ ){
 
