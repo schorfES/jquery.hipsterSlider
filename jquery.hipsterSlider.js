@@ -687,10 +687,10 @@
 
 				switch(options.orientation) {
 					case ORIENTATION_HORIZONTAL:
-						setPosition(element, options, {left: posX + diffX, duration: 0.25}, true);
+						setPosition(element, options, {left: posX + diffX, duration: 75}, true);
 						break;
 					case ORIENTATION_VERTICAL:
-						setPosition(element, options, {top: posY + diffY, duration: 0.25}, true);
+						setPosition(element, options, {top: posY + diffY, duration: 75}, true);
 						break;
 				}
 
