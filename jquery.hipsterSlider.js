@@ -900,9 +900,7 @@
 		_initAutoresize: function() {
 			if (this._options.autoresize) {
 				var self = this;
-				$(window).bind('resize.'+ NAMESPACE, function() {
-					self.refreshSize();
-				});
+				$(window).bind('resize.'+ NAMESPACE, proxy(this._onResize, this));
 			}
 		},
 
@@ -911,6 +909,10 @@
 				$(window).unbind('resize.'+ NAMESPACE);
 				this._options.autoresize = false;
 			}
+		},
+
+		_onResize: function() {
+			this.refreshSize();
 		},
 
 		/* Touch
