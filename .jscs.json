@@ -25,8 +25,6 @@
 	"disallowSpaceAfterObjectKeys": true,
 	"disallowLeftStickedOperators": [
 		"?",
-		"+",
-		"-",
 		"/",
 		"*",
 		"=",
@@ -41,10 +39,11 @@
 		"&&",
 		"||"
 	],
-	"requireRightStickedOperators": ["!"],
+	"requireRightStickedOperators": [
+		"!"
+	],
 	"disallowRightStickedOperators": [
 		"?",
-		"+",
 		"/",
 		"*",
 		":",
@@ -60,9 +59,15 @@
 		"&&",
 		"||"
 	],
-	"requireLeftStickedOperators": [","],
-	"disallowKeywords": ["with"],
-	"disallowKeywordsOnNewLine": ["else"],
+	"requireLeftStickedOperators": [
+		","
+	],
+	"disallowKeywords": [
+		"with"
+	],
+	"disallowKeywordsOnNewLine": [
+		"else"
+	],
 	"requireLineFeedAtFileEnd": true,
 	"safeContextKeyword": "self"
 }
