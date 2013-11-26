@@ -712,16 +712,9 @@
 					});
 
 
-					biglinks.css('cursor','pointer')
-						.bind('click.'+ NAMESPACE, function(event) {
-							event.preventDefault();
-							event.stopPropagation();
-
-							var link = $(event.currentTarget).find('a').eq(0);
-							if (link.length > 0) {
-								document.location.href = link.attr('href');
-							}
-						});
+					biglinks
+						.css('cursor','pointer')
+						.bind('click.'+ NAMESPACE, proxy(this._onClickBiglink, this));
 				}
 			}
 		},
@@ -745,6 +738,16 @@
 				}
 
 				delete(this._preInitStyles.biglinks);
+			}
+		},
+
+		_onClickBiglink: function(event) {
+			event.preventDefault();
+			event.stopPropagation();
+
+			var link = $(event.currentTarget).find('a').eq(0);
+			if (link.length > 0) {
+				document.location.href = link.attr('href');
 			}
 		},
 
