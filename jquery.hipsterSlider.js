@@ -70,7 +70,7 @@
 				return '<li class="'+ data.pagerClass +'"><a href="#">'+ data.count +'</a></li>';
 			},
 			pagerWrapTemplate: function(data) {			/* default function which contains the pager wrapper template */
-				return '<ol class="'+ data.pagerWrapClass +'" />'
+				return '<ol class="'+ data.pagerWrapClass +'" />';
 			},
 
 			siteClasses: false,							/* adds to the display's parent the active page as classname */
@@ -482,7 +482,6 @@
 			/* Buttons must be active and there mast be at least more than one page to show */
 			if (this._options.buttons && this._numElements - this._options.itemsToDisplay > 0) {
 				var
-					self = this,
 					prevButton,
 					nextButton,
 					buttons,
@@ -598,7 +597,6 @@
 			/* Pagers must be active */
 			if (this._options.pager) {
 				var
-					self = this,
 					wrapPager,
 					wrapPagerTarget,
 					count,
@@ -624,7 +622,7 @@
 
 				//Define target for pager:
 				wrapPagerTarget = $(this._options.pagerTargetSelector);
-				if(wrapPagerTarget.length <= 0) {
+				if (wrapPagerTarget.length <= 0) {
 					wrapPagerTarget = this._display;
 				}
 
@@ -776,7 +774,6 @@
 			/* Autoplay must be active and there mast be at least more than one page to show */
 			if (this._options.autoplay && this._numElements - this._options.itemsToDisplay > 0) {
 				var
-					self = this,
 					delay
 				;
 
@@ -792,10 +789,7 @@
 
 		autoplayContinue: function(delay) {
 			if (this._options.autoplay) {
-				var
-					self = this,
-					duration = this._options.autoplayPause + (delay ? delay : 0);
-				;
+				var	duration = this._options.autoplayPause + (delay ? delay : 0);
 
 				this.slideTo(this._options.autoplayDirection);
 				window.setTimeout(proxy(this._onTimeoutAutoplay, this), duration);
@@ -899,7 +893,6 @@
 
 		_initAutoresize: function() {
 			if (this._options.autoresize) {
-				var self = this;
 				$(window).bind('resize.'+ NAMESPACE, proxy(this._onResize, this));
 			}
 		},
