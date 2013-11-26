@@ -314,7 +314,7 @@
 				display = $('<div />').addClass(this._options.displayClass);
 				items = this.$el.children();
 
-				if (this._options.initializeMinItems === false &&
+				if (this._options.initializeMinItems &&
 					items.length <= this._options.itemsToDisplay) {
 					return false;
 				}
@@ -480,7 +480,7 @@
 
 		_initButtons: function() {
 			/* Buttons must be active and there mast be at least more than one page to show */
-			if (this._options.buttons === true && this._numElements - this._options.itemsToDisplay > 0) {
+			if (this._options.buttons && this._numElements - this._options.itemsToDisplay > 0) {
 				var
 					self = this,
 					prevButton,
@@ -659,7 +659,7 @@
 		},
 
 		_updatePagers: function() {
-			if (this._options.pager === true && this._displayPager) {
+			if (this._options.pager && this._displayPager) {
 				this._displayPager
 					.children('.'+ this._options.pagerSelectedClass)
 					.removeClass(this._options.pagerSelectedClass);
@@ -692,7 +692,7 @@
 		/* ------------------------------------------------------------------ */
 
 		_initBiglink: function() {
-			if (this._options.biglink === true && typeof this._options.biglinkClass === 'string') {
+			if (this._options.biglink && typeof this._options.biglinkClass === 'string') {
 				var
 					self = this,
 					biglinks = this.$el.find('.'+ this._options.biglinkClass),
@@ -720,7 +720,7 @@
 		},
 
 		_destroyBiglink: function() {
-			if (this._options.biglink === true && typeof this._options.biglinkClass === 'string') {
+			if (this._options.biglink && typeof this._options.biglinkClass === 'string') {
 				var
 					biglinkData,
 					index
@@ -774,7 +774,7 @@
 
 		_initAutoplay: function(index) {
 			/* Autoplay must be active and there mast be at least more than one page to show */
-			if (this._options.autoplay === true && this._numElements - this._options.itemsToDisplay > 0) {
+			if (this._options.autoplay && this._numElements - this._options.itemsToDisplay > 0) {
 				var
 					self = this,
 					delay
@@ -821,7 +821,7 @@
 
 		_initInfinite: function() {
 			/* Infinite must be active and there mast be at least more than one page to show */
-			if (this._options.infinite === true && this._numElements - this._options.itemsToDisplay > 0) {
+			if (this._options.infinite && this._numElements - this._options.itemsToDisplay > 0) {
 				var
 					preItem = this._items.eq(0),
 					postItem = this._items.eq(this._numElements - 1),
@@ -1053,7 +1053,7 @@
 		},
 
 		slideTo: function(direction) {
-			if (this.initialized === true && !this._playing) {
+			if (this.initialized && !this._playing) {
 				direction = direction * this._options.itemsToScroll;
 				this._position = this._position + direction;
 				this.applyPosition();
