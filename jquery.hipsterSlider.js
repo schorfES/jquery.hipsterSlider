@@ -93,6 +93,7 @@
 
 		jQueryApi,
 		HipsterSliderCounter = 0,
+		HipsterSliderRegistry = {},
 		HipsterSlider = function($el, options) {
 			this.$el = $el;
 			this.options = options;
@@ -107,6 +108,7 @@
 	function setInstance(instance) {
 		if (typeof instance === 'object' && typeof instance.$el === 'object') {
 			instance.$el.data(NAMESPACE, instance);
+			HipsterSliderRegistry[instance.getId()] = instance;
 		}
 	}
 
@@ -121,6 +123,8 @@
 	function removeInstance(instance) {
 		if (typeof instance === 'object' && typeof instance.$el === 'object') {
 			instance.$el.removeData(NAMESPACE);
+			HipsterSliderRegistry[instance.getId()] = undefined;
+			delete(HipsterSliderRegistry[instance.getId()]);
 		}
 	}
 
@@ -1181,6 +1185,10 @@
 			this.applyPosition(undefined, false);
 		},
 
+		getId: function() {
+			return this._id;
+		},
+
 		_getPosition: function() {
 			if (this._hasHardware) {
 				var
@@ -1432,6 +1440,7 @@
 	$.hipsterSlider = $.hipsterSlider || {};
 
 	$.hipsterSlider.Class = HipsterSlider;
+	$.hipsterSlider.Registry = HipsterSliderRegistry;
 
 	$.hipsterSlider.HORIZONTAL = ORIENTATION_HORIZONTAL;
 	$.hipsterSlider.VERTICAL = ORIENTATION_VERTICAL;
