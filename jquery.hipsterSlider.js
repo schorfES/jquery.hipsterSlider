@@ -582,13 +582,13 @@
 		_onClickNext: function(event) {
 			event.preventDefault();
 			this.slideTo(+1);
-			this.stopAutoplay();
+			this.autoplayStop();
 		},
 
 		_onClickPrevious: function(event) {
 			event.preventDefault();
 			this.slideTo(-1);
-			this.stopAutoplay();
+			this.autoplayStop();
 		},
 
 		/* Pager
@@ -685,7 +685,7 @@
 			event.preventDefault();
 			var index = $(event.currentTarget).data('index');
 			this.applyPosition(index);
-			this.stopAutoplay();
+			this.autoplayStop();
 		},
 
 		/* Biglink
@@ -773,24 +773,47 @@
 		/* ------------------------------------------------------------------ */
 
 		_initAutoplay: function(index) {
-			var self = this;
 			/* Autoplay must be active and there mast be at least more than one page to show */
 			if (this._options.autoplay === true && this._numElements - this._options.itemsToDisplay > 0) {
+				var
+					self = this,
+					delay
+				;
+
 				index = (this._options.autoplayDelayQueued) ? index : 1;
 				index = index ? index : 0;
+				delay = index * this._options.autoplayDelay;
 
-				window.setTimeout(function() {
-					self.autoplay();
-				}, this._options.autoplayPause + (index * this._options.autoplayDelay));
+				this.autoplayContinue(delay);
 			} else {
 				this._options.autoplay = false;
 			}
 		},
 
+		autoplayContinue: function(delay) {
+			if (this._options.autoplay) {
+				var
+					self = this,
+					duration = this._options.autoplayPause + (delay ? delay : 0);
+				;
+
+				this.slideTo(this._options.autoplayDirection);
+				window.setTimeout(proxy(this._onTimeoutAutoplay, this), duration);
+			}
+		},
+
+		autoplayStop: function() {
+			this._options.autoplay = false;
+		},
+
 		_destroyAutoplay: function() {
 			if (this._options.autoplay) {
-				this.stopAutoplay(this._options);
+				this.autoplayStop(this._options);
 			}
+		},
+
+		_onTimeoutAutoplay: function() {
+			this.autoplayContinue();
 		},
 
 		/* Infinite
@@ -1099,20 +1122,6 @@
 			}
 		},
 
-		autoplay: function() {
-			if (this._options.autoplay) {
-				var self = this;
-				this.slideTo(this._options.autoplayDirection);
-				window.setTimeout(function() {
-					self.autoplay();
-				}, this._options.autoplayPause);
-			}
-		},
-
-		stopAutoplay: function() {
-			this._options.autoplay = false;
-		},
-
 		applySiteClasses: function() {
 			if (this._options.siteClasses) {
 				this._display
@@ -1413,7 +1422,7 @@
 			return $(this).each(function() {
 				var instance = getInstance($(this));
 				if (typeof instance === 'object') {
-					instance.stopAutoplay();
+					instance.autoplayStop();
 				}
 			});
 		},
