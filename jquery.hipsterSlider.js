@@ -5,7 +5,7 @@
 *  @repository GitHub | https://github.com/schorfES/jquery.hipsterSlider
 */
 
-;(function( $ ){
+;(function($) {
 
 	var
 		//Constants:
@@ -105,13 +105,13 @@
 	/-------------------------------------------------------------------------*/
 
 	function setInstance(instance) {
-		if(typeof instance === 'object' && typeof instance.$el === 'object') {
+		if (typeof instance === 'object' && typeof instance.$el === 'object') {
 			instance.$el.data(NAMESPACE, instance);
 		}
 	}
 
 	function getInstance(element) {
-		if(typeof element === 'object') {
+		if (typeof element === 'object') {
 			return element.data(NAMESPACE);
 		} else {
 			return null;
@@ -119,7 +119,7 @@
 	}
 
 	function removeInstance(instance) {
-		if(typeof instance === 'object' && typeof instance.$el === 'object') {
+		if (typeof instance === 'object' && typeof instance.$el === 'object') {
 			instance.$el.removeData(NAMESPACE);
 		}
 	}
@@ -143,26 +143,32 @@
 		;
 
 		// No css support detected
-		if(typeof s === 'undefined') { return false; }
+		if (typeof s === 'undefined') {
+			return false;
+		}
 
 		// Tests for standard prop
-		if(typeof s[p] === 'string') { return rp ? p : true; }
+		if (typeof s[p] === 'string') {
+			return rp ? p : true;
+		}
 
 		// Tests for vendor specific prop
 		v = ['Moz', 'Webkit', 'Khtml', 'O', 'ms', 'Icab'];
 		p = p.charAt(0).toUpperCase() + p.substr(1);
-		for(i=0; i<v.length; i++) {
-			if(typeof s[v[i] + p] === 'string') { return rp ? (v[i] + p) : true; }
+		for (i = 0; i < v.length; i++) {
+			if (typeof s[v[i] + p] === 'string') {
+				return rp ? (v[i] + p) : true;
+			}
 		}
 
 		return rp ? undefined : false;
 	}
 
 	function getCssProperty(element, p) {
-		if( element.length > 0 ) {
+		if (element.length > 0) {
 			p = hasCssProperty(p, true);
 			element = element.get(0);
-			if( typeof p === 'string' && element !== undefined ) {
+			if (typeof p === 'string' && element !== undefined) {
 				return element.style[ p ];
 			}
 		}
@@ -271,9 +277,11 @@
 
 			if (tagName === this.options.tagName) {
 				this._preInitStyles = this._preInitStyles || {};
-				this._preInitStyles.element = { attrStyle: this.$el.attr('style') };
+				this._preInitStyles.element = {
+					attrStyle: this.$el.attr('style')
+				};
 
-				display = $('<div />').addClass( this.options.displayClass );
+				display = $('<div />').addClass(this.options.displayClass);
 				items = this.$el.children();
 
 				if (this.options.initializeMinItems === false &&
@@ -287,7 +295,7 @@
 				this._numElements = items.length;
 
 				this._preInitStyles.items = [];
-				items.each( function() {
+				items.each(function() {
 					item = $(this);
 					self._preInitStyles.items.push({
 						item: item,
@@ -298,7 +306,7 @@
 				this._items = items;
 				this._itemsAll = items;
 
-				switch( this.options.orientation ) {
+				switch (this.options.orientation) {
 					case ORIENTATION_HORIZONTAL:
 						items.css('float','left');
 						break;
@@ -330,7 +338,7 @@
 				index
 			;
 
-			if( typeof this._preInitStyles.element.attrStyle === 'string' ) {
+			if (typeof this._preInitStyles.element.attrStyle === 'string') {
 				this.$el.attr('style', this._preInitStyles.element.attrStyle);
 			} else {
 				this.$el.removeAttr('style');
@@ -339,7 +347,7 @@
 			this._display.remove();
 
 
-			if( this.options.itemsClasses === true ) {
+			if (this.options.itemsClasses) {
 				this._items
 					.removeClass(this.options.itemsPrevClass)
 					.removeClass(this.options.itemsCurrentClass)
@@ -347,10 +355,10 @@
 				this.options.itemsClasses = false;
 			}
 
-			if( this._preInitStyles.items.length > 0 ) {
-				for( index = 0; index < this._preInitStyles.items.length; index++ ) {
+			if (this._preInitStyles.items.length > 0) {
+				for (index = 0; index < this._preInitStyles.items.length; index++) {
 					itemData = this._preInitStyles.items[index];
-					if( typeof itemData.attrStyle === 'string' ) {
+					if (typeof itemData.attrStyle === 'string') {
 						itemData.item.attr('style', itemData.attrStyle);
 					} else {
 						itemData.item.removeAttr('style');
@@ -375,16 +383,23 @@
 		/* ------------------------------------------------------------------ */
 
 		_initHardware: function() {
-			if( this.options.useHardware === true ) {
+			if (this.options.useHardware) {
 				var
 					css = {},
 					key,
-					prefixes = ['-webkit-','-moz-','-o-','-ms-','-khtml-','']
+					prefixes = [
+						'-webkit-',
+						'-khtml-',
+						'-moz-',
+						'-ms-',
+						'-o-',
+						''
+					]
 				;
 
 				/* Build properties with prefixes and add value to test */
 				for (key in prefixes) {
-					css[prefixes[key]+'transform'] = 'translate3d(0,0,0)';
+					css[prefixes[key] +'transform'] = 'translate3d(0,0,0)';
 				}
 				this.$el.css(css);
 
@@ -409,8 +424,8 @@
 												.replace('KhtmlT','-khtml-t');
 				} else {
 					/* Build properties with prefixes and add empty values to remove test values. */
-					for(key in prefixes) {
-						css[prefixes[key]+'transform'] = '';
+					for (key in prefixes) {
+						css[prefixes[key] +'transform'] = '';
 					}
 					this.$el.css(css);
 				}
@@ -418,8 +433,8 @@
 		},
 
 		_destroyHardware: function() {
-			if( this.options.useHardware === true ) {
-				if( this._hasHardware === true ) {
+			if (this.options.useHardware) {
+				if (this._hasHardware) {
 					delete(this._hasHardware);
 					delete(this._cssTransformKey);
 					delete(this._cssTransitionKey);
@@ -441,7 +456,7 @@
 					buttonsTarget
 				;
 
-				if( this.options.buttonsWrap ) {
+				if (this.options.buttonsWrap) {
 					buttons = $('<div class="'+ this.options.buttonsWrapClass +'" />').append(buttons);
 				}
 
@@ -451,7 +466,7 @@
 				buttonsTarget = (buttonsTarget.length > 0) ? buttonsTarget : this._display;
 
 				//Use insertion-method:
-				switch( this.options.buttonTargetInsertionMethod ) {
+				switch (this.options.buttonTargetInsertionMethod) {
 					case METHOD_PREPEND:
 						buttonsTarget.prepend(buttons);
 						break;
@@ -478,7 +493,7 @@
 						event.preventDefault();
 						self.slideTo(-1);
 						self.stopAutoplay();
-					} );
+					});
 
 
 				nextButton
@@ -486,7 +501,7 @@
 						event.preventDefault();
 						self.slideTo(+1);
 						self.stopAutoplay();
-					} );
+					});
 
 				this._buttonPrev = prevButton;
 				this._buttonNext = nextButton;
@@ -499,7 +514,7 @@
 		},
 
 		_destroyButtons: function() {
-			if( (this.options.buttons === true ) ) {
+			if (this.options.buttons) {
 				this._buttonPrev.unbind('click.hipsterSlider');
 				this._buttonNext.unbind('click.hipsterSlider');
 				this._buttonsAll.remove();
@@ -516,7 +531,7 @@
 
 		_initPager: function() {
 			/* Pagers must be active */
-			if( this.options.pager === true ) {
+			if (this.options.pager) {
 				var
 					self = this,
 					wrapPager = $('<ol class="'+ this.options.pagerWrapClass +'" />'),
@@ -532,10 +547,10 @@
 				;
 
 				//Create pagers:
-				for(count = 1; count <= this._numElements - this.options.itemsToDisplay + 1; count++) {
+				for (count = 1; count <= this._numElements - this.options.itemsToDisplay + 1; count++) {
 					page = $('<li class="'+ this.options.pagerClass +'"><a href="#">'+ count +'</a></li>')
 						.data('index', count - 1)
-						.appendTo( wrapPager )
+						.appendTo(wrapPager)
 						.bind('click.hipsterSlider', clickHandler);
 				}
 
@@ -574,7 +589,7 @@
 		},
 
 		_destroyPager: function() {
-			if( this.options.pager === true ) {
+			if (this.options.pager) {
 				this._displayPager.find('.'+ this.options.pagerClass).unbind('click.hipsterSlider');
 				this._displayPager.remove();
 
@@ -587,14 +602,14 @@
 		/* ------------------------------------------------------------------ */
 
 		_initBiglink: function() {
-			if( this.options.biglink === true && typeof this.options.biglinkClass === 'string' ) {
+			if (this.options.biglink === true && typeof this.options.biglinkClass === 'string') {
 				var
 					self = this,
 					biglinks = this.$el.find('.'+ this.options.biglinkClass),
 					biglink
 				;
 
-				if( biglinks.length > 0 ) {
+				if (biglinks.length > 0) {
 					this._preInitStyles = this._preInitStyles || {};
 					this._preInitStyles.biglinks = [];
 
@@ -613,26 +628,26 @@
 							event.stopPropagation();
 
 							var link = $(event.currentTarget).find('a').eq(0);
-							if( link.length > 0 ) {
+							if (link.length > 0) {
 								document.location.href = link.attr('href');
 							}
-						} );
+						});
 				}
 			}
 		},
 
 		_destroyBiglink: function() {
-			if( this.options.biglink === true && typeof this.options.biglinkClass === 'string' ) {
+			if (this.options.biglink === true && typeof this.options.biglinkClass === 'string') {
 				var
 					biglinkData,
 					index
 				;
 
-				for(index = 0; index < this._preInitStyles.biglinks.length; index++) {
+				for (index = 0; index < this._preInitStyles.biglinks.length; index++) {
 					biglinkData = this._preInitStyles.biglinks[index];
 					biglinkData.biglink.unbind('click.hipsterSlider');
 
-					if( typeof biglinkData.attrStyle === 'string' ) {
+					if (typeof biglinkData.attrStyle === 'string') {
 						biglinkData.biglink.attr('style', biglinkData.attrStyle);
 					} else {
 						biglinkData.biglink.removeAttr('style');
@@ -652,8 +667,8 @@
 		},
 
 		_destroySiteClasses: function() {
-			if( this.options.siteClasses === true ) {
-				this._display.parent().removeClass( this._siteClassesActive );
+			if (this.options.siteClasses) {
+				this._display.parent().removeClass(this._siteClassesActive);
 				this._siteClassesActive = undefined;
 				delete(this._siteClassesActive);
 			}
@@ -665,20 +680,20 @@
 		_initAutoplay: function(index) {
 			var self = this;
 			/* Autoplay must be active and there mast be at least more than one page to show */
-			if( this.options.autoplay === true && this._numElements - this.options.itemsToDisplay > 0 ) {
+			if (this.options.autoplay === true && this._numElements - this.options.itemsToDisplay > 0) {
 				index = (this.options.autoplayDelayQueued) ? index : 1;
 				index = index ? index : 0;
 
-				window.setTimeout( function() {
+				window.setTimeout(function() {
 					self.autoplay();
-				}, this.options.autoplayPause + (index * this.options.autoplayDelay) );
+				}, this.options.autoplayPause + (index * this.options.autoplayDelay));
 			} else {
 				this.options.autoplay = false;
 			}
 		},
 
 		_destroyAutoplay: function() {
-			if( this.options.autoplay === true ) {
+			if (this.options.autoplay) {
 				this.stopAutoplay(this.options);
 			}
 		},
@@ -688,7 +703,7 @@
 
 		_initInfinite: function() {
 			/* Infinite must be active and there mast be at least more than one page to show */
-			if( this.options.infinite === true && this._numElements - this.options.itemsToDisplay > 0 ) {
+			if (this.options.infinite === true && this._numElements - this.options.itemsToDisplay > 0) {
 				var
 					preItem = this._items.eq(0),
 					postItem = this._items.eq(this._numElements - 1),
@@ -700,7 +715,7 @@
 					cssFloat
 				;
 
-				for(counter = 0; counter < this.options.itemsToDisplay; counter++) {
+				for (counter = 0; counter < this.options.itemsToDisplay; counter++) {
 					preCloneIndex = this._numElements - 1 - counter;
 					preClone = this._items.eq(preCloneIndex).clone();
 
@@ -715,7 +730,7 @@
 					postItem = postClone;
 
 					/* Store all clones */
-					if( typeof this._itemsPre === 'undefined' ) {
+					if (typeof this._itemsPre === 'undefined') {
 						this._itemsPre = preClone;
 						this._itemsPost = postClone;
 					} else {
@@ -725,7 +740,7 @@
 				}
 
 				/* Store all new pre and postitems */
-				if( typeof this._itemsPre !== 'undefined' ) {
+				if (typeof this._itemsPre !== 'undefined') {
 					this._itemsAll = this._itemsAll
 										.add(this._itemsPre)
 										.add(this._itemsPost);
@@ -737,7 +752,7 @@
 		},
 
 		_destroyInfinite: function() {
-			if( this.options.infinite === true ) {
+			if (this.options.infinite) {
 				this._itemsPre.remove();
 				this._itemsPost.remove();
 
@@ -756,8 +771,8 @@
 
 		_initSelected: function() {
 			var selected = this._items.filter('.'+ this.options.selectedClass);
-			if( selected.length > 0 ) {
-				this._position = this._items.index( selected.get(0) );
+			if (selected.length > 0) {
+				this._position = this._items.index(selected.get(0));
 			}
 		},
 
@@ -765,7 +780,7 @@
 		/* ------------------------------------------------------------------ */
 
 		_initAutoresize: function() {
-			if( this.options.autoresize === true ) {
+			if (this.options.autoresize) {
 				var self = this;
 				$(window).bind('resize.hipsterSlider', function() {
 					self.refreshSize();
@@ -774,7 +789,7 @@
 		},
 
 		_destroyAutoresize: function() {
-			if( this.options.autoresize === true ) {
+			if (this.options.autoresize) {
 				$(window).unbind('resize.hipsterSlider');
 				this.options.autoresize = false;
 			}
@@ -784,7 +799,7 @@
 		/* ------------------------------------------------------------------ */
 
 		_initTouch: function() {
-			if( this.options.touch === true ) {
+			if (this.options.touch) {
 				var
 					self = this,
 					doc = $(document),
@@ -805,7 +820,7 @@
 				});
 
 				onMouseDown = function(event) {
-					if( !self._playing ) {
+					if (!self._playing) {
 						baseEvent = (event.originalEvent.touches) ? event.originalEvent.touches[0] : event.originalEvent;
 						target = $(event.currentTarget);
 
@@ -839,9 +854,9 @@
 					reachedHorizontalTolerance = (self.options.orientation === ORIENTATION_HORIZONTAL && Math.abs(diffX) < tolerance);
 					reachedVerticalTolerance = (self.options.orientation === ORIENTATION_VERTICAL && Math.abs(diffY) < tolerance);
 
-					if( !isToleranceReched && (reachedHorizontalTolerance || reachedVerticalTolerance)) {
+					if (!isToleranceReched && (reachedHorizontalTolerance || reachedVerticalTolerance)) {
 						return;
-					} else if ( !isToleranceReched ) {
+					} else if (!isToleranceReched) {
 						isToleranceReched = true;
 
 						doc.bind('mouseup.hipsterSlider touchend.hipsterSlider', onMouseLeave);
@@ -850,7 +865,7 @@
 					event.preventDefault();
 					event.stopPropagation();
 
-					switch(self.options.orientation) {
+					switch (self.options.orientation) {
 						case ORIENTATION_HORIZONTAL:
 							self._setPosition({left: posX + diffX, duration: 75}, true);
 							break;
@@ -861,11 +876,11 @@
 
 				};
 
-				onMouseLeave = function(/* event */) {
-					diffAbs = Math.abs( ( self.options.orientation === ORIENTATION_HORIZONTAL ) ? diffX : diffY );
-					direction = ( self.options.orientation === ORIENTATION_HORIZONTAL ) ? -diffX / diffAbs : -diffY / diffAbs;
+				onMouseLeave = function() {
+					diffAbs = Math.abs((self.options.orientation === ORIENTATION_HORIZONTAL) ? diffX : diffY);
+					direction = (self.options.orientation === ORIENTATION_HORIZONTAL) ? -diffX / diffAbs : -diffY / diffAbs;
 
-					if( diffAbs > self.options.touchTolerance ) {
+					if (diffAbs > self.options.touchTolerance) {
 						self._playing = false;
 						self.slideTo(direction);
 					} else {
@@ -886,7 +901,7 @@
 		},
 
 		_destroyTouch: function() {
-			if( this.options.touch === true ) {
+			if (this.options.touch) {
 				this._itemsAll
 					.unbind('mousedown.hipsterSlider')
 					.unbind('mousemove.hipsterSlider')
@@ -910,7 +925,7 @@
 		/* ------------------------------------------------------------------ */
 
 		next: function() {
-			this.slideTo(+1);
+			this.slideTo(1);
 		},
 
 		previous: function() {
@@ -918,7 +933,7 @@
 		},
 
 		slideTo: function(direction) {
-			if (this.initialized === true && !this._playing ) {
+			if (this.initialized === true && !this._playing) {
 				direction = direction * this.options.itemsToScroll;
 				this._position = this._position + direction;
 				this.applyPosition();
@@ -935,23 +950,23 @@
 				infiniteOffset = 0
 			;
 
-			if( typeof position !== 'undefined' ) {
+			if (typeof position !== 'undefined') {
 				this._position = position;
 			}
 
-			if( this.options.infinite === false ) {
-				if( this._position < 0 ) {
+			if (!this.options.infinite) {
+				if (this._position < 0) {
 					this._position = 0;
-				} else if( this._position > this._numElements - this.options.itemsToDisplay ) {
+				} else if (this._position > this._numElements - this.options.itemsToDisplay) {
 					this._position = this._numElements - this.options.itemsToDisplay;
 				}
 			} else {
 				//Detect Offset for infinite loops:
-				infiniteOffset = (( this.options.orientation === ORIENTATION_HORIZONTAL) ? this._itemWidth : this._itemHeight) * this.options.itemsToDisplay * -1;
+				infiniteOffset = ((this.options.orientation === ORIENTATION_HORIZONTAL) ? this._itemWidth : this._itemHeight) * this.options.itemsToDisplay * -1;
 			}
 
 			//Calculate new Positions:
-			if( this.options.orientation === ORIENTATION_HORIZONTAL ) {
+			if (this.options.orientation === ORIENTATION_HORIZONTAL) {
 				newPositionX = (this._position * this._itemWidth * -1) + infiniteOffset;
 			} else {
 				newPositionY = (this._position * this._itemHeight * -1) + infiniteOffset;
@@ -963,11 +978,11 @@
 				top: newPositionY,
 				duration: this.options.duration
 			}, animated, function() {
-				if( self.options.infinite === true ) {
-					if( self._position < -(self.options.itemsToDisplay - self.options.itemsToScroll) ) {
+				if (self.options.infinite) {
+					if (self._position < -(self.options.itemsToDisplay - self.options.itemsToScroll)) {
 						self.applyPosition(self._numElements - self.options.itemsToDisplay, false);
 					}
-					if( self._position >= self._numElements ) {
+					if (self._position >= self._numElements) {
 						self.applyPosition(0, false);
 					}
 
@@ -980,20 +995,20 @@
 			this.applySiteClasses();
 			this.applyItemClasses();
 
-			if( !animated ) {
+			if (!animated) {
 				this.applyPaging();
 			}
 
-			if( typeof this.options.onUpdate === 'function' ) {
+			if (typeof this.options.onUpdate === 'function') {
 				this.options.onUpdate(this.$el);
 			}
 		},
 
 		autoplay: function() {
-			if( this.options.autoplay === true ) {
+			if (this.options.autoplay) {
 				var self = this;
 				this.slideTo(this.options.autoplayDirection);
-				window.setTimeout( function() {
+				window.setTimeout(function() {
 					self.autoplay();
 				}, this.options.autoplayPause);
 			}
@@ -1004,17 +1019,17 @@
 		},
 
 		applyButtons: function() {
-			if( this.options.buttons === true ) {
-				if( typeof this._buttonPrev !== 'undefined' ) {
-					this._buttonPrev.removeClass( this.options.buttonDisabledClass );
-					if( this._position <= 0 && this.options.infinite === false ) {
+			if (this.options.buttons) {
+				if (typeof this._buttonPrev !== 'undefined') {
+					this._buttonPrev.removeClass(this.options.buttonDisabledClass);
+					if (this._position <= 0 && !this.options.infinite) {
 						this._buttonPrev.addClass(this.options.buttonDisabledClass);
 					}
 				}
 
-				if( typeof this._buttonNext !== 'undefined' ) {
-					this._buttonNext.removeClass( this.options.buttonDisabledClass );
-					if( this._position >= this._numElements - this.options.itemsToDisplay && this.options.infinite === false ) {
+				if (typeof this._buttonNext !== 'undefined') {
+					this._buttonNext.removeClass(this.options.buttonDisabledClass);
+					if (this._position >= this._numElements - this.options.itemsToDisplay && !this.options.infinite) {
 						this._buttonNext.addClass(this.options.buttonDisabledClass);
 					}
 				}
@@ -1022,7 +1037,7 @@
 		},
 
 		applyPaging: function() {
-			if(this.options.pager === true && this._displayPager) {
+			if (this.options.pager === true && this._displayPager) {
 				this._displayPager
 					.children('.'+ this.options.pagerSelectedClass)
 					.removeClass(this.options.pagerSelectedClass);
@@ -1035,7 +1050,7 @@
 		},
 
 		applySiteClasses: function() {
-			if( this.options.siteClasses === true ) {
+			if (this.options.siteClasses) {
 				this._display
 					.parent()
 					.removeClass(this._siteClassesActive);
@@ -1049,7 +1064,7 @@
 		},
 
 		applyItemClasses: function() {
-			if(this.options.itemsClasses === true) {
+			if (this.options.itemsClasses) {
 				var
 					self = this,
 					item,
@@ -1058,40 +1073,40 @@
 				;
 
 				//General items:
-				this._items.each( function(index) {
+				this._items.each(function(index) {
 					item = $(this);
-					if( index < self._position && !item.hasClass( self.options.itemsPrevClass ) ) {
-						item.removeClass( self.options.itemsCurrentClass )
-							.removeClass( self.options.itemsNextClass )
-							.addClass( self.options.itemsPrevClass );
-					} else if( index === self._position && !item.hasClass( self.options.itemsCurrentClass ) ) {
-						item.removeClass( self.options.itemsPrevClass )
-							.removeClass( self.options.itemsNextClass )
-							.addClass( self.options.itemsCurrentClass );
-					} else if( index > self._position && !item.hasClass( self.options.itemsNextClass ) ) {
-						item.removeClass( self.options.itemsCurrentClass )
-							.removeClass( self.options.itemsPrevClass )
-							.addClass( self.options.itemsNextClass );
+					if (index < self._position && !item.hasClass(self.options.itemsPrevClass)) {
+						item.removeClass(self.options.itemsCurrentClass)
+							.removeClass(self.options.itemsNextClass)
+							.addClass(self.options.itemsPrevClass);
+					} else if (index === self._position && !item.hasClass(self.options.itemsCurrentClass)) {
+						item.removeClass(self.options.itemsPrevClass)
+							.removeClass(self.options.itemsNextClass)
+							.addClass(self.options.itemsCurrentClass);
+					} else if (index > self._position && !item.hasClass(self.options.itemsNextClass)) {
+						item.removeClass(self.options.itemsCurrentClass)
+							.removeClass(self.options.itemsPrevClass)
+							.addClass(self.options.itemsNextClass);
 					}
-				} );
+				});
 
 
 				//Pre and Post items:
-				if( this.options.infinite === true ) {
+				if (this.options.infinite) {
 					//Preitems:
-					if( this._position < -(this.options.itemsToDisplay - this.options.itemsToScroll) ) {
+					if (this._position < -(this.options.itemsToDisplay - this.options.itemsToScroll)) {
 						from = this._numElements - this.options.itemsToDisplay;
 						to = this._numElements;
-						if( from >= 0 && from < this._numElements ) {
-							this._items.slice( from, to )
-								.removeClass( this.options.itemsPrevClass )
-								.removeClass( this.options.itemsNextClass )
-								.addClass( this.options.itemsCurrentClass );
+						if (from >= 0 && from < this._numElements) {
+							this._items.slice(from, to)
+								.removeClass(this.options.itemsPrevClass)
+								.removeClass(this.options.itemsNextClass)
+								.addClass(this.options.itemsCurrentClass);
 						}
 
 						this._itemsPre
-							.removeClass( this.options.itemsPrevClass )
-							.addClass( this.options.itemsCurrentClass );
+							.removeClass(this.options.itemsPrevClass)
+							.addClass(this.options.itemsCurrentClass);
 					} else {
 						this._itemsPre
 						.removeClass(this.options.itemsCurrentClass)
@@ -1099,11 +1114,11 @@
 					}
 
 					//Postitems:
-					if( this._position >= this._numElements ) {
+					if (this._position >= this._numElements) {
 						from = 0;
 						to = this.options.itemsToDisplay;
-						if( to < this._numElements ) {
-							this._items.slice( from, to )
+						if (to < this._numElements) {
+							this._items.slice(from, to)
 								.removeClass(this.options.itemsPrevClass)
 								.removeClass(this.options.itemsNextClass)
 								.addClass(this.options.itemsCurrentClass);
@@ -1129,7 +1144,7 @@
 			//Calculate width:
 			width = this._display.parent().width();
 
-			if( this.options.orientation === ORIENTATION_HORIZONTAL ) {
+			if (this.options.orientation === ORIENTATION_HORIZONTAL) {
 				this._itemsAll.width((this.options.width || width) / this.options.itemsToDisplay);
 				this.$el.width(this._itemsAll.length * ((this.options.width || width) / this.options.itemsToDisplay));
 			} else {
@@ -1138,7 +1153,7 @@
 			}
 
 			//Reset height forvertical elements:
-			if( this.options.orientation === ORIENTATION_VERTICAL ) {
+			if (this.options.orientation === ORIENTATION_VERTICAL) {
 				this._itemsAll.height('auto');
 			}
 
@@ -1148,7 +1163,7 @@
 			});
 
 			//Store and apply values:
-			if( this.options.orientation === ORIENTATION_HORIZONTAL ) {
+			if (this.options.orientation === ORIENTATION_HORIZONTAL) {
 				this._itemWidth = (this.options.width || width) / this.options.itemsToDisplay;
 				this._itemHeight = this.options.height || height;
 				this._display
@@ -1167,7 +1182,7 @@
 		},
 
 		_getPosition: function() {
-			if(this._hasHardware === true) {
+			if (this._hasHardware) {
 				var
 					matrix = this.$el.css(this._cssTransformKey),
 					isMatrix3d = matrix.indexOf('matrix3d') > -1,
@@ -1180,7 +1195,7 @@
 					.match(/(?:[-\d(\.(\d)*)?]+[\s,]*)+/)[0]
 					.split(',');
 
-				if( isMatrix3d ) {
+				if (isMatrix3d) {
 					left = parseFloat(matrix[12]) || 0;
 					top = parseFloat(matrix[13]) || 0;
 				} else {
@@ -1207,25 +1222,25 @@
 				currentPosition = this._getPosition(),
 				onCallback = function() {
 					self._playing = false;
-					if( typeof callback === 'function' ) {
+					if (typeof callback === 'function') {
 						callback();
 					}
 				}
 			;
 
 			// Check if there is nothing to change:
-			if( Math.floor(currentPosition.left) === Math.floor(properties.left) &&
-				Math.floor(currentPosition.top) === Math.floor(properties.top) ) {
+			if (Math.floor(currentPosition.left) === Math.floor(properties.left) &&
+				Math.floor(currentPosition.top) === Math.floor(properties.top)) {
 				return;
 			}
 
-			if( properties.duration === undefined ) {
+			if (properties.duration === undefined) {
 				properties.duration = this.options.duration;
 			}
 
-			if( this._hasHardware === true ) {
+			if (this._hasHardware) {
 				//Animate:
-				if( animated === true ) {
+				if (animated) {
 					this._playing = true;
 					this.$el
 						.css(this._cssTransitionKey, this._cssTransformKey +' '+ (properties.duration / 1000) +'s ease 0s')
@@ -1243,7 +1258,7 @@
 				cssProperties.marginTop = properties.top || 0;
 
 				//Animate:
-				if( animated === true ) {
+				if (animated) {
 					this._playing = true;
 					this.$el.stop().animate(cssProperties, properties.duration, onCallback);
 				} else {
@@ -1260,8 +1275,8 @@
 	/* ---------------------------------------------------------------------- */
 
 	jQueryApi = {
-		init: function( options ) {
-			return $(this).each( function() {
+		init: function(options) {
+			return $(this).each(function() {
 				new HipsterSlider(
 					$(this),
 					$.extend({}, DEFAULTS, options)
@@ -1272,7 +1287,7 @@
 		next: function() {
 			return $(this).each(function() {
 				var instance = getInstance($(this));
-				if(typeof instance === 'object') {
+				if (typeof instance === 'object') {
 					instance.next();
 				}
 			});
@@ -1288,7 +1303,7 @@
 
 			return $(this).each(function() {
 				var instance = getInstance($(this));
-				if(typeof instance === 'object') {
+				if (typeof instance === 'object') {
 					instance.previous();
 				}
 			});
@@ -1297,7 +1312,7 @@
 		previous: function() {
 			return $(this).each(function() {
 				var instance = getInstance($(this));
-				if(typeof instance === 'object') {
+				if (typeof instance === 'object') {
 					instance.previous();
 				}
 			});
@@ -1305,16 +1320,16 @@
 
 		page: function(index) {
 			var instance;
-			if( typeof index === 'number' ) {
+			if (typeof index === 'number') {
 				return $(this).each(function() {
 					instance = getInstance($(this));
-					if(typeof instance === 'object') {
+					if (typeof instance === 'object') {
 						instance.applyPosition(index);
 					}
 				});
 			} else {
 				instance = getInstance($(this));
-				if(typeof instance === 'object') {
+				if (typeof instance === 'object') {
 					return instance.options.position;
 				} else {
 					return -1;
@@ -1325,7 +1340,7 @@
 		stop: function() {
 			return $(this).each(function() {
 				var instance = getInstance($(this));
-				if(typeof instance === 'object') {
+				if (typeof instance === 'object') {
 					instance.stopAutoplay();
 				}
 			});
@@ -1333,7 +1348,7 @@
 
 		getPosition: function() {
 			var instance = getInstance($(this));
-			if(typeof instance === 'object') {
+			if (typeof instance === 'object') {
 				return instance.options.position;
 			} else {
 				return -1;
@@ -1342,7 +1357,7 @@
 
 		options: function() {
 			var instance = getInstance($(this));
-			if(typeof instance === 'object') {
+			if (typeof instance === 'object') {
 				return instance.options;
 			} else {
 				return null;
@@ -1350,17 +1365,17 @@
 		},
 
 		itemsToDisplay: function(value) {
-			if( typeof value === 'number' ) {
+			if (typeof value === 'number') {
 				return $(this).each(function() {
 					var
 						instance = getInstance($(this)),
 						options = instance.options
 					;
 
-					if( value !== options.itemsToDisplay &&
-						value > 0 && value <= instance._numElements ) {
+					if (value !== options.itemsToDisplay &&
+						value > 0 && value <= instance._numElements) {
 
-						if( options.infinite ) {
+						if (options.infinite) {
 							//TODO: add possebility to change value for infinite mode:
 							throw new Error('You can only set "itemsToDisplay" when the option "infinite" is disabled.');
 						}
@@ -1369,7 +1384,7 @@
 						instance.refreshSize();
 
 						//Update pager:
-						if( options.pager ) {
+						if (options.pager) {
 							instance._destroyPager();
 							options.pager = true; //destroyPager resets pageroption...
 							instance._initPager();
@@ -1384,7 +1399,7 @@
 		destroy: function() {
 			return $(this).each(function() {
 				var instance = getInstance($(this));
-				if(typeof instance === 'object') {
+				if (typeof instance === 'object') {
 					instance.destroy();
 				}
 			});
@@ -1392,7 +1407,7 @@
 
 		refreshSize: function() {
 			var instance = getInstance($(this));
-			if(typeof instance === 'object') {
+			if (typeof instance === 'object') {
 				instance.refreshSize();
 			}
 		}
@@ -1401,13 +1416,13 @@
 
 	/* Directing calls into jQuery Plugin API
 	/-------------------------------------------------------------------------*/
-	$.fn.hipsterSlider = function( method ) {
-		if ( jQueryApi[method] ) {
-			return jQueryApi[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
-		} else if ( typeof method === 'object' || method === undefined ) {
-			return jQueryApi.init.apply( this, arguments );
+	$.fn.hipsterSlider = function(method) {
+		if (jQueryApi[method]) {
+			return jQueryApi[ method ].apply(this, Array.prototype.slice.call(arguments, 1));
+		} else if (typeof method === 'object' || method === undefined) {
+			return jQueryApi.init.apply(this, arguments);
 		} else {
-			$.error( 'Method ' +  method + ' does not exist on jQuery.hipsterSlider' );
+			$.error('Method '+  method +' does not exist on jQuery.hipsterSlider');
 		}
 	};
 
@@ -1433,4 +1448,4 @@
 
 	$.hipsterSlider.DEFAULTS = DEFAULTS;
 
-})( jQuery );
+})(jQuery);
