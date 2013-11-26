@@ -108,7 +108,7 @@
 	function setInstance(instance) {
 		if (typeof instance === 'object' && typeof instance.$el === 'object') {
 			instance.$el.data(NAMESPACE, instance);
-			HipsterSliderRegistry[instance.getId()] = instance;
+			HipsterSliderRegistry[NAMESPACE +'_'+ instance.getId()] = instance;
 		}
 	}
 
@@ -123,8 +123,8 @@
 	function removeInstance(instance) {
 		if (typeof instance === 'object' && typeof instance.$el === 'object') {
 			instance.$el.removeData(NAMESPACE);
-			HipsterSliderRegistry[instance.getId()] = undefined;
-			delete(HipsterSliderRegistry[instance.getId()]);
+			HipsterSliderRegistry[NAMESPACE +'_'+ instance.getId()] = undefined;
+			delete(HipsterSliderRegistry[NAMESPACE +'_'+ instance.getId()]);
 		}
 	}
 
@@ -250,6 +250,8 @@
 
 		destroy: function() {
 			if (this.initialized) {
+				removeInstance(this);
+
 				/* destruction function should be called reversed to init functions */
 				this._destroyTouch();
 				this._destroyAutoresize();
@@ -262,7 +264,9 @@
 				this._destroyHardware();
 				this._destroyElement();
 
-				removeInstance(this);
+				this.options = undefined;
+				this._id = undefined;
+				delete(this.options);
 				delete(this._id);
 			}
 		},
@@ -666,8 +670,10 @@
 		/* ------------------------------------------------------------------ */
 
 		_initSiteClasses: function() {
-			this._siteClassesActive = this.options.siteClassesClass + (this._position + 1);
-			this.applySiteClasses();
+			if (this.options.siteClasses) {
+				this._siteClassesActive = this.options.siteClassesClass + (this._position + 1);
+				this.applySiteClasses();
+			}
 		},
 
 		_destroySiteClasses: function() {
