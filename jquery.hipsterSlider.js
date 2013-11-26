@@ -57,10 +57,7 @@
 			buttonTargetSelector: undefined,			/* if set, the buttons will be placed into the defined selector */
 			buttonTargetInsertionMethod: METHOD_DEFAULT,/* possible variants: append, prepend, replace, insertAfter, insertBefore. Better see the public constants such as $.hipsterSlider.METHOD_APPEND etc. */
 			buttonTemplate: function(data) {			/* default function which contains a button template */
-				return '<a href="#" class="'+
-							data.buttonClass +' '+
-							data.itemClass+
-						'">'+ data.label +'</a>';
+				return '<a href="#" class="'+ data.buttonClass +' '+ data.itemClass +'">'+ data.label +'</a>';
 			},
 
 			pager: false,								/* activates paging buttons */
@@ -69,6 +66,12 @@
 			pagerSelectedClass: 'selected',				/* classname for the selected/active page */
 			pagerTargetSelector: undefined,				/* if set, the pager will be placed into the defined selector */
 			pagerTargetInsertionMethod: METHOD_DEFAULT,	/* possible variants: append, prepend, replace, insertAfter, insertBefore. Better see the public constants such as $.hipsterSlider.METHOD_APPEND etc. */
+			pagerTemplate: function(data) {				/* default function which contains a pager item template */
+				return '<li class="'+ data.pagerClass +'"><a href="#">'+ data.count +'</a></li>';
+			},
+			pagerWrapTemplate: function(data) {			/* default function which contains the pager wrapper template */
+				return '<ol class="'+ data.pagerWrapClass +'" />'
+			},
 
 			siteClasses: false,							/* adds to the display's parent the active page as classname */
 			siteClassesClass: 'page',					/* classname for the active page */
@@ -596,29 +599,34 @@
 			if (this._options.pager) {
 				var
 					self = this,
-					wrapPager = $('<ol class="'+ this._options.pagerWrapClass +'" />'),
+					wrapPager,
 					wrapPagerTarget,
-					clickHandler = function(event) {
-						event.preventDefault();
-						var index = $(event.currentTarget).data('index');
-						self.applyPosition(index);
-						self.stopAutoplay();
-					},
 					count,
 					page
 				;
 
 				//Create pagers:
+				wrapPager = $(this._options.pagerWrapTemplate({
+					pagerWrapClass: this._options.pagerWrapClass
+				}));
+
 				for (count = 1; count <= this._numElements - this._options.itemsToDisplay + 1; count++) {
-					page = $('<li class="'+ this._options.pagerClass +'"><a href="#">'+ count +'</a></li>')
+					page = $(this._options.pagerTemplate({
+						pagerClass: this._options.pagerClass,
+						count: count
+					}));
+
+					page
 						.data('index', count - 1)
 						.appendTo(wrapPager)
-						.bind('click.'+ NAMESPACE, clickHandler);
+						.bind('click.'+ NAMESPACE, proxy(this._onClickPager, this));
 				}
 
 				//Define target for pager:
 				wrapPagerTarget = $(this._options.pagerTargetSelector);
-				wrapPagerTarget = (wrapPagerTarget.length > 0) ? wrapPagerTarget : this._display;
+				if(wrapPagerTarget.length <= 0) {
+					wrapPagerTarget = this._display;
+				}
 
 				//Use insertion-method:
 				switch (this._options.pagerTargetInsertionMethod) {
@@ -643,10 +651,23 @@
 				}
 
 				this._displayPager = wrapPager;
-				this.applyPaging();
+				this._updatePagers();
 
 			} else {
 				this._options.pager = false;
+			}
+		},
+
+		_updatePagers: function() {
+			if (this._options.pager === true && this._displayPager) {
+				this._displayPager
+					.children('.'+ this._options.pagerSelectedClass)
+					.removeClass(this._options.pagerSelectedClass);
+
+				this._displayPager
+					.children()
+					.eq(this._position)
+					.addClass(this._options.pagerSelectedClass);
 			}
 		},
 
@@ -658,6 +679,13 @@
 				delete(this._displayPager);
 				this._options.pager = false;
 			}
+		},
+
+		_onClickPager: function(event) {
+			event.preventDefault();
+			var index = $(event.currentTarget).data('index');
+			this.applyPosition(index);
+			this.stopAutoplay();
 		},
 
 		/* Biglink
@@ -1051,7 +1079,7 @@
 					}
 
 				}
-				self.applyPaging();
+				self._updatePagers();
 			});
 
 			//Update features:
@@ -1060,7 +1088,7 @@
 			this.applyItemClasses();
 
 			if (!animated) {
-				this.applyPaging();
+				this._updatePagers();
 			}
 
 			if (typeof this._options.onUpdate === 'function') {
@@ -1080,19 +1108,6 @@
 
 		stopAutoplay: function() {
 			this._options.autoplay = false;
-		},
-
-		applyPaging: function() {
-			if (this._options.pager === true && this._displayPager) {
-				this._displayPager
-					.children('.'+ this._options.pagerSelectedClass)
-					.removeClass(this._options.pagerSelectedClass);
-
-				this._displayPager
-					.children()
-					.eq(this._position)
-					.addClass(this._options.pagerSelectedClass);
-			}
 		},
 
 		applySiteClasses: function() {
