@@ -129,10 +129,11 @@
 	/*
 	/* @author		https://gist.github.com/jackfuchs
 	/* @repository	GitHub | https://gist.github.com/556448
-	/* @param p 	is the requested css-property
-	/* @param rp 	defines if the requested property is returned or a
+	/* @param p		is the requested css-property
+	/* @param rp	defines if the requested property is returned or a
 	/*				boolean should be the result
-	/* @param t 	overrides the target elemen */
+	/* @param t		overrides the target element
+	/* */
 	function hasCssProperty(p, rp, t) {
 		var
 			b = (t) ? t : (document.body || document.documentElement),
@@ -1282,7 +1283,7 @@
 		/* use 'previous' $('ul').hipsterSlider('previous'); */
 		prev: function() {
 			if (typeof window.console === 'object' && typeof window.console.warn === 'function') {
-				window.console.warn('jquery hipsterSlider method "prev" is deprecated, please us "previous"')
+				window.console.warn('jquery hipsterSlider method "prev" is deprecated, please us "previous"');
 			}
 
 			return $(this).each(function() {
