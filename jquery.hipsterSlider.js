@@ -1277,7 +1277,23 @@
 			});
 		},
 
+		/* DEPRECATED:
+		/* jquery hipsterSlider method 'prev' is deprecated, please
+		/* use 'previous' $('ul').hipsterSlider('previous'); */
 		prev: function() {
+			if (typeof window.console === 'object' && typeof window.console.warn === 'function') {
+				window.console.warn('jquery hipsterSlider method "prev" is deprecated, please us "previous"')
+			}
+
+			return $(this).each(function() {
+				var instance = getInstance($(this));
+				if(typeof instance === 'object') {
+					instance.previous();
+				}
+			});
+		},
+
+		previous: function() {
 			return $(this).each(function() {
 				var instance = getInstance($(this));
 				if(typeof instance === 'object') {
