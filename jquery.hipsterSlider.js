@@ -489,7 +489,7 @@
 
 				//Create Events:
 				prevButton
-					.bind('click.hipsterSlider', function(event) {
+					.bind('click.'+ NAMESPACE, function(event) {
 						event.preventDefault();
 						self.slideTo(-1);
 						self.stopAutoplay();
@@ -497,7 +497,7 @@
 
 
 				nextButton
-					.bind('click.hipsterSlider', function(event) {
+					.bind('click.'+ NAMESPACE, function(event) {
 						event.preventDefault();
 						self.slideTo(+1);
 						self.stopAutoplay();
@@ -515,8 +515,8 @@
 
 		_destroyButtons: function() {
 			if (this.options.buttons) {
-				this._buttonPrev.unbind('click.hipsterSlider');
-				this._buttonNext.unbind('click.hipsterSlider');
+				this._buttonPrev.unbind('click.'+ NAMESPACE);
+				this._buttonNext.unbind('click.'+ NAMESPACE);
 				this._buttonsAll.remove();
 
 				delete(this._buttonPrev);
@@ -551,7 +551,7 @@
 					page = $('<li class="'+ this.options.pagerClass +'"><a href="#">'+ count +'</a></li>')
 						.data('index', count - 1)
 						.appendTo(wrapPager)
-						.bind('click.hipsterSlider', clickHandler);
+						.bind('click.'+ NAMESPACE, clickHandler);
 				}
 
 				//Define target for pager:
@@ -590,7 +590,7 @@
 
 		_destroyPager: function() {
 			if (this.options.pager) {
-				this._displayPager.find('.'+ this.options.pagerClass).unbind('click.hipsterSlider');
+				this._displayPager.find('.'+ this.options.pagerClass).unbind('click.'+ NAMESPACE);
 				this._displayPager.remove();
 
 				delete(this._displayPager);
@@ -623,7 +623,7 @@
 
 
 					biglinks.css('cursor','pointer')
-						.bind('click.hipsterSlider', function(event) {
+						.bind('click.'+ NAMESPACE, function(event) {
 							event.preventDefault();
 							event.stopPropagation();
 
@@ -645,7 +645,7 @@
 
 				for (index = 0; index < this._preInitStyles.biglinks.length; index++) {
 					biglinkData = this._preInitStyles.biglinks[index];
-					biglinkData.biglink.unbind('click.hipsterSlider');
+					biglinkData.biglink.unbind('click.'+ NAMESPACE);
 
 					if (typeof biglinkData.attrStyle === 'string') {
 						biglinkData.biglink.attr('style', biglinkData.attrStyle);
@@ -782,7 +782,7 @@
 		_initAutoresize: function() {
 			if (this.options.autoresize) {
 				var self = this;
-				$(window).bind('resize.hipsterSlider', function() {
+				$(window).bind('resize.'+ NAMESPACE, function() {
 					self.refreshSize();
 				});
 			}
@@ -790,7 +790,7 @@
 
 		_destroyAutoresize: function() {
 			if (this.options.autoresize) {
-				$(window).unbind('resize.hipsterSlider');
+				$(window).unbind('resize.'+ NAMESPACE);
 				this.options.autoresize = false;
 			}
 		},
@@ -815,7 +815,7 @@
 				;
 
 				//Prevent Image and link dragging:
-				this.$el.find('img, a').bind('dragstart.hipsterSlider', function(event) {
+				this.$el.find('img, a').bind('dragstart.'+ NAMESPACE, function(event) {
 					event.preventDefault();
 				});
 
@@ -833,8 +833,8 @@
 						diffY = 0;
 						isToleranceReched = false;
 
-						target.bind('mousemove.hipsterSlider touchmove.hipsterSlider', onMouseMove);
-						self._itemsAll.unbind('mousedown.hipsterSlider touchstart.hipsterSlider', onMouseDown);
+						target.bind('mousemove.'+ NAMESPACE +' touchmove.'+ NAMESPACE, onMouseMove);
+						self._itemsAll.unbind('mousedown.'+ NAMESPACE +' touchstart.'+ NAMESPACE, onMouseDown);
 					}
 				};
 
@@ -859,7 +859,7 @@
 					} else if (!isToleranceReched) {
 						isToleranceReched = true;
 
-						doc.bind('mouseup.hipsterSlider touchend.hipsterSlider', onMouseLeave);
+						doc.bind('mouseup.'+ NAMESPACE +' touchend.'+ NAMESPACE, onMouseLeave);
 					}
 
 					event.preventDefault();
@@ -888,34 +888,34 @@
 						self.slideTo(0);
 					}
 
-					target.unbind('mousemove.hipsterSlider touchmove.hipsterSlider', onMouseMove);
-					doc.unbind('mouseup.hipsterSlider touchend.hipsterSlider', onMouseLeave);
-					self._itemsAll.bind('mousedown.hipsterSlider touchstart.hipsterSlider', onMouseDown);
+					target.unbind('mousemove.'+ NAMESPACE +' touchmove.'+ NAMESPACE, onMouseMove);
+					doc.unbind('mouseup.'+ NAMESPACE +' touchend.'+ NAMESPACE, onMouseLeave);
+					self._itemsAll.bind('mousedown.'+ NAMESPACE +' touchstart.'+ NAMESPACE, onMouseDown);
 
 					target = $();
 				};
 
 
-				this._itemsAll.bind('mousedown.hipsterSlider touchstart.hipsterSlider', onMouseDown);
+				this._itemsAll.bind('mousedown.'+ NAMESPACE +' touchstart.'+ NAMESPACE, onMouseDown);
 			}
 		},
 
 		_destroyTouch: function() {
 			if (this.options.touch) {
 				this._itemsAll
-					.unbind('mousedown.hipsterSlider')
-					.unbind('mousemove.hipsterSlider')
-					.unbind('mouseup.hipsterSlider')
-					.unbind('touchstart.hipsterSlider')
-					.unbind('touchmove.hipsterSlider')
-					.unbind('touchend.hipsterSlider');
+					.unbind('mousedown.'+ NAMESPACE)
+					.unbind('mousemove.'+ NAMESPACE)
+					.unbind('mouseup.'+ NAMESPACE)
+					.unbind('touchstart.'+ NAMESPACE)
+					.unbind('touchmove.'+ NAMESPACE)
+					.unbind('touchend.'+ NAMESPACE);
 
 				$(document)
-					.unbind('mouseup.hipsterSlider')
-					.unbind('touchend.hipsterSlider');
+					.unbind('mouseup.'+ NAMESPACE)
+					.unbind('touchend.'+ NAMESPACE);
 
 				this.$el.find('img, a')
-					.unbind('dragstart.hipsterSlider');
+					.unbind('dragstart.'+ NAMESPACE);
 
 				this.options.touch = false;
 			}
@@ -1422,7 +1422,7 @@
 		} else if (typeof method === 'object' || method === undefined) {
 			return jQueryApi.init.apply(this, arguments);
 		} else {
-			$.error('Method '+  method +' does not exist on jQuery.hipsterSlider');
+			$.error('Method '+  method +' does not exist on jQuery.'+ NAMESPACE);
 		}
 	};
 
