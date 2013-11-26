@@ -89,37 +89,6 @@
 			touchDirectionTolerance: 45,				/* defines the tolerance in pixels until the regular touchsliding terminates when the other axis is used */
 
 			useHardware: true							/* defines if the slider should detect css3-hardware-acceleration-features */
-
-			/* Created by plugin inside localOptions:
-				initialized: boolean that indicates if slider is initialized
-				element: reference to slideshow element
-				items: reference to jQuery-object with <li> items
-				itemsPre: reference to jQuery-objects which are clones at the beginning of all items for infinite loop
-				itemsPost: reference to jQuery-objects which are clones at the end of all items for infinite loop
-				itemsAll: reference to jQuery-objects with regular-, pre- and post-items
-				widthItem: width of the first item
-				heightItem: height of the first item
-				position: current position
-				numElements: number of elements
-				display: wrapper (overflow hidden) for the ul-list
-				displayButtons: wrapper for buttons;
-				displayPager: wrapper (ul) for pagebuttons
-
-				buttonPrev: reference to the previous button
-				buttonNext: reference to the next button
-				buttonsAll: reference to the next and prvious button
-
-				playing: set to true if animation is active
-
-				siteClassesActive: name of the active siteClasses class
-
-				hasHardware: indicator if css3-hardware-acceleration-features are available
-				cssTransformKey: css property including renderprefix for css3 transforms
-				cssTransitionKey: css property including renderprefix for css3 transitions
-				cssAnimationTimeout: is the timeout-instance for css3 animations
-
-				preInitStyles: object that stores all styles of modified DOM elements
-			*/
 		},
 
 		jQueryApi,
@@ -156,14 +125,14 @@
 	}
 
 	/* Browser Feature Detection:
-	* Taken from https://gist.github.com/556448, added "noConflict"-stuff
-	* @author https://gist.github.com/jackfuchs
-	* @repository GitHub | https://gist.github.com/556448
-	* @param p is the requested css-property
-	* @param rp defines if the requested property is returned or a
-	*			boolean should be the result
-	* @param t overrides the target element
-	*/
+	/* Taken from https://gist.github.com/556448, added "noConflict"-stuff
+	/*
+	/* @author		https://gist.github.com/jackfuchs
+	/* @repository	GitHub | https://gist.github.com/556448
+	/* @param p 	is the requested css-property
+	/* @param rp 	defines if the requested property is returned or a
+	/*				boolean should be the result
+	/* @param t 	overrides the target elemen */
 	function hasCssProperty(p, rp, t) {
 		var
 			b = (t) ? t : (document.body || document.documentElement),
@@ -213,6 +182,38 @@
 	/* ---------------------------------------------------------------------- */
 
 	$.extend(HipsterSlider.prototype, {
+
+		/* Created by plugin inside instance:
+		/* ------------------------------------------------------------------
+		/*
+		/* initialized: boolean that indicates if slider is initialized
+		/*
+		/* _items: reference to jQuery-object with <li> items
+		/* _itemsPre: reference to jQuery-objects which are clones at the beginning of all items for infinite loop
+		/* _itemsPost: reference to jQuery-objects which are clones at the end of all items for infinite loop
+		/* _itemsAll: reference to jQuery-objects with regular-, pre- and post-items
+		/* _itemWidth: width of the first item
+		/* _itemHeight: height of the first item
+		/*
+		/* _position: current position
+		/* _numElements: number of elements
+		/* _display: wrapper (overflow hidden) for the element
+		/* _displayPager: wrapper (<ol />) for pagebuttons
+		/*
+		/* _buttonPrev: reference to the previous button
+		/* _buttonNext: reference to the next button
+		/* _buttonsAll: reference to the next and prvious button
+		/*
+		/* _playing: set to true if animation is active
+		/*
+		/* _siteClassesActive: name of the active siteClasses class
+		/*
+		/* _hasHardware: indicator if css3-hardware-acceleration-features are available
+		/* _cssTransformKey: css property including renderprefix for css3 transforms
+		/* _cssTransitionKey: css property including renderprefix for css3 transitions
+		/*
+		/* _preInitStyles: object that stores all styles of modified DOM elements
+		/* ------------------------------------------------------------------ */
 
 		_init: function() {
 			this.initialized = this._initElement();
@@ -268,8 +269,8 @@
 			;
 
 			if (tagName === this.options.tagName) {
-				this.options.preInitStyles = this.options.preInitStyles || {};
-				this.options.preInitStyles.element = { attrStyle: this.$el.attr('style') };
+				this._preInitStyles = this._preInitStyles || {};
+				this._preInitStyles.element = { attrStyle: this.$el.attr('style') };
 
 				display = $('<div />').addClass( this.options.displayClass );
 				items = this.$el.children();
@@ -281,20 +282,20 @@
 
 				this.$el.css({cssFloat: 'left'});
 
-				this.options.position = (typeof this.options.position === 'number' && this.options.position > -1) ? this.options.position : 0;
-				this.options.numElements = items.length;
+				this._position = (typeof this._position === 'number' && this._position > -1) ? this._position : 0;
+				this._numElements = items.length;
 
-				this.options.preInitStyles.items = [];
+				this._preInitStyles.items = [];
 				items.each( function() {
 					item = $(this);
-					self.options.preInitStyles.items.push({
+					self._preInitStyles.items.push({
 						item: item,
 						attrStyle: item.attr('style')
 					});
 				});
 
-				this.options.items = items;
-				this.options.itemsAll = items;
+				this._items = items;
+				this._itemsAll = items;
 
 				switch( this.options.orientation ) {
 					case ORIENTATION_HORIZONTAL:
@@ -314,8 +315,8 @@
 					.css('overflow','visible');
 
 
-				this.options.display = this.$el.parent();
-				this.options.playing = false;
+				this._display = this.$el.parent();
+				this._playing = false;
 
 				return true;
 			}
@@ -328,26 +329,26 @@
 				index
 			;
 
-			if( typeof this.options.preInitStyles.element.attrStyle === 'string' ) {
-				this.$el.attr('style', this.options.preInitStyles.element.attrStyle);
+			if( typeof this._preInitStyles.element.attrStyle === 'string' ) {
+				this.$el.attr('style', this._preInitStyles.element.attrStyle);
 			} else {
 				this.$el.removeAttr('style');
 			}
-			this.$el.insertAfter(this.options.display);
-			this.options.display.remove();
+			this.$el.insertAfter(this._display);
+			this._display.remove();
 
 
 			if( this.options.itemsClasses === true ) {
-				this.options.items
+				this._items
 					.removeClass(this.options.itemsPrevClass)
 					.removeClass(this.options.itemsCurrentClass)
 					.removeClass(this.options.itemsNextClass);
 				this.options.itemsClasses = false;
 			}
 
-			if( this.options.preInitStyles.items.length > 0 ) {
-				for( index = 0; index < this.options.preInitStyles.items.length; index++ ) {
-					itemData = this.options.preInitStyles.items[index];
+			if( this._preInitStyles.items.length > 0 ) {
+				for( index = 0; index < this._preInitStyles.items.length; index++ ) {
+					itemData = this._preInitStyles.items[index];
 					if( typeof itemData.attrStyle === 'string' ) {
 						itemData.item.attr('style', itemData.attrStyle);
 					} else {
@@ -357,16 +358,16 @@
 			}
 
 			delete(this.$el);
-			delete(this.options.items);
-			delete(this.options.itemsAll);
-			delete(this.options.widthItem);
-			delete(this.options.heightItem);
-			delete(this.options.position);
-			delete(this.options.numElements);
-			delete(this.options.display);
-			delete(this.options.playing);
-			delete(this.options.preInitStyles);
-			delete(this.options.initialized);
+			delete(this._items);
+			delete(this._itemsAll);
+			delete(this._itemWidth);
+			delete(this._itemHeight);
+			delete(this._position);
+			delete(this._numElements);
+			delete(this._display);
+			delete(this._playing);
+			delete(this._preInitStyles);
+			delete(this.initialized);
 		},
 
 		/* Hardware
@@ -389,17 +390,17 @@
 				if (hasCssProperty('transition') &&
 					hasCssProperty('transform') &&
 					(/translate3d/).test(getCssProperty(this.$el, 'transform'))) {
-					this.options.hasHardware = true;
+					this._hasHardware = true;
 
 					/* Prefixes: 'Moz', 'Webkit', 'Khtml', 'O', 'ms', 'Icab' */
-					this.options.cssTransformKey = hasCssProperty('transform',true)
+					this._cssTransformKey = hasCssProperty('transform',true)
 												.replace(/MozT/,'-moz-t')
 												.replace(/WebkitT/,'-webkit-t')
 												.replace(/OT/,'-o-t')
 												.replace(/msT/,'-ms-t')
 												.replace('KhtmlT','-khtml-t');
 
-					this.options.cssTransitionKey = hasCssProperty('transition',true)
+					this._cssTransitionKey = hasCssProperty('transition',true)
 												.replace(/MozT/,'-moz-t')
 												.replace(/WebkitT/,'-webkit-t')
 												.replace(/OT/,'-o-t')
@@ -417,10 +418,10 @@
 
 		_destroyHardware: function() {
 			if( this.options.useHardware === true ) {
-				if( this.options.hasHardware === true ) {
-					delete(this.options.hasHardware);
-					delete(this.options.cssTransformKey);
-					delete(this.options.cssTransitionKey);
+				if( this._hasHardware === true ) {
+					delete(this._hasHardware);
+					delete(this._cssTransformKey);
+					delete(this._cssTransitionKey);
 				}
 			}
 		},
@@ -430,7 +431,7 @@
 
 		_initButtons: function() {
 			/* Buttons must be active and there mast be at least more than one page to show */
-			if (this.options.buttons === true && this.options.numElements - this.options.itemsToDisplay > 0) {
+			if (this.options.buttons === true && this._numElements - this.options.itemsToDisplay > 0) {
 				var
 					self = this,
 					prevButton = $('<a href="#" class="'+ this.options.buttonsClass +' '+ this.options.buttonPrevClass +'">'+ this.options.buttonPrevLabel +'</a>'),
@@ -446,7 +447,7 @@
 
 				//Define target for buttons:
 				buttonsTarget = $(this.options.buttonTargetSelector);
-				buttonsTarget = (buttonsTarget.length > 0) ? buttonsTarget : this.options.display;
+				buttonsTarget = (buttonsTarget.length > 0) ? buttonsTarget : this._display;
 
 				//Use insertion-method:
 				switch( this.options.buttonTargetInsertionMethod ) {
@@ -486,9 +487,9 @@
 						self.stopAutoplay();
 					} );
 
-				this.options.buttonPrev = prevButton;
-				this.options.buttonNext = nextButton;
-				this.options.buttonsAll = buttons;
+				this._buttonPrev = prevButton;
+				this._buttonNext = nextButton;
+				this._buttonsAll = buttons;
 
 				this.applyButtons();
 			} else {
@@ -498,13 +499,13 @@
 
 		_destroyButtons: function() {
 			if( (this.options.buttons === true ) ) {
-				this.options.buttonPrev.unbind('click.hipsterSlider');
-				this.options.buttonNext.unbind('click.hipsterSlider');
-				this.options.buttonsAll.remove();
+				this._buttonPrev.unbind('click.hipsterSlider');
+				this._buttonNext.unbind('click.hipsterSlider');
+				this._buttonsAll.remove();
 
-				delete(this.options.buttonPrev);
-				delete(this.options.buttonNext);
-				delete(this.options.buttonsAll);
+				delete(this._buttonPrev);
+				delete(this._buttonNext);
+				delete(this._buttonsAll);
 				this.options.buttons = false;
 			}
 		},
@@ -530,7 +531,7 @@
 				;
 
 				//Create pagers:
-				for(count = 1; count <= this.options.numElements - this.options.itemsToDisplay + 1; count++) {
+				for(count = 1; count <= this._numElements - this.options.itemsToDisplay + 1; count++) {
 					page = $('<li class="'+ this.options.pagerClass +'"><a href="#">'+ count +'</a></li>')
 						.data('index', count - 1)
 						.appendTo( wrapPager )
@@ -539,7 +540,7 @@
 
 				//Define target for pager:
 				wrapPagerTarget = $(this.options.pagerTargetSelector);
-				wrapPagerTarget = (wrapPagerTarget.length > 0) ? wrapPagerTarget : this.options.display;
+				wrapPagerTarget = (wrapPagerTarget.length > 0) ? wrapPagerTarget : this._display;
 
 				//Use insertion-method:
 				switch (this.options.pagerTargetInsertionMethod) {
@@ -563,7 +564,7 @@
 						break;
 				}
 
-				this.options.displayPager = wrapPager;
+				this._displayPager = wrapPager;
 				this.applyPaging();
 
 			} else {
@@ -573,10 +574,10 @@
 
 		_destroyPager: function() {
 			if( this.options.pager === true ) {
-				this.options.displayPager.find('.'+ this.options.pagerClass).unbind('click.hipsterSlider');
-				this.options.displayPager.remove();
+				this._displayPager.find('.'+ this.options.pagerClass).unbind('click.hipsterSlider');
+				this._displayPager.remove();
 
-				delete(this.options.displayPager);
+				delete(this._displayPager);
 				this.options.pager = false;
 			}
 		},
@@ -593,12 +594,12 @@
 				;
 
 				if( biglinks.length > 0 ) {
-					this.options.preInitStyles = this.options.preInitStyles || {};
-					this.options.preInitStyles.biglinks = [];
+					this._preInitStyles = this._preInitStyles || {};
+					this._preInitStyles.biglinks = [];
 
 					biglinks.each(function() {
 						biglink = $(this);
-						self.options.preInitStyles.biglinks.push({
+						self._preInitStyles.biglinks.push({
 							biglink: biglink,
 							attrStyle: biglink.attr('style')
 						});
@@ -626,8 +627,8 @@
 					index
 				;
 
-				for(index = 0; index < this.options.preInitStyles.biglinks.length; index++) {
-					biglinkData = this.options.preInitStyles.biglinks[index];
+				for(index = 0; index < this._preInitStyles.biglinks.length; index++) {
+					biglinkData = this._preInitStyles.biglinks[index];
 					biglinkData.biglink.unbind('click.hipsterSlider');
 
 					if( typeof biglinkData.attrStyle === 'string' ) {
@@ -637,7 +638,7 @@
 					}
 				}
 
-				delete(this.options.preInitStyles.biglinks);
+				delete(this._preInitStyles.biglinks);
 			}
 		},
 
@@ -645,15 +646,15 @@
 		/* ------------------------------------------------------------------ */
 
 		_initSiteClasses: function() {
-			this.options.siteClassesActive = this.options.siteClassesClass + (this.options.position + 1);
+			this._siteClassesActive = this.options.siteClassesClass + (this._position + 1);
 			this.applySiteClasses();
 		},
 
 		_destroySiteClasses: function() {
 			if( this.options.siteClasses === true ) {
-				this.options.display.parent().removeClass( this.options.siteClassesActive );
-				this.options.siteClassesActive = undefined;
-				delete(this.options.siteClassesActive);
+				this._display.parent().removeClass( this._siteClassesActive );
+				this._siteClassesActive = undefined;
+				delete(this._siteClassesActive);
 			}
 		},
 
@@ -663,7 +664,7 @@
 		_initAutoplay: function(index) {
 			var self = this;
 			/* Autoplay must be active and there mast be at least more than one page to show */
-			if( this.options.autoplay === true && this.options.numElements - this.options.itemsToDisplay > 0 ) {
+			if( this.options.autoplay === true && this._numElements - this.options.itemsToDisplay > 0 ) {
 				index = (this.options.autoplayDelayQueued) ? index : 1;
 				index = index ? index : 0;
 
@@ -686,10 +687,10 @@
 
 		_initInfinite: function() {
 			/* Infinite must be active and there mast be at least more than one page to show */
-			if( this.options.infinite === true && this.options.numElements - this.options.itemsToDisplay > 0 ) {
+			if( this.options.infinite === true && this._numElements - this.options.itemsToDisplay > 0 ) {
 				var
-					preItem = this.options.items.eq(0),
-					postItem = this.options.items.eq(this.options.numElements - 1),
+					preItem = this._items.eq(0),
+					postItem = this._items.eq(this._numElements - 1),
 					counter,
 					preCloneIndex,
 					preClone,
@@ -699,11 +700,11 @@
 				;
 
 				for(counter = 0; counter < this.options.itemsToDisplay; counter++) {
-					preCloneIndex = this.options.numElements - 1 - counter;
-					preClone = this.options.items.eq(preCloneIndex).clone();
+					preCloneIndex = this._numElements - 1 - counter;
+					preClone = this._items.eq(preCloneIndex).clone();
 
 					postCloneIndex = counter;
-					postClone = this.options.items.eq(postCloneIndex).clone();
+					postClone = this._items.eq(postCloneIndex).clone();
 
 					cssFloat = (this.options.orientation === ORIENTATION_HORIZONTAL) ? 'left' : 'none';
 					postClone.css({cssFloat: cssFloat}).addClass('clone post').insertAfter(postItem);
@@ -713,18 +714,20 @@
 					postItem = postClone;
 
 					/* Store all clones */
-					if( typeof this.options.itemsPre === 'undefined' ) {
-						this.options.itemsPre = preClone;
-						this.options.itemsPost = postClone;
+					if( typeof this._itemsPre === 'undefined' ) {
+						this._itemsPre = preClone;
+						this._itemsPost = postClone;
 					} else {
-						this.options.itemsPre = this.options.itemsPre.add(preClone);
-						this.options.itemsPost = this.options.itemsPost.add(postClone);
+						this._itemsPre = this._itemsPre.add(preClone);
+						this._itemsPost = this._itemsPost.add(postClone);
 					}
 				}
 
 				/* Store all new pre and postitems */
-				if( typeof this.options.itemsPre !== 'undefined' ) {
-					this.options.itemsAll = this.options.itemsAll.add(this.options.itemsPre).add(this.options.itemsPost);
+				if( typeof this._itemsPre !== 'undefined' ) {
+					this._itemsAll = this._itemsAll
+										.add(this._itemsPre)
+										.add(this._itemsPost);
 				}
 
 			} else {
@@ -734,14 +737,14 @@
 
 		_destroyInfinite: function() {
 			if( this.options.infinite === true ) {
-				this.options.itemsPre.remove();
-				this.options.itemsPost.remove();
+				this._itemsPre.remove();
+				this._itemsPost.remove();
 
-				this.options.itemsPre = undefined;
-				this.options.itemsPost = undefined;
+				this._itemsPre = undefined;
+				this._itemsPost = undefined;
 
-				delete(this.options.itemsPre);
-				delete(this.options.itemsPost);
+				delete(this._itemsPre);
+				delete(this._itemsPost);
 
 				this.options.infinite = false;
 			}
@@ -751,9 +754,9 @@
 		/* ------------------------------------------------------------------ */
 
 		_initSelected: function() {
-			var selected = this.options.items.filter('.'+ this.options.selectedClass);
+			var selected = this._items.filter('.'+ this.options.selectedClass);
 			if( selected.length > 0 ) {
-				this.options.position = this.options.items.index( selected.get(0) );
+				this._position = this._items.index( selected.get(0) );
 			}
 		},
 
@@ -801,7 +804,7 @@
 				});
 
 				onMouseDown = function(event) {
-					if( !self.options.playing ) {
+					if( !self._playing ) {
 						baseEvent = (event.originalEvent.touches) ? event.originalEvent.touches[0] : event.originalEvent;
 						target = $(event.currentTarget);
 
@@ -815,7 +818,7 @@
 						isToleranceReched = false;
 
 						target.bind('mousemove.hipsterSlider touchmove.hipsterSlider', onMouseMove);
-						self.options.itemsAll.unbind('mousedown.hipsterSlider touchstart.hipsterSlider', onMouseDown);
+						self._itemsAll.unbind('mousedown.hipsterSlider touchstart.hipsterSlider', onMouseDown);
 					}
 				};
 
@@ -862,28 +865,28 @@
 					direction = ( self.options.orientation === ORIENTATION_HORIZONTAL ) ? -diffX / diffAbs : -diffY / diffAbs;
 
 					if( diffAbs > self.options.touchTolerance ) {
-						self.options.playing = false;
+						self._playing = false;
 						self.slideTo(direction);
 					} else {
-						self.options.playing = false;
+						self._playing = false;
 						self.slideTo(0);
 					}
 
 					target.unbind('mousemove.hipsterSlider touchmove.hipsterSlider', onMouseMove);
 					doc.unbind('mouseup.hipsterSlider touchend.hipsterSlider', onMouseLeave);
-					self.options.itemsAll.bind('mousedown.hipsterSlider touchstart.hipsterSlider', onMouseDown);
+					self._itemsAll.bind('mousedown.hipsterSlider touchstart.hipsterSlider', onMouseDown);
 
 					target = $();
 				};
 
 
-				this.options.itemsAll.bind('mousedown.hipsterSlider touchstart.hipsterSlider', onMouseDown);
+				this._itemsAll.bind('mousedown.hipsterSlider touchstart.hipsterSlider', onMouseDown);
 			}
 		},
 
 		_destroyTouch: function() {
 			if( this.options.touch === true ) {
-				this.options.itemsAll
+				this._itemsAll
 					.unbind('mousedown.hipsterSlider')
 					.unbind('mousemove.hipsterSlider')
 					.unbind('mouseup.hipsterSlider')
@@ -906,9 +909,9 @@
 		/* ------------------------------------------------------------------ */
 
 		slideTo: function(direction) {
-			if (this.initialized === true && !this.options.playing ) {
+			if (this.initialized === true && !this._playing ) {
 				direction = direction * this.options.itemsToScroll;
-				this.options.position = this.options.position + direction;
+				this._position = this._position + direction;
 				this.applyPosition();
 			}
 		},
@@ -924,25 +927,25 @@
 			;
 
 			if( typeof position !== 'undefined' ) {
-				this.options.position = position;
+				this._position = position;
 			}
 
 			if( this.options.infinite === false ) {
-				if( this.options.position < 0 ) {
-					this.options.position = 0;
-				} else if( this.options.position > this.options.numElements - this.options.itemsToDisplay ) {
-					this.options.position = this.options.numElements - this.options.itemsToDisplay;
+				if( this._position < 0 ) {
+					this._position = 0;
+				} else if( this._position > this._numElements - this.options.itemsToDisplay ) {
+					this._position = this._numElements - this.options.itemsToDisplay;
 				}
 			} else {
 				//Detect Offset for infinite loops:
-				infiniteOffset = (( this.options.orientation === ORIENTATION_HORIZONTAL) ? this.options.widthItem : this.options.heightItem) * this.options.itemsToDisplay * -1;
+				infiniteOffset = (( this.options.orientation === ORIENTATION_HORIZONTAL) ? this._itemWidth : this._itemHeight) * this.options.itemsToDisplay * -1;
 			}
 
 			//Calculate new Positions:
 			if( this.options.orientation === ORIENTATION_HORIZONTAL ) {
-				newPositionX = (this.options.position * this.options.widthItem * -1) + infiniteOffset;
+				newPositionX = (this._position * this._itemWidth * -1) + infiniteOffset;
 			} else {
-				newPositionY = (this.options.position * this.options.heightItem * -1) + infiniteOffset;
+				newPositionY = (this._position * this._itemHeight * -1) + infiniteOffset;
 			}
 
 			//Set New Positions:
@@ -952,10 +955,10 @@
 				duration: this.options.duration
 			}, animated, function() {
 				if( self.options.infinite === true ) {
-					if( self.options.position < -(self.options.itemsToDisplay - self.options.itemsToScroll) ) {
-						self.applyPosition(self.options.numElements - self.options.itemsToDisplay, false);
+					if( self._position < -(self.options.itemsToDisplay - self.options.itemsToScroll) ) {
+						self.applyPosition(self._numElements - self.options.itemsToDisplay, false);
 					}
-					if( self.options.position >= self.options.numElements ) {
+					if( self._position >= self._numElements ) {
 						self.applyPosition(0, false);
 					}
 
@@ -993,46 +996,46 @@
 
 		applyButtons: function() {
 			if( this.options.buttons === true ) {
-				if( typeof this.options.buttonPrev !== 'undefined' ) {
-					this.options.buttonPrev.removeClass( this.options.buttonDisabledClass );
-					if( this.options.position <= 0 && this.options.infinite === false ) {
-						this.options.buttonPrev.addClass(this.options.buttonDisabledClass);
+				if( typeof this._buttonPrev !== 'undefined' ) {
+					this._buttonPrev.removeClass( this.options.buttonDisabledClass );
+					if( this._position <= 0 && this.options.infinite === false ) {
+						this._buttonPrev.addClass(this.options.buttonDisabledClass);
 					}
 				}
 
-				if( typeof this.options.buttonNext !== 'undefined' ) {
-					this.options.buttonNext.removeClass( this.options.buttonDisabledClass );
-					if( this.options.position >= this.options.numElements - this.options.itemsToDisplay && this.options.infinite === false ) {
-						this.options.buttonNext.addClass(this.options.buttonDisabledClass);
+				if( typeof this._buttonNext !== 'undefined' ) {
+					this._buttonNext.removeClass( this.options.buttonDisabledClass );
+					if( this._position >= this._numElements - this.options.itemsToDisplay && this.options.infinite === false ) {
+						this._buttonNext.addClass(this.options.buttonDisabledClass);
 					}
 				}
 			}
 		},
 
 		applyPaging: function() {
-			if(this.options.pager === true && this.options.displayPager) {
-				this.options.displayPager
+			if(this.options.pager === true && this._displayPager) {
+				this._displayPager
 					.children('.'+ this.options.pagerSelectedClass)
 					.removeClass(this.options.pagerSelectedClass);
 
-				this.options.displayPager
+				this._displayPager
 					.children()
-					.eq(this.options.position)
+					.eq(this._position)
 					.addClass(this.options.pagerSelectedClass);
 			}
 		},
 
 		applySiteClasses: function() {
 			if( this.options.siteClasses === true ) {
-				this.options.display
+				this._display
 					.parent()
-					.removeClass(this.options.siteClassesActive);
+					.removeClass(this._siteClassesActive);
 
-				this.options.siteClassesActive = this.options.siteClassesClass + (this.options.position + 1);
+				this._siteClassesActive = this.options.siteClassesClass + (this._position + 1);
 
-				this.options.display
+				this._display
 					.parent()
-					.addClass(this.options.siteClassesActive);
+					.addClass(this._siteClassesActive);
 			}
 		},
 
@@ -1046,17 +1049,17 @@
 				;
 
 				//General items:
-				this.options.items.each( function(index) {
+				this._items.each( function(index) {
 					item = $(this);
-					if( index < self.options.position && !item.hasClass( self.options.itemsPrevClass ) ) {
+					if( index < self._position && !item.hasClass( self.options.itemsPrevClass ) ) {
 						item.removeClass( self.options.itemsCurrentClass )
 							.removeClass( self.options.itemsNextClass )
 							.addClass( self.options.itemsPrevClass );
-					} else if( index === self.options.position && !item.hasClass( self.options.itemsCurrentClass ) ) {
+					} else if( index === self._position && !item.hasClass( self.options.itemsCurrentClass ) ) {
 						item.removeClass( self.options.itemsPrevClass )
 							.removeClass( self.options.itemsNextClass )
 							.addClass( self.options.itemsCurrentClass );
-					} else if( index > self.options.position && !item.hasClass( self.options.itemsNextClass ) ) {
+					} else if( index > self._position && !item.hasClass( self.options.itemsNextClass ) ) {
 						item.removeClass( self.options.itemsCurrentClass )
 							.removeClass( self.options.itemsPrevClass )
 							.addClass( self.options.itemsNextClass );
@@ -1067,40 +1070,40 @@
 				//Pre and Post items:
 				if( this.options.infinite === true ) {
 					//Preitems:
-					if( this.options.position < -(this.options.itemsToDisplay - this.options.itemsToScroll) ) {
-						from = this.options.numElements - this.options.itemsToDisplay;
-						to = this.options.numElements;
-						if( from >= 0 && from < this.options.numElements ) {
-							this.options.items.slice( from, to )
+					if( this._position < -(this.options.itemsToDisplay - this.options.itemsToScroll) ) {
+						from = this._numElements - this.options.itemsToDisplay;
+						to = this._numElements;
+						if( from >= 0 && from < this._numElements ) {
+							this._items.slice( from, to )
 								.removeClass( this.options.itemsPrevClass )
 								.removeClass( this.options.itemsNextClass )
 								.addClass( this.options.itemsCurrentClass );
 						}
 
-						this.options.itemsPre
+						this._itemsPre
 							.removeClass( this.options.itemsPrevClass )
 							.addClass( this.options.itemsCurrentClass );
 					} else {
-						this.options.itemsPre
+						this._itemsPre
 						.removeClass(this.options.itemsCurrentClass)
 						.addClass(this.options.itemsPrevClass);
 					}
 
 					//Postitems:
-					if( this.options.position >= this.options.numElements ) {
+					if( this._position >= this._numElements ) {
 						from = 0;
 						to = this.options.itemsToDisplay;
-						if( to < this.options.numElements ) {
-							this.options.items.slice( from, to )
+						if( to < this._numElements ) {
+							this._items.slice( from, to )
 								.removeClass(this.options.itemsPrevClass)
 								.removeClass(this.options.itemsNextClass)
 								.addClass(this.options.itemsCurrentClass);
 						}
-						this.options.itemsPost
+						this._itemsPost
 							.removeClass(this.options.itemsNextClass)
 							.addClass(this.options.itemsCurrentClass);
 					} else {
-						this.options.itemsPost
+						this._itemsPost
 							.removeClass(this.options.itemsCurrentClass)
 							.addClass(this.options.itemsNextClass);
 					}
@@ -1115,38 +1118,38 @@
 			;
 
 			//Calculate width:
-			width = this.options.display.parent().width();
+			width = this._display.parent().width();
 
 			if( this.options.orientation === ORIENTATION_HORIZONTAL ) {
-				this.options.itemsAll.width((this.options.width || width) / this.options.itemsToDisplay);
-				this.$el.width(this.options.itemsAll.length * ((this.options.width || width) / this.options.itemsToDisplay));
+				this._itemsAll.width((this.options.width || width) / this.options.itemsToDisplay);
+				this.$el.width(this._itemsAll.length * ((this.options.width || width) / this.options.itemsToDisplay));
 			} else {
-				this.options.itemsAll.width(this.options.width || width);
-				this.$el.width(this.options.itemsAll.length * (this.options.width || width));
+				this._itemsAll.width(this.options.width || width);
+				this.$el.width(this._itemsAll.length * (this.options.width || width));
 			}
 
 			//Reset height forvertical elements:
 			if( this.options.orientation === ORIENTATION_VERTICAL ) {
-				this.options.itemsAll.height('auto');
+				this._itemsAll.height('auto');
 			}
 
 			//Calculate height:
-			this.options.itemsAll.each(function() {
+			this._itemsAll.each(function() {
 				height = Math.max($(this).outerHeight(true), height);
 			});
 
 			//Store and apply values:
 			if( this.options.orientation === ORIENTATION_HORIZONTAL ) {
-				this.options.widthItem = (this.options.width || width) / this.options.itemsToDisplay;
-				this.options.heightItem = this.options.height || height;
-				this.options.display
+				this._itemWidth = (this.options.width || width) / this.options.itemsToDisplay;
+				this._itemHeight = this.options.height || height;
+				this._display
 							.width(this.options.width || width)
 							.height(this.options.height || height);
 			} else {
-				this.options.itemsAll.height(this.options.height || height);
-				this.options.widthItem = this.options.width || width;
-				this.options.heightItem = this.options.height || height;
-				this.options.display
+				this._itemsAll.height(this.options.height || height);
+				this._itemWidth = this.options.width || width;
+				this._itemHeight = this.options.height || height;
+				this._display
 							.width(this.options.width || width)
 							.height((this.options.height || height * this.options.itemsToDisplay));
 			}
@@ -1155,9 +1158,9 @@
 		},
 
 		_getPosition: function() {
-			if(this.options.hasHardware === true) {
+			if(this._hasHardware === true) {
 				var
-					matrix = this.$el.css(this.options.cssTransformKey),
+					matrix = this.$el.css(this._cssTransformKey),
 					isMatrix3d = matrix.indexOf('matrix3d') > -1,
 					left,
 					top
@@ -1194,7 +1197,7 @@
 				cssProperties = {},
 				currentPosition = this._getPosition(),
 				onCallback = function() {
-					self.options.playing = false;
+					self._playing = false;
 					if( typeof callback === 'function' ) {
 						callback();
 					}
@@ -1211,28 +1214,28 @@
 				properties.duration = this.options.duration;
 			}
 
-			if( this.options.hasHardware === true ) {
+			if( this._hasHardware === true ) {
 				//Animate:
 				if( animated === true ) {
-					this.options.playing = true;
+					this._playing = true;
 					this.$el
-						.css(this.options.cssTransitionKey, this.options.cssTransformKey +' '+ (properties.duration / 1000) +'s ease 0s')
+						.css(this._cssTransitionKey, this._cssTransformKey +' '+ (properties.duration / 1000) +'s ease 0s')
 						.one('webkitTransitionEnd mozTransitionEnd msTransitionEnd oTransitionEnd transitionend', onCallback);
 				} else {
 					this.$el
-						.css(this.options.cssTransitionKey, this.options.cssTransformKey +' 0s ease 0s');
+						.css(this._cssTransitionKey, this._cssTransformKey +' 0s ease 0s');
 					onCallback();
 				}
 
 				this.$el
-					.css(this.options.cssTransformKey, 'translate3d('+ (properties.left || 0) +'px,'+ (properties.top || 0) +'px,0)');
+					.css(this._cssTransformKey, 'translate3d('+ (properties.left || 0) +'px,'+ (properties.top || 0) +'px,0)');
 			} else {
 				cssProperties.marginLeft = properties.left || 0;
 				cssProperties.marginTop = properties.top || 0;
 
 				//Animate:
 				if( animated === true ) {
-					this.options.playing = true;
+					this._playing = true;
 					this.$el.stop().animate(cssProperties, properties.duration, onCallback);
 				} else {
 					this.$el.stop().css(cssProperties);
@@ -1330,7 +1333,7 @@
 					;
 
 					if( value !== options.itemsToDisplay &&
-						value > 0 && value <= options.numElements ) {
+						value > 0 && value <= instance._numElements ) {
 
 						if( options.infinite ) {
 							//TODO: add possebility to change value for infinite mode:
