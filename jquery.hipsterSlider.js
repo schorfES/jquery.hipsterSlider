@@ -908,6 +908,14 @@
 		/* Controls
 		/* ------------------------------------------------------------------ */
 
+		next: function() {
+			this.slideTo(+1);
+		},
+
+		previous: function() {
+			this.slideTo(-1);
+		},
+
 		slideTo: function(direction) {
 			if (this.initialized === true && !this._playing ) {
 				direction = direction * this.options.itemsToScroll;
@@ -1264,7 +1272,7 @@
 			return $(this).each(function() {
 				var instance = getInstance($(this));
 				if(typeof instance === 'object') {
-					instance.slideTo(+1);
+					instance.next();
 				}
 			});
 		},
@@ -1273,7 +1281,7 @@
 			return $(this).each(function() {
 				var instance = getInstance($(this));
 				if(typeof instance === 'object') {
-					instance.slideTo(-1);
+					instance.previous();
 				}
 			});
 		},
