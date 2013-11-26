@@ -15,7 +15,10 @@ module.exports = function(grunt) {
 		},
 
 		jshint: {
-			all: ['Gruntfile.js', '<%= pkg.name %>.js'],
+			all: [
+				'Gruntfile.js',
+				'<%= pkg.name %>.js'
+			],
 			options: {
 				'boss': true,
 				'curly': true,
@@ -44,7 +47,7 @@ module.exports = function(grunt) {
 			all: {
 				src: [
 					'Gruntfile.js',
-					'jquery.hipsterSlider.js'
+					'<%= pkg.name %>.js'
 				],
 				options: {
 					newline: true,
@@ -52,6 +55,13 @@ module.exports = function(grunt) {
 					indentation: 'tabs'
 				}
 			}
+		},
+
+		jscs: {
+			all: [
+				'Gruntfile.js',
+				'<%= pkg.name %>.js'
+			]
 		}
 	});
 
@@ -59,9 +69,19 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-lintspaces');
+	grunt.loadNpmTasks('grunt-jscs-checker');
 
 	// Tasks
-	grunt.registerTask('default', ['validate', 'build']);
-	grunt.registerTask('validate', ['jshint', 'lintspaces']);
-	grunt.registerTask('build', ['uglify']);
+	grunt.registerTask('default', [
+		'validate',
+		'build'
+	]);
+	grunt.registerTask('validate', [
+		'jshint',
+		'jscs',
+		'lintspaces'
+	]);
+	grunt.registerTask('build', [
+		'uglify'
+	]);
 };
