@@ -96,7 +96,7 @@
 		HipsterSliderRegistry = {},
 		HipsterSlider = function($el, options) {
 			this.$el = $el;
-			this.options = options;
+			this._options = options;
 			this._init();
 		}
 	;
@@ -264,9 +264,9 @@
 				this._destroyHardware();
 				this._destroyElement();
 
-				this.options = undefined;
+				this._options = undefined;
 				this._id = undefined;
-				delete(this.options);
+				delete(this._options);
 				delete(this._id);
 			}
 		},
@@ -283,17 +283,17 @@
 				item
 			;
 
-			if (tagName === this.options.tagName) {
+			if (tagName === this._options.tagName) {
 				this._preInitStyles = this._preInitStyles || {};
 				this._preInitStyles.element = {
 					attrStyle: this.$el.attr('style')
 				};
 
-				display = $('<div />').addClass(this.options.displayClass);
+				display = $('<div />').addClass(this._options.displayClass);
 				items = this.$el.children();
 
-				if (this.options.initializeMinItems === false &&
-					items.length <= this.options.itemsToDisplay) {
+				if (this._options.initializeMinItems === false &&
+					items.length <= this._options.itemsToDisplay) {
 					return false;
 				}
 
@@ -314,7 +314,7 @@
 				this._items = items;
 				this._itemsAll = items;
 
-				switch (this.options.orientation) {
+				switch (this._options.orientation) {
 					case ORIENTATION_HORIZONTAL:
 						items.css('float','left');
 						break;
@@ -355,12 +355,12 @@
 			this._display.remove();
 
 
-			if (this.options.itemsClasses) {
+			if (this._options.itemsClasses) {
 				this._items
-					.removeClass(this.options.itemsPrevClass)
-					.removeClass(this.options.itemsCurrentClass)
-					.removeClass(this.options.itemsNextClass);
-				this.options.itemsClasses = false;
+					.removeClass(this._options.itemsPrevClass)
+					.removeClass(this._options.itemsCurrentClass)
+					.removeClass(this._options.itemsNextClass);
+				this._options.itemsClasses = false;
 			}
 
 			if (this._preInitStyles.items.length > 0) {
@@ -391,7 +391,7 @@
 		/* ------------------------------------------------------------------ */
 
 		_initHardware: function() {
-			if (this.options.useHardware) {
+			if (this._options.useHardware) {
 				var
 					css = {},
 					key,
@@ -441,7 +441,7 @@
 		},
 
 		_destroyHardware: function() {
-			if (this.options.useHardware) {
+			if (this._options.useHardware) {
 				if (this._hasHardware) {
 					delete(this._hasHardware);
 					delete(this._cssTransformKey);
@@ -455,26 +455,26 @@
 
 		_initButtons: function() {
 			/* Buttons must be active and there mast be at least more than one page to show */
-			if (this.options.buttons === true && this._numElements - this.options.itemsToDisplay > 0) {
+			if (this._options.buttons === true && this._numElements - this._options.itemsToDisplay > 0) {
 				var
 					self = this,
-					prevButton = $('<a href="#" class="'+ this.options.buttonsClass +' '+ this.options.buttonPrevClass +'">'+ this.options.buttonPrevLabel +'</a>'),
-					nextButton = $('<a href="#" class="'+ this.options.buttonsClass +' '+ this.options.buttonNextClass +'">'+ this.options.buttonNextLabel +'</a>'),
+					prevButton = $('<a href="#" class="'+ this._options.buttonsClass +' '+ this._options.buttonPrevClass +'">'+ this._options.buttonPrevLabel +'</a>'),
+					nextButton = $('<a href="#" class="'+ this._options.buttonsClass +' '+ this._options.buttonNextClass +'">'+ this._options.buttonNextLabel +'</a>'),
 					buttons = $([]).add(prevButton).add(nextButton),
 					buttonsTarget
 				;
 
-				if (this.options.buttonsWrap) {
-					buttons = $('<div class="'+ this.options.buttonsWrapClass +'" />').append(buttons);
+				if (this._options.buttonsWrap) {
+					buttons = $('<div class="'+ this._options.buttonsWrapClass +'" />').append(buttons);
 				}
 
 
 				//Define target for buttons:
-				buttonsTarget = $(this.options.buttonTargetSelector);
+				buttonsTarget = $(this._options.buttonTargetSelector);
 				buttonsTarget = (buttonsTarget.length > 0) ? buttonsTarget : this._display;
 
 				//Use insertion-method:
-				switch (this.options.buttonTargetInsertionMethod) {
+				switch (this._options.buttonTargetInsertionMethod) {
 					case METHOD_PREPEND:
 						buttonsTarget.prepend(buttons);
 						break;
@@ -517,12 +517,12 @@
 
 				this.applyButtons();
 			} else {
-				this.options.buttons = false;
+				this._options.buttons = false;
 			}
 		},
 
 		_destroyButtons: function() {
-			if (this.options.buttons) {
+			if (this._options.buttons) {
 				this._buttonPrev.unbind('click.'+ NAMESPACE);
 				this._buttonNext.unbind('click.'+ NAMESPACE);
 				this._buttonsAll.remove();
@@ -530,7 +530,7 @@
 				delete(this._buttonPrev);
 				delete(this._buttonNext);
 				delete(this._buttonsAll);
-				this.options.buttons = false;
+				this._options.buttons = false;
 			}
 		},
 
@@ -539,10 +539,10 @@
 
 		_initPager: function() {
 			/* Pagers must be active */
-			if (this.options.pager) {
+			if (this._options.pager) {
 				var
 					self = this,
-					wrapPager = $('<ol class="'+ this.options.pagerWrapClass +'" />'),
+					wrapPager = $('<ol class="'+ this._options.pagerWrapClass +'" />'),
 					wrapPagerTarget,
 					clickHandler = function(event) {
 						event.preventDefault();
@@ -555,19 +555,19 @@
 				;
 
 				//Create pagers:
-				for (count = 1; count <= this._numElements - this.options.itemsToDisplay + 1; count++) {
-					page = $('<li class="'+ this.options.pagerClass +'"><a href="#">'+ count +'</a></li>')
+				for (count = 1; count <= this._numElements - this._options.itemsToDisplay + 1; count++) {
+					page = $('<li class="'+ this._options.pagerClass +'"><a href="#">'+ count +'</a></li>')
 						.data('index', count - 1)
 						.appendTo(wrapPager)
 						.bind('click.'+ NAMESPACE, clickHandler);
 				}
 
 				//Define target for pager:
-				wrapPagerTarget = $(this.options.pagerTargetSelector);
+				wrapPagerTarget = $(this._options.pagerTargetSelector);
 				wrapPagerTarget = (wrapPagerTarget.length > 0) ? wrapPagerTarget : this._display;
 
 				//Use insertion-method:
-				switch (this.options.pagerTargetInsertionMethod) {
+				switch (this._options.pagerTargetInsertionMethod) {
 					case METHOD_PREPEND:
 						wrapPagerTarget.prepend(wrapPager);
 						break;
@@ -592,17 +592,17 @@
 				this.applyPaging();
 
 			} else {
-				this.options.pager = false;
+				this._options.pager = false;
 			}
 		},
 
 		_destroyPager: function() {
-			if (this.options.pager) {
-				this._displayPager.find('.'+ this.options.pagerClass).unbind('click.'+ NAMESPACE);
+			if (this._options.pager) {
+				this._displayPager.find('.'+ this._options.pagerClass).unbind('click.'+ NAMESPACE);
 				this._displayPager.remove();
 
 				delete(this._displayPager);
-				this.options.pager = false;
+				this._options.pager = false;
 			}
 		},
 
@@ -610,10 +610,10 @@
 		/* ------------------------------------------------------------------ */
 
 		_initBiglink: function() {
-			if (this.options.biglink === true && typeof this.options.biglinkClass === 'string') {
+			if (this._options.biglink === true && typeof this._options.biglinkClass === 'string') {
 				var
 					self = this,
-					biglinks = this.$el.find('.'+ this.options.biglinkClass),
+					biglinks = this.$el.find('.'+ this._options.biglinkClass),
 					biglink
 				;
 
@@ -645,7 +645,7 @@
 		},
 
 		_destroyBiglink: function() {
-			if (this.options.biglink === true && typeof this.options.biglinkClass === 'string') {
+			if (this._options.biglink === true && typeof this._options.biglinkClass === 'string') {
 				var
 					biglinkData,
 					index
@@ -670,14 +670,14 @@
 		/* ------------------------------------------------------------------ */
 
 		_initSiteClasses: function() {
-			if (this.options.siteClasses) {
-				this._siteClassesActive = this.options.siteClassesClass + (this._position + 1);
+			if (this._options.siteClasses) {
+				this._siteClassesActive = this._options.siteClassesClass + (this._position + 1);
 				this.applySiteClasses();
 			}
 		},
 
 		_destroySiteClasses: function() {
-			if (this.options.siteClasses) {
+			if (this._options.siteClasses) {
 				this._display.parent().removeClass(this._siteClassesActive);
 				this._siteClassesActive = undefined;
 				delete(this._siteClassesActive);
@@ -690,21 +690,21 @@
 		_initAutoplay: function(index) {
 			var self = this;
 			/* Autoplay must be active and there mast be at least more than one page to show */
-			if (this.options.autoplay === true && this._numElements - this.options.itemsToDisplay > 0) {
-				index = (this.options.autoplayDelayQueued) ? index : 1;
+			if (this._options.autoplay === true && this._numElements - this._options.itemsToDisplay > 0) {
+				index = (this._options.autoplayDelayQueued) ? index : 1;
 				index = index ? index : 0;
 
 				window.setTimeout(function() {
 					self.autoplay();
-				}, this.options.autoplayPause + (index * this.options.autoplayDelay));
+				}, this._options.autoplayPause + (index * this._options.autoplayDelay));
 			} else {
-				this.options.autoplay = false;
+				this._options.autoplay = false;
 			}
 		},
 
 		_destroyAutoplay: function() {
-			if (this.options.autoplay) {
-				this.stopAutoplay(this.options);
+			if (this._options.autoplay) {
+				this.stopAutoplay(this._options);
 			}
 		},
 
@@ -713,7 +713,7 @@
 
 		_initInfinite: function() {
 			/* Infinite must be active and there mast be at least more than one page to show */
-			if (this.options.infinite === true && this._numElements - this.options.itemsToDisplay > 0) {
+			if (this._options.infinite === true && this._numElements - this._options.itemsToDisplay > 0) {
 				var
 					preItem = this._items.eq(0),
 					postItem = this._items.eq(this._numElements - 1),
@@ -725,14 +725,14 @@
 					cssFloat
 				;
 
-				for (counter = 0; counter < this.options.itemsToDisplay; counter++) {
+				for (counter = 0; counter < this._options.itemsToDisplay; counter++) {
 					preCloneIndex = this._numElements - 1 - counter;
 					preClone = this._items.eq(preCloneIndex).clone();
 
 					postCloneIndex = counter;
 					postClone = this._items.eq(postCloneIndex).clone();
 
-					cssFloat = (this.options.orientation === ORIENTATION_HORIZONTAL) ? 'left' : 'none';
+					cssFloat = (this._options.orientation === ORIENTATION_HORIZONTAL) ? 'left' : 'none';
 					postClone.css({cssFloat: cssFloat}).addClass('clone post').insertAfter(postItem);
 					preClone.css({cssFloat: cssFloat}).addClass('clone pre').insertBefore(preItem);
 
@@ -757,12 +757,12 @@
 				}
 
 			} else {
-				this.options.infinite = false;
+				this._options.infinite = false;
 			}
 		},
 
 		_destroyInfinite: function() {
-			if (this.options.infinite) {
+			if (this._options.infinite) {
 				this._itemsPre.remove();
 				this._itemsPost.remove();
 
@@ -772,7 +772,7 @@
 				delete(this._itemsPre);
 				delete(this._itemsPost);
 
-				this.options.infinite = false;
+				this._options.infinite = false;
 			}
 		},
 
@@ -780,7 +780,7 @@
 		/* ------------------------------------------------------------------ */
 
 		_initSelected: function() {
-			var selected = this._items.filter('.'+ this.options.selectedClass);
+			var selected = this._items.filter('.'+ this._options.selectedClass);
 			if (selected.length > 0) {
 				this._position = this._items.index(selected.get(0));
 			}
@@ -790,7 +790,7 @@
 		/* ------------------------------------------------------------------ */
 
 		_initAutoresize: function() {
-			if (this.options.autoresize) {
+			if (this._options.autoresize) {
 				var self = this;
 				$(window).bind('resize.'+ NAMESPACE, function() {
 					self.refreshSize();
@@ -799,9 +799,9 @@
 		},
 
 		_destroyAutoresize: function() {
-			if (this.options.autoresize) {
+			if (this._options.autoresize) {
 				$(window).unbind('resize.'+ NAMESPACE);
-				this.options.autoresize = false;
+				this._options.autoresize = false;
 			}
 		},
 
@@ -809,7 +809,7 @@
 		/* ------------------------------------------------------------------ */
 
 		_initTouch: function() {
-			if (this.options.touch) {
+			if (this._options.touch) {
 				var
 					self = this,
 					doc = $(document),
@@ -850,19 +850,19 @@
 
 				onMouseMove = function(event) {
 					var
-						tolerance = self.options.touchDirectionTolerance * (2 - getViewportScale()),
+						tolerance = self._options.touchDirectionTolerance * (2 - getViewportScale()),
 						reachedHorizontalTolerance,
 						reachedVerticalTolerance
 					;
 
-					self.options.autoplay = false;
+					self._options.autoplay = false;
 					baseEvent = (event.originalEvent.touches) ? event.originalEvent.touches[0] : event.originalEvent;
 
 					diffX = baseEvent.pageX - startX;
 					diffY = baseEvent.pageY - startY;
 
-					reachedHorizontalTolerance = (self.options.orientation === ORIENTATION_HORIZONTAL && Math.abs(diffX) < tolerance);
-					reachedVerticalTolerance = (self.options.orientation === ORIENTATION_VERTICAL && Math.abs(diffY) < tolerance);
+					reachedHorizontalTolerance = (self._options.orientation === ORIENTATION_HORIZONTAL && Math.abs(diffX) < tolerance);
+					reachedVerticalTolerance = (self._options.orientation === ORIENTATION_VERTICAL && Math.abs(diffY) < tolerance);
 
 					if (!isToleranceReched && (reachedHorizontalTolerance || reachedVerticalTolerance)) {
 						return;
@@ -875,7 +875,7 @@
 					event.preventDefault();
 					event.stopPropagation();
 
-					switch (self.options.orientation) {
+					switch (self._options.orientation) {
 						case ORIENTATION_HORIZONTAL:
 							self._setPosition({left: posX + diffX, duration: 75}, true);
 							break;
@@ -887,10 +887,10 @@
 				};
 
 				onMouseLeave = function() {
-					diffAbs = Math.abs((self.options.orientation === ORIENTATION_HORIZONTAL) ? diffX : diffY);
-					direction = (self.options.orientation === ORIENTATION_HORIZONTAL) ? -diffX / diffAbs : -diffY / diffAbs;
+					diffAbs = Math.abs((self._options.orientation === ORIENTATION_HORIZONTAL) ? diffX : diffY);
+					direction = (self._options.orientation === ORIENTATION_HORIZONTAL) ? -diffX / diffAbs : -diffY / diffAbs;
 
-					if (diffAbs > self.options.touchTolerance) {
+					if (diffAbs > self._options.touchTolerance) {
 						self._playing = false;
 						self.slideTo(direction);
 					} else {
@@ -911,7 +911,7 @@
 		},
 
 		_destroyTouch: function() {
-			if (this.options.touch) {
+			if (this._options.touch) {
 				this._itemsAll
 					.unbind('mousedown.'+ NAMESPACE)
 					.unbind('mousemove.'+ NAMESPACE)
@@ -927,7 +927,7 @@
 				this.$el.find('img, a')
 					.unbind('dragstart.'+ NAMESPACE);
 
-				this.options.touch = false;
+				this._options.touch = false;
 			}
 		},
 
@@ -944,7 +944,7 @@
 
 		slideTo: function(direction) {
 			if (this.initialized === true && !this._playing) {
-				direction = direction * this.options.itemsToScroll;
+				direction = direction * this._options.itemsToScroll;
 				this._position = this._position + direction;
 				this.applyPosition();
 			}
@@ -964,19 +964,19 @@
 				this._position = position;
 			}
 
-			if (!this.options.infinite) {
+			if (!this._options.infinite) {
 				if (this._position < 0) {
 					this._position = 0;
-				} else if (this._position > this._numElements - this.options.itemsToDisplay) {
-					this._position = this._numElements - this.options.itemsToDisplay;
+				} else if (this._position > this._numElements - this._options.itemsToDisplay) {
+					this._position = this._numElements - this._options.itemsToDisplay;
 				}
 			} else {
 				//Detect Offset for infinite loops:
-				infiniteOffset = ((this.options.orientation === ORIENTATION_HORIZONTAL) ? this._itemWidth : this._itemHeight) * this.options.itemsToDisplay * -1;
+				infiniteOffset = ((this._options.orientation === ORIENTATION_HORIZONTAL) ? this._itemWidth : this._itemHeight) * this._options.itemsToDisplay * -1;
 			}
 
 			//Calculate new Positions:
-			if (this.options.orientation === ORIENTATION_HORIZONTAL) {
+			if (this._options.orientation === ORIENTATION_HORIZONTAL) {
 				newPositionX = (this._position * this._itemWidth * -1) + infiniteOffset;
 			} else {
 				newPositionY = (this._position * this._itemHeight * -1) + infiniteOffset;
@@ -986,11 +986,11 @@
 			this._setPosition({
 				left: newPositionX,
 				top: newPositionY,
-				duration: this.options.duration
+				duration: this._options.duration
 			}, animated, function() {
-				if (self.options.infinite) {
-					if (self._position < -(self.options.itemsToDisplay - self.options.itemsToScroll)) {
-						self.applyPosition(self._numElements - self.options.itemsToDisplay, false);
+				if (self._options.infinite) {
+					if (self._position < -(self._options.itemsToDisplay - self._options.itemsToScroll)) {
+						self.applyPosition(self._numElements - self._options.itemsToDisplay, false);
 					}
 					if (self._position >= self._numElements) {
 						self.applyPosition(0, false);
@@ -1009,63 +1009,63 @@
 				this.applyPaging();
 			}
 
-			if (typeof this.options.onUpdate === 'function') {
-				this.options.onUpdate(this.$el);
+			if (typeof this._options.onUpdate === 'function') {
+				this._options.onUpdate(this.$el);
 			}
 		},
 
 		autoplay: function() {
-			if (this.options.autoplay) {
+			if (this._options.autoplay) {
 				var self = this;
-				this.slideTo(this.options.autoplayDirection);
+				this.slideTo(this._options.autoplayDirection);
 				window.setTimeout(function() {
 					self.autoplay();
-				}, this.options.autoplayPause);
+				}, this._options.autoplayPause);
 			}
 		},
 
 		stopAutoplay: function() {
-			this.options.autoplay = false;
+			this._options.autoplay = false;
 		},
 
 		applyButtons: function() {
-			if (this.options.buttons) {
+			if (this._options.buttons) {
 				if (typeof this._buttonPrev !== 'undefined') {
-					this._buttonPrev.removeClass(this.options.buttonDisabledClass);
-					if (this._position <= 0 && !this.options.infinite) {
-						this._buttonPrev.addClass(this.options.buttonDisabledClass);
+					this._buttonPrev.removeClass(this._options.buttonDisabledClass);
+					if (this._position <= 0 && !this._options.infinite) {
+						this._buttonPrev.addClass(this._options.buttonDisabledClass);
 					}
 				}
 
 				if (typeof this._buttonNext !== 'undefined') {
-					this._buttonNext.removeClass(this.options.buttonDisabledClass);
-					if (this._position >= this._numElements - this.options.itemsToDisplay && !this.options.infinite) {
-						this._buttonNext.addClass(this.options.buttonDisabledClass);
+					this._buttonNext.removeClass(this._options.buttonDisabledClass);
+					if (this._position >= this._numElements - this._options.itemsToDisplay && !this._options.infinite) {
+						this._buttonNext.addClass(this._options.buttonDisabledClass);
 					}
 				}
 			}
 		},
 
 		applyPaging: function() {
-			if (this.options.pager === true && this._displayPager) {
+			if (this._options.pager === true && this._displayPager) {
 				this._displayPager
-					.children('.'+ this.options.pagerSelectedClass)
-					.removeClass(this.options.pagerSelectedClass);
+					.children('.'+ this._options.pagerSelectedClass)
+					.removeClass(this._options.pagerSelectedClass);
 
 				this._displayPager
 					.children()
 					.eq(this._position)
-					.addClass(this.options.pagerSelectedClass);
+					.addClass(this._options.pagerSelectedClass);
 			}
 		},
 
 		applySiteClasses: function() {
-			if (this.options.siteClasses) {
+			if (this._options.siteClasses) {
 				this._display
 					.parent()
 					.removeClass(this._siteClassesActive);
 
-				this._siteClassesActive = this.options.siteClassesClass + (this._position + 1);
+				this._siteClassesActive = this._options.siteClassesClass + (this._position + 1);
 
 				this._display
 					.parent()
@@ -1074,7 +1074,7 @@
 		},
 
 		applyItemClasses: function() {
-			if (this.options.itemsClasses) {
+			if (this._options.itemsClasses) {
 				var
 					self = this,
 					item,
@@ -1085,61 +1085,61 @@
 				//General items:
 				this._items.each(function(index) {
 					item = $(this);
-					if (index < self._position && !item.hasClass(self.options.itemsPrevClass)) {
-						item.removeClass(self.options.itemsCurrentClass)
-							.removeClass(self.options.itemsNextClass)
-							.addClass(self.options.itemsPrevClass);
-					} else if (index === self._position && !item.hasClass(self.options.itemsCurrentClass)) {
-						item.removeClass(self.options.itemsPrevClass)
-							.removeClass(self.options.itemsNextClass)
-							.addClass(self.options.itemsCurrentClass);
-					} else if (index > self._position && !item.hasClass(self.options.itemsNextClass)) {
-						item.removeClass(self.options.itemsCurrentClass)
-							.removeClass(self.options.itemsPrevClass)
-							.addClass(self.options.itemsNextClass);
+					if (index < self._position && !item.hasClass(self._options.itemsPrevClass)) {
+						item.removeClass(self._options.itemsCurrentClass)
+							.removeClass(self._options.itemsNextClass)
+							.addClass(self._options.itemsPrevClass);
+					} else if (index === self._position && !item.hasClass(self._options.itemsCurrentClass)) {
+						item.removeClass(self._options.itemsPrevClass)
+							.removeClass(self._options.itemsNextClass)
+							.addClass(self._options.itemsCurrentClass);
+					} else if (index > self._position && !item.hasClass(self._options.itemsNextClass)) {
+						item.removeClass(self._options.itemsCurrentClass)
+							.removeClass(self._options.itemsPrevClass)
+							.addClass(self._options.itemsNextClass);
 					}
 				});
 
 
 				//Pre and Post items:
-				if (this.options.infinite) {
+				if (this._options.infinite) {
 					//Preitems:
-					if (this._position < -(this.options.itemsToDisplay - this.options.itemsToScroll)) {
-						from = this._numElements - this.options.itemsToDisplay;
+					if (this._position < -(this._options.itemsToDisplay - this._options.itemsToScroll)) {
+						from = this._numElements - this._options.itemsToDisplay;
 						to = this._numElements;
 						if (from >= 0 && from < this._numElements) {
 							this._items.slice(from, to)
-								.removeClass(this.options.itemsPrevClass)
-								.removeClass(this.options.itemsNextClass)
-								.addClass(this.options.itemsCurrentClass);
+								.removeClass(this._options.itemsPrevClass)
+								.removeClass(this._options.itemsNextClass)
+								.addClass(this._options.itemsCurrentClass);
 						}
 
 						this._itemsPre
-							.removeClass(this.options.itemsPrevClass)
-							.addClass(this.options.itemsCurrentClass);
+							.removeClass(this._options.itemsPrevClass)
+							.addClass(this._options.itemsCurrentClass);
 					} else {
 						this._itemsPre
-						.removeClass(this.options.itemsCurrentClass)
-						.addClass(this.options.itemsPrevClass);
+						.removeClass(this._options.itemsCurrentClass)
+						.addClass(this._options.itemsPrevClass);
 					}
 
 					//Postitems:
 					if (this._position >= this._numElements) {
 						from = 0;
-						to = this.options.itemsToDisplay;
+						to = this._options.itemsToDisplay;
 						if (to < this._numElements) {
 							this._items.slice(from, to)
-								.removeClass(this.options.itemsPrevClass)
-								.removeClass(this.options.itemsNextClass)
-								.addClass(this.options.itemsCurrentClass);
+								.removeClass(this._options.itemsPrevClass)
+								.removeClass(this._options.itemsNextClass)
+								.addClass(this._options.itemsCurrentClass);
 						}
 						this._itemsPost
-							.removeClass(this.options.itemsNextClass)
-							.addClass(this.options.itemsCurrentClass);
+							.removeClass(this._options.itemsNextClass)
+							.addClass(this._options.itemsCurrentClass);
 					} else {
 						this._itemsPost
-							.removeClass(this.options.itemsCurrentClass)
-							.addClass(this.options.itemsNextClass);
+							.removeClass(this._options.itemsCurrentClass)
+							.addClass(this._options.itemsNextClass);
 					}
 				}
 			}
@@ -1154,16 +1154,16 @@
 			//Calculate width:
 			width = this._display.parent().width();
 
-			if (this.options.orientation === ORIENTATION_HORIZONTAL) {
-				this._itemsAll.width((this.options.width || width) / this.options.itemsToDisplay);
-				this.$el.width(this._itemsAll.length * ((this.options.width || width) / this.options.itemsToDisplay));
+			if (this._options.orientation === ORIENTATION_HORIZONTAL) {
+				this._itemsAll.width((this._options.width || width) / this._options.itemsToDisplay);
+				this.$el.width(this._itemsAll.length * ((this._options.width || width) / this._options.itemsToDisplay));
 			} else {
-				this._itemsAll.width(this.options.width || width);
-				this.$el.width(this._itemsAll.length * (this.options.width || width));
+				this._itemsAll.width(this._options.width || width);
+				this.$el.width(this._itemsAll.length * (this._options.width || width));
 			}
 
 			//Reset height forvertical elements:
-			if (this.options.orientation === ORIENTATION_VERTICAL) {
+			if (this._options.orientation === ORIENTATION_VERTICAL) {
 				this._itemsAll.height('auto');
 			}
 
@@ -1173,19 +1173,19 @@
 			});
 
 			//Store and apply values:
-			if (this.options.orientation === ORIENTATION_HORIZONTAL) {
-				this._itemWidth = (this.options.width || width) / this.options.itemsToDisplay;
-				this._itemHeight = this.options.height || height;
+			if (this._options.orientation === ORIENTATION_HORIZONTAL) {
+				this._itemWidth = (this._options.width || width) / this._options.itemsToDisplay;
+				this._itemHeight = this._options.height || height;
 				this._display
-							.width(this.options.width || width)
-							.height(this.options.height || height);
+							.width(this._options.width || width)
+							.height(this._options.height || height);
 			} else {
-				this._itemsAll.height(this.options.height || height);
-				this._itemWidth = this.options.width || width;
-				this._itemHeight = this.options.height || height;
+				this._itemsAll.height(this._options.height || height);
+				this._itemWidth = this._options.width || width;
+				this._itemHeight = this._options.height || height;
 				this._display
-							.width(this.options.width || width)
-							.height((this.options.height || height * this.options.itemsToDisplay));
+							.width(this._options.width || width)
+							.height((this._options.height || height * this._options.itemsToDisplay));
 			}
 
 			this.applyPosition(undefined, false);
@@ -1193,6 +1193,10 @@
 
 		getId: function() {
 			return this._id;
+		},
+
+		getOptions: function() {
+			return this._options;
 		},
 
 		_getPosition: function() {
@@ -1249,7 +1253,7 @@
 			}
 
 			if (properties.duration === undefined) {
-				properties.duration = this.options.duration;
+				properties.duration = this._options.duration;
 			}
 
 			if (this._hasHardware) {
@@ -1372,7 +1376,7 @@
 		options: function() {
 			var instance = getInstance($(this));
 			if (typeof instance === 'object') {
-				return instance.options;
+				return instance.getOptions();
 			} else {
 				return null;
 			}
