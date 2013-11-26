@@ -56,6 +56,12 @@
 			buttonDisabledClass: 'disabled',			/* classname as indicator for a not available scrolling */
 			buttonTargetSelector: undefined,			/* if set, the buttons will be placed into the defined selector */
 			buttonTargetInsertionMethod: METHOD_DEFAULT,/* possible variants: append, prepend, replace, insertAfter, insertBefore. Better see the public constants such as $.hipsterSlider.METHOD_APPEND etc. */
+			buttonTemplate: function(data) {			/* default function which contains a button template */
+				return '<a href="#" class="'+
+							data.buttonClass +' '+
+							data.itemClass+
+						'">'+ data.label +'</a>';
+			},
 
 			pager: false,								/* activates paging buttons */
 			pagerWrapClass: 'pager-buttons',			/* classname for the ul list of the pagers */
@@ -136,8 +142,7 @@
 	/* @param p		is the requested css-property
 	/* @param rp	defines if the requested property is returned or a
 	/*				boolean should be the result
-	/* @param t		overrides the target element
-	/* */
+	/* @param t		overrides the target element */
 	function hasCssProperty(p, rp, t) {
 		var
 			b = (t) ? t : (document.body || document.documentElement),
@@ -186,6 +191,20 @@
 		;
 
 		return clientWidth / documentWidth;
+	}
+
+	/* Does the same as $.proxy(). To support older versions of jQuery this
+	/* implementation is used in this plugin.
+	/*
+	/* @param method	function which sould called in given scope
+	/* @param scope		scope in which the function is called
+	/* @return			a proxy function */
+	function proxy(method, scope) {
+		return function() {
+			if (typeof method === 'function') {
+				method.apply(scope, arguments);
+			}
+		};
 	}
 
 
@@ -451,6 +470,9 @@
 		},
 
 		/* Buttons
+		/*
+		/* Feature for the next and previous button to slide to the next
+		/* or previous slider item.
 		/* ------------------------------------------------------------------ */
 
 		_initButtons: function() {
@@ -458,16 +480,30 @@
 			if (this._options.buttons === true && this._numElements - this._options.itemsToDisplay > 0) {
 				var
 					self = this,
-					prevButton = $('<a href="#" class="'+ this._options.buttonsClass +' '+ this._options.buttonPrevClass +'">'+ this._options.buttonPrevLabel +'</a>'),
-					nextButton = $('<a href="#" class="'+ this._options.buttonsClass +' '+ this._options.buttonNextClass +'">'+ this._options.buttonNextLabel +'</a>'),
-					buttons = $([]).add(prevButton).add(nextButton),
+					prevButton,
+					nextButton,
+					buttons,
 					buttonsTarget
 				;
+
+				//Render Buttons:
+				nextButton = $(this._options.buttonTemplate({
+					buttonClass: this._options.buttonsClass,
+					itemClass: this._options.buttonNextClass,
+					label: this._options.buttonNextLabel
+				}));
+
+				prevButton = $(this._options.buttonTemplate({
+					buttonClass: this._options.buttonsClass,
+					itemClass: this._options.buttonPrevClass,
+					label: this._options.buttonPrevLabel
+				}));
+
+				buttons = $([]).add(prevButton).add(nextButton);
 
 				if (this._options.buttonsWrap) {
 					buttons = $('<div class="'+ this._options.buttonsWrapClass +'" />').append(buttons);
 				}
-
 
 				//Define target for buttons:
 				buttonsTarget = $(this._options.buttonTargetSelector);
@@ -496,28 +532,34 @@
 				}
 
 				//Create Events:
-				prevButton
-					.bind('click.'+ NAMESPACE, function(event) {
-						event.preventDefault();
-						self.slideTo(-1);
-						self.stopAutoplay();
-					});
-
-
-				nextButton
-					.bind('click.'+ NAMESPACE, function(event) {
-						event.preventDefault();
-						self.slideTo(+1);
-						self.stopAutoplay();
-					});
+				nextButton.bind('click.'+ NAMESPACE, proxy(this._onClickNext, this));
+				prevButton.bind('click.'+ NAMESPACE, proxy(this._onClickPrevious, this));
 
 				this._buttonPrev = prevButton;
 				this._buttonNext = nextButton;
 				this._buttonsAll = buttons;
 
-				this.applyButtons();
+				this._updateButtons();
 			} else {
 				this._options.buttons = false;
+			}
+		},
+
+		_updateButtons: function() {
+			if (this._options.buttons) {
+				if (typeof this._buttonPrev !== 'undefined') {
+					this._buttonPrev.removeClass(this._options.buttonDisabledClass);
+					if (this._position <= 0 && !this._options.infinite) {
+						this._buttonPrev.addClass(this._options.buttonDisabledClass);
+					}
+				}
+
+				if (typeof this._buttonNext !== 'undefined') {
+					this._buttonNext.removeClass(this._options.buttonDisabledClass);
+					if (this._position >= this._numElements - this._options.itemsToDisplay && !this._options.infinite) {
+						this._buttonNext.addClass(this._options.buttonDisabledClass);
+					}
+				}
 			}
 		},
 
@@ -532,6 +574,18 @@
 				delete(this._buttonsAll);
 				this._options.buttons = false;
 			}
+		},
+
+		_onClickNext: function(event) {
+			event.preventDefault();
+			this.slideTo(+1);
+			this.stopAutoplay();
+		},
+
+		_onClickPrevious: function(event) {
+			event.preventDefault();
+			this.slideTo(-1);
+			this.stopAutoplay();
 		},
 
 		/* Pager
@@ -1001,7 +1055,7 @@
 			});
 
 			//Update features:
-			this.applyButtons();
+			this._updateButtons();
 			this.applySiteClasses();
 			this.applyItemClasses();
 
@@ -1026,24 +1080,6 @@
 
 		stopAutoplay: function() {
 			this._options.autoplay = false;
-		},
-
-		applyButtons: function() {
-			if (this._options.buttons) {
-				if (typeof this._buttonPrev !== 'undefined') {
-					this._buttonPrev.removeClass(this._options.buttonDisabledClass);
-					if (this._position <= 0 && !this._options.infinite) {
-						this._buttonPrev.addClass(this._options.buttonDisabledClass);
-					}
-				}
-
-				if (typeof this._buttonNext !== 'undefined') {
-					this._buttonNext.removeClass(this._options.buttonDisabledClass);
-					if (this._position >= this._numElements - this._options.itemsToDisplay && !this._options.infinite) {
-						this._buttonNext.addClass(this._options.buttonDisabledClass);
-					}
-				}
-			}
 		},
 
 		applyPaging: function() {
