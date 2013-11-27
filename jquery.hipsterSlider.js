@@ -57,7 +57,10 @@
 			buttonTargetSelector: undefined,			/* if set, the buttons will be placed into the defined selector */
 			buttonTargetInsertionMethod: METHOD_DEFAULT,/* possible variants: append, prepend, replace, insertAfter, insertBefore. Better see the public constants such as $.hipsterSlider.METHOD_APPEND etc. */
 			buttonTemplate: function(data) {			/* default function which contains a button template */
-				return '<a href="#" class="'+ data.buttonClass +' '+ data.itemClass +'">'+ data.label +'</a>';
+				return '<a href="#" class="'+ data.buttonClass +' '+ data.directionClass +'">'+ data.label +'</a>';
+			},
+			buttonWrapTemplate: function(data) {		/* default function which contains a buttons wrapper template */
+				return '<div class="'+ data.buttonsWrapClass +'" />';
 			},
 
 			pager: false,								/* activates paging buttons */
@@ -491,20 +494,22 @@
 				//Render Buttons:
 				nextButton = $(this._options.buttonTemplate({
 					buttonClass: this._options.buttonsClass,
-					itemClass: this._options.buttonNextClass,
+					directionClass: this._options.buttonNextClass,
 					label: this._options.buttonNextLabel
 				}));
 
 				prevButton = $(this._options.buttonTemplate({
 					buttonClass: this._options.buttonsClass,
-					itemClass: this._options.buttonPrevClass,
+					directionClass: this._options.buttonPrevClass,
 					label: this._options.buttonPrevLabel
 				}));
 
 				buttons = $([]).add(prevButton).add(nextButton);
 
 				if (this._options.buttonsWrap) {
-					buttons = $('<div class="'+ this._options.buttonsWrapClass +'" />').append(buttons);
+					buttons = $(this._options.buttonsWrapTemplate({
+						buttonsWrapClass: this._options.buttonsWrapClass
+					})).append(buttons);
 				}
 
 				//Define target for buttons:
