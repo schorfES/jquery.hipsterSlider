@@ -103,6 +103,9 @@
 			useHardware: true							/* defines if the slider should detect css3-hardware-acceleration-features */
 		},
 
+		$document = $(document),
+		$window = $(window),
+
 		jQueryApi,
 		HipsterSliderCounter = 0,
 		HipsterSliderRegistry = {},
@@ -193,7 +196,7 @@
 	function getViewportScale() {
 		var
 			clientWidth = $(window).width(),
-			documentWidth = $(document).width()
+			documentWidth = $document.width()
 		;
 
 		return clientWidth / documentWidth;
@@ -920,7 +923,7 @@
 			if (this._options.touch) {
 				var
 					self = this,
-					doc = $(document),
+					doc = $document,
 					startX, startY,
 					pos, posX, posY,
 					diffX, diffY, diffAbs,
@@ -1028,7 +1031,7 @@
 					.unbind('touchmove.'+ NAMESPACE)
 					.unbind('touchend.'+ NAMESPACE);
 
-				$(document)
+				$document
 					.unbind('mouseup.'+ NAMESPACE)
 					.unbind('touchend.'+ NAMESPACE);
 
