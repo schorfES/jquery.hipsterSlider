@@ -1262,6 +1262,34 @@
 			return this._options;
 		},
 
+		setItemsToDisplay: function(value) {
+			if (typeof value === 'number' &&
+				value !== this._options.itemsToDisplay &&
+				value > 0 &&
+				value <= this._numElements) {
+
+				if (this._options.infinite) {
+					//TODO: add possebility to change value for infinite mode:
+					throw new Error('You can only set "itemsToDisplay" when the option "infinite" is disabled.');
+				}
+
+				// Set value and update slider:
+				this._options.itemsToDisplay = value;
+				this.refreshSize();
+
+				// Update pager:
+				if (this._options.pager) {
+					this._destroyPager();
+					this._options.pager = true; // _destroyPager() resets pageroption...
+					this._initPager();
+				}
+			}
+		},
+
+		getItemsToDisplay: function() {
+			return this._options.itemsToDisplay;
+		},
+
 		_getPosition: function() {
 			if (this._hasHardware) {
 				var
@@ -1446,34 +1474,30 @@
 		},
 
 		itemsToDisplay: function(value) {
+			var
+				elements = $(this),
+				result = -1
+			;
+
 			if (typeof value === 'number') {
-				return $(this).each(function() {
-					var
-						instance = getInstance($(this)),
-						options = instance.options
-					;
-
-					if (value !== options.itemsToDisplay &&
-						value > 0 && value <= instance._numElements) {
-
-						if (options.infinite) {
-							//TODO: add possebility to change value for infinite mode:
-							throw new Error('You can only set "itemsToDisplay" when the option "infinite" is disabled.');
-						}
-
-						options.itemsToDisplay = value;
-						instance.refreshSize();
-
-						//Update pager:
-						if (options.pager) {
-							instance._destroyPager();
-							options.pager = true; //destroyPager resets pageroption...
-							instance._initPager();
-						}
+				// set value for each element:
+				return elements.each(function() {
+					var instance = getInstance($(this));
+					if (typeof instance === 'object') {
+						instance.setItemsToDisplay(value);
 					}
 				});
 			} else {
-				return $(this).data('sliderOptions').itemsToDisplay;
+				// get value from first element:
+				elements.each(function() {
+					var instance = getInstance($(this));
+					if (typeof instance === 'object') {
+						result = instance.getItemsToDisplay();
+						return false; // stop loop when first instance found
+					}
+				});
+
+				return result;
 			}
 		},
 
