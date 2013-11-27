@@ -1290,6 +1290,10 @@
 			return this._options.itemsToDisplay;
 		},
 
+		hasHardware: function() {
+			return this._hasHardware;
+		},
+
 		_getPosition: function() {
 			if (this._hasHardware) {
 				var
@@ -1391,6 +1395,18 @@
 					$.extend({}, DEFAULTS, options)
 				);
 			});
+		},
+
+		instance: function() {
+			var result = null;
+			$(this).each(function() {
+				result = getInstance($(this));
+				if (result) {
+					return false; // stop loop when first instance found
+				}
+			});
+
+			return result;
 		},
 
 		next: function() {
