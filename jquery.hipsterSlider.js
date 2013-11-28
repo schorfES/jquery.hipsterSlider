@@ -195,7 +195,7 @@
 
 	function getViewportScale() {
 		var
-			clientWidth = $(window).width(),
+			clientWidth = $window.width(),
 			documentWidth = $document.width()
 		;
 
@@ -252,6 +252,8 @@
 		/* _cssTransitionKey: css property including renderprefix for css3 transitions
 		/*
 		/* _preInitStyles: object that stores all styles of modified DOM elements
+		/*
+		/* _touchData: object which stores the current touch actions
 		/* ------------------------------------------------------------------ */
 
 		_init: function() {
@@ -901,13 +903,13 @@
 
 		_initAutoresize: function() {
 			if (this._options.autoresize) {
-				$(window).bind('resize.'+ NAMESPACE, proxy(this._onResize, this));
+				$window.bind('resize.'+ NAMESPACE, proxy(this._onResize, this));
 			}
 		},
 
 		_destroyAutoresize: function() {
 			if (this._options.autoresize) {
-				$(window).unbind('resize.'+ NAMESPACE);
+				$window.unbind('resize.'+ NAMESPACE);
 				this._options.autoresize = false;
 			}
 		},
@@ -921,109 +923,24 @@
 
 		_initTouch: function() {
 			if (this._options.touch) {
-				var
-					self = this,
-					doc = $document,
-					startX, startY,
-					pos, posX, posY,
-					diffX, diffY, diffAbs,
-					direction, baseEvent, target,
-					isToleranceReched,
-
-					onMouseDown,
-					onMouseMove,
-					onMouseLeave
-				;
 
 				//Prevent Image and link dragging:
 				this.$el.find('img, a').bind('dragstart.'+ NAMESPACE, function(event) {
 					event.preventDefault();
 				});
 
-				onMouseDown = function(event) {
-					if (!self._playing) {
-						baseEvent = (event.originalEvent.touches) ? event.originalEvent.touches[0] : event.originalEvent;
-						target = $(event.currentTarget);
-
-						pos = self._getPosition();
-						posX = pos.left;
-						posY = pos.top;
-						startX = baseEvent.pageX;
-						startY = baseEvent.pageY;
-						diffX = 0;
-						diffY = 0;
-						isToleranceReched = false;
-
-						target.bind('mousemove.'+ NAMESPACE +' touchmove.'+ NAMESPACE, onMouseMove);
-						self._itemsAll.unbind('mousedown.'+ NAMESPACE +' touchstart.'+ NAMESPACE, onMouseDown);
-					}
-				};
-
-				onMouseMove = function(event) {
-					var
-						tolerance = self._options.touchDirectionTolerance * (2 - getViewportScale()),
-						reachedHorizontalTolerance,
-						reachedVerticalTolerance
-					;
-
-					self._options.autoplay = false;
-					baseEvent = (event.originalEvent.touches) ? event.originalEvent.touches[0] : event.originalEvent;
-
-					diffX = baseEvent.pageX - startX;
-					diffY = baseEvent.pageY - startY;
-
-					reachedHorizontalTolerance = (self._options.orientation === ORIENTATION_HORIZONTAL && Math.abs(diffX) < tolerance);
-					reachedVerticalTolerance = (self._options.orientation === ORIENTATION_VERTICAL && Math.abs(diffY) < tolerance);
-
-					if (!isToleranceReched && (reachedHorizontalTolerance || reachedVerticalTolerance)) {
-						return;
-					} else if (!isToleranceReched) {
-						isToleranceReched = true;
-
-						doc.bind('mouseup.'+ NAMESPACE +' touchend.'+ NAMESPACE, onMouseLeave);
-					}
-
-					event.preventDefault();
-					event.stopPropagation();
-
-					switch (self._options.orientation) {
-						case ORIENTATION_HORIZONTAL:
-							self._setPosition({left: posX + diffX, duration: 75}, true);
-							break;
-						case ORIENTATION_VERTICAL:
-							self._setPosition({top: posY + diffY, duration: 75}, true);
-							break;
-					}
-
-				};
-
-				onMouseLeave = function() {
-					diffAbs = Math.abs((self._options.orientation === ORIENTATION_HORIZONTAL) ? diffX : diffY);
-					direction = (self._options.orientation === ORIENTATION_HORIZONTAL) ? -diffX / diffAbs : -diffY / diffAbs;
-
-					if (diffAbs > self._options.touchTolerance) {
-						self._playing = false;
-						self.slideTo(direction);
-					} else {
-						self._playing = false;
-						self.slideTo(0);
-					}
-
-					target.unbind('mousemove.'+ NAMESPACE +' touchmove.'+ NAMESPACE, onMouseMove);
-					doc.unbind('mouseup.'+ NAMESPACE +' touchend.'+ NAMESPACE, onMouseLeave);
-					self._itemsAll.bind('mousedown.'+ NAMESPACE +' touchstart.'+ NAMESPACE, onMouseDown);
-
-					target = $();
-				};
-
-
-				this._itemsAll.bind('mousedown.'+ NAMESPACE +' touchstart.'+ NAMESPACE, onMouseDown);
+				this._display
+					.bind(
+						'mousedown.'+ NAMESPACE +' '+
+						'touchstart.'+ NAMESPACE,
+						proxy(this._onTouchStart, this)
+					);
 			}
 		},
 
 		_destroyTouch: function() {
 			if (this._options.touch) {
-				this._itemsAll
+				this._display
 					.unbind('mousedown.'+ NAMESPACE)
 					.unbind('mousemove.'+ NAMESPACE)
 					.unbind('mouseup.'+ NAMESPACE)
@@ -1040,6 +957,182 @@
 
 				this._options.touch = false;
 			}
+		},
+
+		_getTouchBaseEvent: function(event) {
+			if (event.originalEvent.touches) {
+				return event.originalEvent.touches[0];
+			} else {
+				return event.originalEvent;
+			}
+		},
+
+		_onTouchStart: function(event) {
+			if ((!this._playing && this._options.infinite) || !this._options.infinite) {
+
+				var
+					baseEvent = this._getTouchBaseEvent(event),
+					position
+				;
+
+				if (this._options.infinite) {
+					position = this._getPosition();
+				} else {
+					position = this._setPositionCancel(); // Cancel old animations, get current position
+				}
+
+				// Genrate new touchData object:
+				this._touchData = {
+					slider: {
+						left: position.left,
+						top: position.top
+					},
+					start: {
+						left: baseEvent.pageX,
+						top: baseEvent.pageY
+					},
+					difference: {
+						left: 0,
+						top: 0
+					},
+					tolerance: this._options.touchDirectionTolerance * (2 - getViewportScale()),
+					toleranceReached: false
+				};
+
+				// Bind / unbind events:
+				$document
+						.bind(
+							'mouseup.'+ NAMESPACE +' '+
+							'touchend.'+ NAMESPACE,
+							proxy(this._onTouchEnd, this)
+						);
+
+				this._display
+					.bind(
+						'mousemove.'+ NAMESPACE +' '+
+						'touchmove.'+ NAMESPACE,
+						proxy(this._onTouchMove, this)
+					)
+					.unbind(
+						'mousedown.'+ NAMESPACE +' '+
+						'touchstart.'+ NAMESPACE
+					);
+			}
+		},
+
+		_onTouchMove: function(event) {
+			var
+				baseEvent = this._getTouchBaseEvent(event)
+			;
+
+			// Stop autoplay feature to prevent switch on move:
+			this._options.autoplay = false;
+
+			// Calculate new touchData:
+			this._touchData.difference = {
+				left: baseEvent.pageX - this._touchData.start.left,
+				top: baseEvent.pageY - this._touchData.start.top
+			};
+
+			// Check if any tolerance value is reached/exceeded:
+			if (!this._touchData.toleranceReached) {
+				if (this._options.orientation === ORIENTATION_HORIZONTAL) {
+					if (Math.abs(this._touchData.difference.left) < this._touchData.tolerance) {
+						// Tolerance never reached and currently also no reached:
+						// do not continue...
+						return;
+					}
+				} else {
+					if (Math.abs(this._touchData.difference.top) < this._touchData.tolerance) {
+						// Tolerance never reached and currently also no reached:
+						// do not continue...
+						return;
+					}
+				}
+			}
+
+			// When getting to this point, the tolerance is reached, start to animate:
+			if (!this._touchData.toleranceReached) {
+				this._touchData.toleranceReached = true;
+			}
+
+			// Stop default behaviour:
+			event.preventDefault();
+			event.stopPropagation();
+
+			// Aniamte:
+			switch (this._options.orientation) {
+				case ORIENTATION_HORIZONTAL:
+					this._setPosition(
+						{
+							left: this._touchData.slider.left + this._touchData.difference.left,
+							top: 0
+						},
+						false
+					);
+					break;
+				case ORIENTATION_VERTICAL:
+					this._setPosition(
+						{
+							left: 0,
+							top: this._touchData.slider.top + this._touchData.difference.top
+						},
+						false
+					);
+					break;
+			}
+		},
+
+		_onTouchEnd: function() {
+			if (this._touchData.toleranceReached) {
+				var
+					differenceAbs,
+					direction
+				;
+
+				// Calculate scroll direction:
+				if (this._options.orientation === ORIENTATION_HORIZONTAL) {
+					differenceAbs = Math.abs(this._touchData.difference.left);
+					direction = this._touchData.difference.left / differenceAbs;
+				} else {
+					differenceAbs = Math.abs(this._touchData.difference.top);
+					direction = this._touchData.difference.top / differenceAbs;
+				}
+
+				// Set position:
+				if (differenceAbs >= this._options.touchTolerance) {
+					this._playing = false;
+					this.slideTo(direction * -1);
+				} else {
+					this._playing = false;
+					this.slideTo(0);
+				}
+			} else {
+				this._playing = false;
+				this.slideTo(0);
+			}
+
+			// Bind / unbind events:
+			$document
+				.unbind(
+					'mouseup.'+ NAMESPACE +' '+
+					'touchend.'+ NAMESPACE
+				);
+
+			this._display
+				.bind(
+					'mousedown.'+ NAMESPACE +' '+
+					'touchstart.'+ NAMESPACE,
+					proxy(this._onTouchStart, this)
+				)
+				.unbind(
+					'mousemove.'+ NAMESPACE +' '+
+					'touchmove.'+ NAMESPACE
+				);
+
+			// Cleanup touchdata:
+			this._touchData = undefined;
+			delete(this._touchData);
 		},
 
 		/* Controls
@@ -1065,7 +1158,6 @@
 			animated = (typeof animated === 'undefined' || animated);
 
 			var
-				self = this,
 				newPositionX = 0,
 				newPositionY = 0,
 				infiniteOffset = 0
@@ -1098,18 +1190,7 @@
 				left: newPositionX,
 				top: newPositionY,
 				duration: this._options.duration
-			}, animated, function() {
-				if (self._options.infinite) {
-					if (self._position < -(self._options.itemsToDisplay - self._options.itemsToScroll)) {
-						self.applyPosition(self._numElements - self._options.itemsToDisplay, false);
-					}
-					if (self._position >= self._numElements) {
-						self.applyPosition(0, false);
-					}
-
-				}
-				self._updatePagers();
-			});
+			}, animated, proxy(this._applyPositionComplete, this));
 
 			//Update features:
 			this._updateButtons();
@@ -1123,6 +1204,18 @@
 			if (typeof this._options.onUpdate === 'function') {
 				this._options.onUpdate(this.$el);
 			}
+		},
+
+		_applyPositionComplete: function() {
+			if (this._options.infinite) {
+				if (this._position < -(this._options.itemsToDisplay - this._options.itemsToScroll)) {
+					this.applyPosition(this._numElements - this._options.itemsToDisplay, false);
+				} else if (this._position >= this._numElements) {
+					this.applyPosition(0, false);
+				}
+			}
+
+			this._updatePagers();
 		},
 
 		applySiteClasses: function() {
@@ -1355,7 +1448,7 @@
 			}
 
 			if (this._hasHardware) {
-				//Animate:
+				// Animate:
 				if (animated) {
 					this._playing = true;
 					this.$el
@@ -1373,7 +1466,7 @@
 				cssProperties.marginLeft = properties.left || 0;
 				cssProperties.marginTop = properties.top || 0;
 
-				//Animate:
+				// Animate:
 				if (animated) {
 					this._playing = true;
 					this.$el.stop().animate(cssProperties, properties.duration, onCallback);
@@ -1382,6 +1475,24 @@
 					onCallback();
 				}
 			}
+		},
+
+		_setPositionCancel: function() {
+			var position = this._getPosition();
+
+			if (this._playing) {
+				this._playing = false;
+
+				if (this._hasHardware) {
+					this.$el
+						.css(this._cssTransitionKey, '')
+						.css(this._cssTransformKey, 'translate3d('+ (position.left || 0) +'px,'+ (position.top || 0) +'px,0)');
+				} else {
+					this.$el.stop();
+				}
+			}
+
+			return position;
 		}
 
 	});
