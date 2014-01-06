@@ -519,7 +519,7 @@
 
 				//Define target for buttons:
 				buttonsTarget = $(this._options.buttonTargetSelector);
-				buttonsTarget = (buttonsTarget.length > 0) ? buttonsTarget : this._display;
+				buttonsTarget = (typeof this._options.buttonTargetSelector === 'string' && buttonsTarget.length > 0) ? buttonsTarget : this._display;
 
 				//Use insertion-method:
 				switch (this._options.buttonTargetInsertionMethod) {
