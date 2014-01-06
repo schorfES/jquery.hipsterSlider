@@ -800,8 +800,6 @@
 		autoplayContinue: function(delay) {
 			if (this._options.autoplay) {
 				var	duration = this._options.autoplayPause + (delay ? delay : 0);
-
-				this.slideTo(this._options.autoplayDirection);
 				window.setTimeout(proxy(this._onTimeoutAutoplay, this), duration);
 			}
 		},
@@ -817,7 +815,10 @@
 		},
 
 		_onTimeoutAutoplay: function() {
-			this.autoplayContinue();
+			if (this._options.autoplay) {
+				this.slideTo(this._options.autoplayDirection);
+				this.autoplayContinue();
+			}
 		},
 
 		/* Infinite
