@@ -519,7 +519,7 @@
 
 				//Define target for buttons:
 				buttonsTarget = $(this._options.buttonTargetSelector);
-				buttonsTarget = (typeof this._options.buttonTargetSelector === 'string' && buttonsTarget.length > 0) ? buttonsTarget : this._display;
+				buttonsTarget = (buttonsTarget.length > 0) ? buttonsTarget : this._display;
 
 				//Use insertion-method:
 				switch (this._options.buttonTargetInsertionMethod) {
@@ -753,9 +753,34 @@
 			event.preventDefault();
 			event.stopPropagation();
 
-			var link = $(event.currentTarget).find('a').eq(0);
-			if (link.length > 0) {
-				document.location.href = link.attr('href');
+			var link = $(event.currentTarget).find('a').get(0);
+			if (link && typeof link.href === 'string') {
+				switch (link.target) {
+					case '_blank':
+						window.open(link.href);
+						break;
+					case '_parent':
+						if (window.parent && window.parent.parent && window.parent.parent.window && window.parent.parent.window.location !== window.location) {
+							window.parent.parent.window.location = link.href;
+						} else {
+							window.location.href = link.href;
+						}
+						break;
+					case '_top':
+						if (window.top && window.top.location !== window.location) {
+							window.top.location.href = link.href;
+						} else {
+							window.location.href = link.href;
+						}
+						break;
+					default:
+						if (typeof link.target === 'string' && link.target !== '_self') {
+							window.open(link.href, link.target);
+						} else {
+							window.location.href = link.href;
+						}
+						break;
+				}
 			}
 		},
 
