@@ -1595,7 +1595,7 @@
 			} else {
 				instance = getInstance($(this));
 				if (typeof instance === 'object') {
-					return instance.options.position;
+					return instance._position;
 				} else {
 					return -1;
 				}
@@ -1614,7 +1614,7 @@
 		getPosition: function() {
 			var instance = getInstance($(this));
 			if (typeof instance === 'object') {
-				return instance.options.position;
+				return instance._position;
 			} else {
 				return -1;
 			}
