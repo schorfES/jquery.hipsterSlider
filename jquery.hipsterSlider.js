@@ -1109,8 +1109,11 @@
 			}
 		},
 
-		_onTouchEnd: function() {
+		_onTouchEnd: function(event) {
+			this._playing = false;
 			if (this._touchData.toleranceReached) {
+				event.preventDefault();
+
 				var
 					differenceAbs,
 					direction
@@ -1127,14 +1130,11 @@
 
 				// Set position:
 				if (differenceAbs >= this._options.touchTolerance) {
-					this._playing = false;
 					this.slideTo(direction * -1);
 				} else {
-					this._playing = false;
 					this.slideTo(0);
 				}
 			} else {
-				this._playing = false;
 				this.slideTo(0);
 			}
 
@@ -1201,7 +1201,11 @@
 				}
 			} else {
 				//Detect Offset for infinite loops:
-				infiniteOffset = ((this._options.orientation === ORIENTATION_HORIZONTAL) ? this._itemWidth : this._itemHeight) * this._options.itemsToDisplay * -1;
+				if (this._options.orientation === ORIENTATION_HORIZONTAL) {
+					infiniteOffset = this._itemWidth * this._options.itemsToDisplay * -1;
+				} else {
+					infiniteOffset = this._itemHeight * this._options.itemsToDisplay * -1;
+				}
 			}
 
 			//Calculate new Positions:
@@ -1499,13 +1503,33 @@
 				// Animate:
 				if (animated) {
 					this._playing = true;
-					this.$el
-						.css(this._cssTransitionKey, this._cssTransformKey +' '+ (properties.duration / 1000) +'s ease 0s')
-						.one('webkitTransitionEnd mozTransitionEnd msTransitionEnd oTransitionEnd transitionend', onCallback);
+					this.$el.css(this._cssTransitionKey, this._cssTransformKey +' '+ (properties.duration / 1000) +'s ease 0s');
+
+						// Using a css transitionend event ends in some missing
+						// callbacks when the website content is scrolled on a
+						// touch device and the slideshow is also scrolled using
+						// the touch feature.
+						// For this circumstances we use the timeout function...
+						if (this._animationTimeout) {
+							window.clearTimeout(this._animationTimeout);
+						}
+
+						this._animationTimeout = window.setTimeout(function() {
+							self._animationTimeout = undefined;
+							delete(self._animationTimeout);
+
+							// Call callback:
+							if (typeof onCallback === 'function') {
+								onCallback();
+							}
+						}, properties.duration);
 				} else {
-					this.$el
-						.css(this._cssTransitionKey, this._cssTransformKey +' 0s ease 0s');
-					onCallback();
+					this.$el.css(this._cssTransitionKey, this._cssTransformKey +' 0s ease 0s');
+
+					// Call callback:
+					if (typeof onCallback === 'function') {
+						onCallback();
+					}
 				}
 
 				this.$el
@@ -1517,10 +1541,19 @@
 				// Animate:
 				if (animated) {
 					this._playing = true;
-					this.$el.stop().animate(cssProperties, properties.duration, onCallback);
+					this.$el.stop().animate(cssProperties, properties.duration, function() {
+						// Call callback:
+						if (typeof onCallback === 'function') {
+							onCallback();
+						}
+					});
 				} else {
 					this.$el.stop().css(cssProperties);
-					onCallback();
+
+					// Call callback:
+					if (typeof onCallback === 'function') {
+						onCallback();
+					}
 				}
 			}
 		},
