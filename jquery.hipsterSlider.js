@@ -1047,6 +1047,21 @@
 		},
 
 		_onTouchMove: function(event) {
+			// Chrome on android can have an issue with touchmove. On some
+			// devices 'touchcancel' is fired after the first 'touchmove' was
+			// triggered. The device/browser asumes that the user tries to
+			// scroll the page content and stop further touch events
+			// (touchmove, touchend) after canceling
+			// touch gestures (touchcancel event is fired)
+			// To get around this is using event.preventDefault() in this
+			// function, but we only want to stop the default behaviour, when a
+			// concrete tolerance value was reached and as a result of the
+			// reached tolerance it's clear the user wants to scroll the
+			// slideshow and not the page content.
+			//
+			// This issue isn't fixed for android chrome browsers.
+			// See also the bugreport:
+			// https://code.google.com/p/android/issues/detail?id=19827
 			var
 				baseEvent = this._getTouchBaseEvent(event)
 			;
