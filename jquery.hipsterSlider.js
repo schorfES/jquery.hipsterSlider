@@ -1412,6 +1412,28 @@
 			return this._options.itemsToDisplay;
 		},
 
+		setItemsToScroll: function(value) {
+			if (typeof value === 'number' &&
+				value !== this._options.itemsToScroll &&
+				value > 0) {
+
+				// Set value and update slider:
+				this._options.itemsToScroll = value;
+				this.refreshSize();
+
+				// Update pager:
+				if (this._options.pager) {
+					this._destroyPager();
+					this._options.pager = true; // _destroyPager() resets pageroption...
+					this._initPager();
+				}
+			}
+		},
+
+		getItemsToScroll: function() {
+			return this._options.itemsToScroll;
+		},
+
 		hasHardware: function() {
 			return this._hasHardware;
 		},
