@@ -1367,9 +1367,7 @@
 			}
 
 			//Reset height forvertical elements:
-			if (this._options.orientation === ORIENTATION_VERTICAL) {
-				this._itemsAll.height('auto');
-			}
+			this._itemsAll.height('auto');
 
 			//Calculate height:
 			this._itemsAll.each(function() {
@@ -1379,18 +1377,17 @@
 			//Store and apply values:
 			if (this._options.orientation === ORIENTATION_HORIZONTAL) {
 				this._itemWidth = (this._options.width || width) / this._options.itemsToDisplay;
-				this._itemHeight = this._options.height || height;
 				this._display
-							.width(this._options.width || width)
-							.height(this._options.height || height);
+					.width(this._options.width || width)
+					.height(this._options.height || height);
 			} else {
-				this._itemsAll.height(this._options.height || height);
 				this._itemWidth = this._options.width || width;
-				this._itemHeight = this._options.height || height;
 				this._display
-							.width(this._options.width || width)
-							.height((this._options.height || height * this._options.itemsToDisplay));
+					.width(this._options.width || width)
+					.height((this._options.height || height * this._options.itemsToDisplay));
 			}
+			this._itemHeight = this._options.height || height;
+			this._itemsAll.height(this._itemHeight);
 
 			this.applyPosition(undefined, false);
 		},
