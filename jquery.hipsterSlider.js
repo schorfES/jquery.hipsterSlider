@@ -1367,7 +1367,7 @@
 			}
 
 			//Reset height forvertical elements:
-			this._itemsAll.height('auto');
+			this._itemsAll.height('');
 
 			//Calculate height:
 			this._itemsAll.each(function() {
