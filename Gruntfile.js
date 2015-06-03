@@ -30,7 +30,9 @@ module.exports = function(grunt) {
 					'jQuery': true,
 					'$': true,
 					'window': true,
-					'document': true
+					'document': true,
+					'require': true,
+					'define': true
 				},
 				'immed': true,
 				'noarg': true,
