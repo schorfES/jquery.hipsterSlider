@@ -70,7 +70,7 @@
 			buttonTemplate: function(data) {			/* default function which contains a button template */
 				return '<a href="#" class="'+ data.buttonClass +' '+ data.directionClass +'">'+ data.label +'</a>';
 			},
-			buttonWrapTemplate: function(data) {		/* default function which contains a buttons wrapper template */
+			buttonsWrapTemplate: function(data) {		/* default function which contains a buttons wrapper template */
 				return '<div class="'+ data.buttonsWrapClass +'" />';
 			},
 
